@@ -20,10 +20,10 @@ class FlickrPhotos
     /**
      * Gets all photo objects for a specific gallery.
      *
-     * @param    string           $api_key   Arguments to use in the HTTP request.
-     * @param    string/integer   $id     ID gallery for search its photos.
+     * @param    array            $api_key   API rest model value.
+     * @param    string           $id        ID gallery for search its photos.
      *
-     * @return   array/boolean            Returns all photo objects in an array.
+     * @return   array/boolean               Returns all photo objects in an array.
      */
     public function get($api_key, $id)
     {

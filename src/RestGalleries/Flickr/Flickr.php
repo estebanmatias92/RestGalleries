@@ -28,9 +28,11 @@ class Flickr implements ApiGallery
     /**
      * Searches and return all objects with the received values from the API service.
      *
-     * @param    array            $args   Arguments to use in the HTTP request.
+     * @param    array            $api_key      API rest model value.
+     * @param    string           $secret_key   API rest model value.
+     * @param    string           $args         Array of arguments for HTTP API service request.
      *
-     * @return   array/boolean           Returns the galleries found, else returns false.
+     * @return   array/boolean                  Returns the galleries found, else returns false.
      */
     public function get($api_key, $secret_key, $args)
     {
@@ -64,10 +66,12 @@ class Flickr implements ApiGallery
     /**
      * Searches and return a single object with the received values from the API service.
      *
-     * @param    array            $args   Arguments to use in the HTTP request.
-     * @param    string/integer   $id     ID gallery number to search.
+     * @param    string           $api_key      API rest model value.
+     * @param    string           $secret_key   API rest model value.
+     * @param    array            $args         Array of arguments for HTTP API service request.
+     * @param    string/integer   $id           ID gallery number to search.
      *
-     * @return   object/boolean           Returns the gallery found, else returns false.
+     * @return   object/boolean                 Returns the gallery found, else returns false.
      */
     public function find($api_key, $secret_key, $args, $id)
     {
@@ -103,7 +107,7 @@ class Flickr implements ApiGallery
     /**
      * Sets and returns an instance with the new values from raw data object given.
      *
-     * @param    array            $args      Arguments to use in the HTTP request.
+     * @param    array            $api_key   API rest model value.
      * @param    object           $gallery   Raw object data to use.
      *
      * @return   object                      Returns an instance of this object with the properties set.

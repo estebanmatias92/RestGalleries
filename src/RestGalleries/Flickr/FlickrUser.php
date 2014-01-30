@@ -20,10 +20,11 @@ class FlickrUser implements ApiUser
     /**
      * Searchs and returns a specific user.
      *
-     * @param    array            $api_key    Arguments to use in the HTTP request.
-     * @param    string           $username   Username for search the user.
+     * @param    array            $api_key      API rest model value.
+     * @param    string           $secret_key   API rest model value.
+     * @param    string           $username     Username for search the user.
      *
-     * @return   object                       Returns the user when find him, else returns false.
+     * @return   object                         Returns the user when find him, else returns false.
      */
     public function findByUsername($api_key, $secret_key, $username)
     {
@@ -53,10 +54,10 @@ class FlickrUser implements ApiUser
     /**
      * Gets the user data from its ID.
      *
-     * @param    string           $api_key   Arguments to use in the HTTP request.
-     * @param    string           $nsid   User ID for search data.
+     * @param    string           $api_key   API rest model value.
+     * @param    string           $id        ser ID for search data.
      *
-     * @return   object                   Raw data object.
+     * @return   object                      Raw data object.
      */
     public function get($api_key, $id)
     {
