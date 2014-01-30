@@ -14,7 +14,7 @@ class FlickrTest extends PHPUnit_Framework_TestCase
 
         $this->assertNotNull($user->realname);
     }
-    /*
+
     public function testAll()
     {
         $args = [
@@ -35,6 +35,6 @@ class FlickrTest extends PHPUnit_Framework_TestCase
         $gallery = Flickr::find($args, '72157633780762609');
 
         $this->assertNotNull($gallery->title);
-    }*/
+    }
 
 }
