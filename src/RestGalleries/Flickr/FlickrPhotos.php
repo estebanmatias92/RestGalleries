@@ -20,12 +20,12 @@ class FlickrPhotos
     /**
      * Gets all photo objects for a specific gallery.
      *
-     * @param    array            $args   Arguments to use in the HTTP request.
+     * @param    string           $api_key   Arguments to use in the HTTP request.
      * @param    string/integer   $id     ID gallery for search its photos.
      *
      * @return   array/boolean            Returns all photo objects in an array.
      */
-    public function get($args, $id)
+    public function get($api_key, $id)
     {
         $client  = new Client($this->rest_url);
         $request = $client->get();
@@ -33,7 +33,7 @@ class FlickrPhotos
 
         $query->set('format', 'json');
         $query->set('nojsoncallback', 1);
-        $query->set('api_key', $args['api_key']);
+        $query->set('api_key', $api_key);
 
         $query->set('method', 'flickr.photosets.getPhotos');
 

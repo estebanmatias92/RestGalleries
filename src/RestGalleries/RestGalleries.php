@@ -49,52 +49,40 @@ abstract class RestGalleries
 
         $api      = $instance->api . "User";
 
-        return $instance->client->findUser(new $api, $instance->getArgs(), $username);
+        return $instance->client->findUser(new $api, $instance->api_key, $instance->secret_key, $username);
     }
 
     /**
      * Orders search to the client facade all existing galleries for a particular user.
      *
+     * @param    array            $args   Array of arguments to pass to the API (like, user_id, password, etc).
+     *
      * @return   object/boolean           Returns the galleries found, else returns false.
      */
-    public static function all()
+    public static function all($args)
     {
         $instance = new static;
 
         $api      = $instance->api;
 
-        return $instance->client->get(new $api, $instance->getArgs());
+        return $instance->client->get(new $api, $instance->api_key, $instance->secret_key, $args);
     }
 
     /**
      * Orders search to the client facade a particular gallery for a particular user.
      *
-     * @param    string/integer   $id   ID gallery number to search.
+     * @param    array            $args   Array of arguments to pass to the API (like, user_id, password, etc).
+     * @param    string/integer   $id     ID gallery number to search.
      *
-     * @return   object/boolean         Returns the gallery found, else returns false.
+     * @return   object/boolean           Returns the gallery found, else returns false.
      */
-    public static function find($id)
+    public static function find($args, $id)
     {
         $instance = new static;
 
         $api      = $instance->api;
 
-        return $instance->client->find(new $api, $instance->getArgs(), $id);
-    }
-
-    /**
-     * Sets and returns the arguments to active-record functions.
-     * I know, so is wrong :/, should do better.
-     *
-     * @return   array           An array with the arguments for the API client.
-     */
-    public function getArgs()
-    {
-        return [
-            'api_key'    => $this->api_key,
-            'secret_key' => $this->secret_key,
-            'user_id'    => $this->user_id,
-        ];
+        return $instance->client->find(new $api, $instance->api_key, $instance->secret_key, $args, $id);
     }
 
     /**
@@ -111,10 +99,10 @@ abstract class RestGalleries
         }
 
         if (preg_match("@\\\\([\w]+)$@", $classname, $matches)) {
-            $classname = $classname . "\\" . $matches[1];
+            $classname = $matches[1];
         }
 
-        return $classname;
+        return __NAMESPACE__ . "\\" . $classname . "\\" . $classname;
     }
 
 }

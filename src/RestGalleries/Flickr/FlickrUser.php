@@ -20,12 +20,12 @@ class FlickrUser implements ApiUser
     /**
      * Searchs and returns a specific user.
      *
-     * @param    array            $args       Arguments to use in the HTTP request.
+     * @param    array            $api_key    Arguments to use in the HTTP request.
      * @param    string           $username   Username for search the user.
      *
      * @return   object                       Returns the user when find him, else returns false.
      */
-    public function findByUsername($args, $username)
+    public function findByUsername($api_key, $secret_key, $username)
     {
         $client  = new Client($this->rest_url);
         $request = $client->get();
@@ -33,7 +33,7 @@ class FlickrUser implements ApiUser
 
         $query->set('format', 'json');
         $query->set('nojsoncallback', 1);
-        $query->set('api_key', $args['api_key']);
+        $query->set('api_key', $api_key);
         $query->set('username', $username);
 
         $query->set('method', 'flickr.people.findByUsername');
@@ -46,19 +46,19 @@ class FlickrUser implements ApiUser
             return false;
         }
 
-        return $this->get($args, $data->user->nsid);
+        return $this->get($api_key, $data->user->nsid);
 
     }
 
     /**
      * Gets the user data from its ID.
      *
-     * @param    array            $args   Arguments to use in the HTTP request.
+     * @param    string           $api_key   Arguments to use in the HTTP request.
      * @param    string           $nsid   User ID for search data.
      *
      * @return   object                   Raw data object.
      */
-    public function get($args, $nsid)
+    public function get($api_key, $id)
     {
         $client  = new Client($this->rest_url);
         $request = $client->get();
@@ -66,8 +66,8 @@ class FlickrUser implements ApiUser
 
         $query->set('format', 'json');
         $query->set('nojsoncallback', 1);
-        $query->set('api_key', $args['api_key']);
-        $query->set('user_id', $nsid);
+        $query->set('api_key', $api_key);
+        $query->set('user_id', $id);
 
         $query->set('method', 'flickr.people.getInfo');
 

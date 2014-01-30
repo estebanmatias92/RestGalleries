@@ -7,7 +7,7 @@ namespace RestGalleries\interfaces;
  */
 interface ApiGallery
 {
-    public function get($args);
-    public function find($args, $id);
+    public function get($api_key, $secret_key, $args);
+    public function find($api_key, $secret_key, $args, $id);
 }
 

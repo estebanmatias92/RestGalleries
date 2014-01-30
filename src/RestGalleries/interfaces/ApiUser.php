@@ -7,6 +7,6 @@ namespace RestGalleries\interfaces;
  */
 interface ApiUser
 {
-    public function findByUsername($args, $username);
+    public function findByUsername($api_key, $secret_key, $username);
 }
 

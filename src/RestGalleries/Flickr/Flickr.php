@@ -32,7 +32,7 @@ class Flickr implements ApiGallery
      *
      * @return   array/boolean           Returns the galleries found, else returns false.
      */
-    public function get($args)
+    public function get($api_key, $secret_key, $args)
     {
         $client  = new Client($this->rest_url);
         $request = $client->get();
@@ -40,7 +40,7 @@ class Flickr implements ApiGallery
 
         $query->set('format', 'json');
         $query->set('nojsoncallback', 1);
-        $query->set('api_key', $args['api_key']);
+        $query->set('api_key', $api_key);
         $query->set('user_id', $args['user_id']);
 
         $query->set('method', 'flickr.photosets.getList');
@@ -54,7 +54,7 @@ class Flickr implements ApiGallery
         $data     = json_decode($body->__toString());
 
         foreach ($data->photosets->photoset as $gallery) {
-            $galleries[] = $this->getObject($args, $gallery);
+            $galleries[] = $this->getObject($api_key, $gallery);
         }
 
         return $galleries;
@@ -69,7 +69,7 @@ class Flickr implements ApiGallery
      *
      * @return   object/boolean           Returns the gallery found, else returns false.
      */
-    public function find($args, $id)
+    public function find($api_key, $secret_key, $args, $id)
     {
         $client  = new Client($this->rest_url);
         $request = $client->get();
@@ -77,7 +77,7 @@ class Flickr implements ApiGallery
 
         $query->set('format', 'json');
         $query->set('nojsoncallback', 1);
-        $query->set('api_key', $args['api_key']);
+        $query->set('api_key', $api_key);
         $query->set('user_id', $args['user_id']);
 
         $query->set('method', 'flickr.photosets.getList');
@@ -92,7 +92,7 @@ class Flickr implements ApiGallery
 
         foreach ($data->photosets->photoset as $gallery) {
             if ($gallery->id == $id) {
-                return $this->getObject($args, $gallery);
+                return $this->getObject($api_key, $gallery);
             }
         }
 
@@ -108,7 +108,7 @@ class Flickr implements ApiGallery
      *
      * @return   object                      Returns an instance of this object with the properties set.
      */
-    private function getObject($args, $gallery)
+    private function getObject($api_key, $gallery)
     {
         $instance              = new self;
         $photos                = new FlickrPhotos;
@@ -118,7 +118,7 @@ class Flickr implements ApiGallery
         $instance->description = $gallery->description->_content;
         //$instance->$url      = 'http://...';
         $instance->published   = date('Y-m-d H:i:s', $gallery->date_create);
-        $instance->photos      = $photos->get($args, $gallery->id);
+        $instance->photos      = $photos->get($api_key, $gallery->id);
         //$instance->category  = $gallery->category;
         //$instance->keywords  = $gallery->keywords;
         $instance->thumbnail   = 'http://farm' . $gallery->farm . '.staticflickr.com/' . $gallery->server . '/' . $gallery->primary . '_' . $gallery->secret . '.jpg';
