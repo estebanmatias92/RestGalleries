@@ -1,0 +1,28 @@
+{
+    "name": "restgalleries/restgalleries",
+    "description": "Is an Client API interface for interact with restful services like Flickr between others image web services.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Matias Esteban",
+            "email": "estebanmatias92@gmail.com"
+        }
+    ],
+
+    "minimum-stability": "dev",
+
+    "require": {
+        "php": ">=5.3.3",
+        "guzzle/guzzle": "dev-master"
+    },
+
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
+    },
+
+    "autoload": {
+        "psr-0": {
+            "RestGalleries": "src/"
+        }
+    }
+}

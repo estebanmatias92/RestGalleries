@@ -1,0 +1,132 @@
+<?php
+
+namespace RestGalleries\Flickr;
+
+use RestGalleries\interfaces\ApiGallery;
+use RestGalleries\Flickr\FlickrPhotos;
+use Guzzle\Http\Client;
+
+/**
+ * An specific API client for interact with Flickr services.
+ * Uses HTTP Client for interact via Restful with the service API.
+ */
+class Flickr implements ApiGallery
+{
+    private $rest_url = 'http://api.flickr.com/services/rest/';
+
+    public $id;
+    public $title;
+    public $description;
+    public $url;
+    public $published;
+    public $photos;
+    public $category;
+    public $keywords;
+    public $thumbnail;
+    public $size;
+
+    /**
+     * Searches and return all objects with the received values from the API service.
+     *
+     * @param    array            $args   Arguments to use in the HTTP request.
+     *
+     * @return   array/boolean           Returns the galleries found, else returns false.
+     */
+    public function get($args)
+    {
+        $client  = new Client($this->rest_url);
+        $request = $client->get();
+        $query   = $request->getQuery();
+
+        $query->set('format', 'json');
+        $query->set('nojsoncallback', 1);
+        $query->set('api_key', $args['api_key']);
+        $query->set('user_id', $args['user_id']);
+
+        $query->set('method', 'flickr.photosets.getList');
+
+        $query->set('page', 'null');
+        $query->set('per_page', 'null');
+        $query->set('primary_photo_extras', 'null');
+
+        $response = $request->send();
+        $body     = $response->getBody();
+        $data     = json_decode($body->__toString());
+
+        foreach ($data->photosets->photoset as $gallery) {
+            $galleries[] = $this->getObject($args, $gallery);
+        }
+
+        return $galleries;
+
+    }
+
+    /**
+     * Searches and return a single object with the received values from the API service.
+     *
+     * @param    array            $args   Arguments to use in the HTTP request.
+     * @param    string/integer   $id     ID gallery number to search.
+     *
+     * @return   object/boolean           Returns the gallery found, else returns false.
+     */
+    public function find($args, $id)
+    {
+        $client  = new Client($this->rest_url);
+        $request = $client->get();
+        $query   = $request->getQuery();
+
+        $query->set('format', 'json');
+        $query->set('nojsoncallback', 1);
+        $query->set('api_key', $args['api_key']);
+        $query->set('user_id', $args['user_id']);
+
+        $query->set('method', 'flickr.photosets.getList');
+
+        $query->set('page', 'null');
+        $query->set('per_page', 'null');
+        $query->set('primary_photo_extras', 'null');
+
+        $response = $request->send();
+        $body     = $response->getBody();
+        $data     = json_decode($body->__toString());
+
+        foreach ($data->photosets->photoset as $gallery) {
+            if ($gallery->id == $id) {
+                return $this->getObject($args, $gallery);
+            }
+        }
+
+        return false;
+
+    }
+
+    /**
+     * Sets and returns an instance with the new values from raw data object given.
+     *
+     * @param    array            $args      Arguments to use in the HTTP request.
+     * @param    object           $gallery   Raw object data to use.
+     *
+     * @return   object                      Returns an instance of this object with the properties set.
+     */
+    private function getObject($args, $gallery)
+    {
+        $instance              = new self;
+        $photos                = new FlickrPhotos;
+
+        $instance->id          = $gallery->id;
+        $instance->title       = $gallery->title->_content;
+        $instance->description = $gallery->description->_content;
+        //$instance->$url      = 'http://...';
+        $instance->published   = date('Y-m-d H:i:s', $gallery->date_create);
+        $instance->photos      = $photos->get($args, $gallery->id);
+        //$instance->category  = $gallery->category;
+        //$instance->keywords  = $gallery->keywords;
+        $instance->thumbnail   = 'http://farm' . $gallery->farm . '.staticflickr.com/' . $gallery->server . '/' . $gallery->primary . '_' . $gallery->secret . '.jpg';
+        $instance->size        = $gallery->photos + $gallery->videos;
+
+        return $instance;
+
+    }
+
+}
+
