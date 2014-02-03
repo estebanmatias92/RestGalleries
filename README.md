@@ -21,6 +21,7 @@ Docomentation
 
 To use this library, you can create a model of the application, with the name of the API to be used and which extends to the "rest-orm" this way:
 
+    ...php
     <?php
 
     // Fist call the file via namespaces
@@ -35,6 +36,7 @@ To use this library, you can create a model of the application, with the name of
     }
 
     ?>
+    ...
 
 That's it! Now you can use this model in any controller:
 
