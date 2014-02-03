@@ -95,15 +95,71 @@ This function receives as parameter an array with a key 'user-id' with a given u
 Return:
 Returns an array of objects where each object is a gallery. If the gallery is not found returning an empty array.
 
-<?php
+    <?php
 
-$args = [
-    'user_id' => 548321895; // Or as string "548321895"
-];
+    $args = [
+        'user_id' => 548321895; // Or as string "548321895"
+    ];
 
-$galleries = API::all($args);
+    $galleries = API::all($args);
 
-foreach ($galleries as $gallery) {
+    foreach ($galleries as $gallery) {
+        echo $gallery->id;
+        echo $gallery->title;
+        echo $gallery->description;
+        echo $gallery->url;
+        echo $gallery->published;
+        $gallery->photos; // It is an array of objects, each object contains a picture data.
+        echo $gallery->category;
+        echo $gallery->keywords;
+        echo $gallery->thumbnail;
+        echo $gallery->size; // Gallery count of photos
+    }
+
+    // [0]
+    //
+    // 655548798654898
+    // My photos
+    // My vacation photos! :)
+    // www.webservice.com/johndoe84/gallery/655548798654898
+    // 02/02/2012 18:57:03
+    // null
+    // null
+    // www.webservice.com/johndoe84/photos/vacation-thumbnail-655548798654898.jpg
+    // 120
+
+    // [1]
+    //
+    // 998584664758855
+    // Another album
+    // More photos!
+    // www.webservice.com/johndoe84/gallery/998584664758855
+    // 03/05/2012 02:15:47
+    // null
+    // null
+    // www.webservice.com/johndoe84/photos/vacation-thumbnail-998584664758855.jpg
+    // 16
+
+    ?>
+
+##### API::find($args, $id)
+
+Parameters:
+This function receives as parameter an array with a key 'user-id' with a given user ID as a value, and a string or integer with the ID of the gallery to find.
+
+Return:
+Returns a data object with the gallery if found. But returns false.
+
+    <?php
+
+    $args = [
+        'user_id' => 548321895; // Or as string "548321895"
+    ];
+
+    $id = 6487;
+
+    $gallery = API::find($args, $id);
+
     echo $gallery->id;
     echo $gallery->title;
     echo $gallery->description;
@@ -114,74 +170,19 @@ foreach ($galleries as $gallery) {
     echo $gallery->keywords;
     echo $gallery->thumbnail;
     echo $gallery->size; // Gallery count of photos
-}
 
-// [0]
-//
-// 655548798654898
-// My photos
-// My vacation photos! :)
-// www.webservice.com/johndoe84/gallery/655548798654898
-// 02/02/2012 18:57:03
-// null
-// null
-// www.webservice.com/johndoe84/photos/vacation-thumbnail-655548798654898.jpg
-// 120
+    // Out
+    // 655548798654898
+    // My photos
+    // My vacation photos! :)
+    // www.webservice.com/johndoe84/gallery/655548798654898
+    // 02/02/2012 18:57:03
+    // null
+    // null
+    // www.webservice.com/johndoe84/photos/vacation-thumbnail.jpg
+    // 5
 
-// [1]
-//
-// 998584664758855
-// Another album
-// More photos!
-// www.webservice.com/johndoe84/gallery/998584664758855
-// 03/05/2012 02:15:47
-// null
-// null
-// www.webservice.com/johndoe84/photos/vacation-thumbnail-998584664758855.jpg
-// 16
-
-?>
-
-##### API::find($args, $id)
-
-Parameters:
-This function receives as parameter an array with a key 'user-id' with a given user ID as a value, and a string or integer with the ID of the gallery to find.
-
-Return:
-Returns a data object with the gallery if found. But returns false.
-
-<?php
-
-$args = [
-    'user_id' => 548321895; // Or as string "548321895"
-];
-
-$id = 6487;
-
-$gallery = API::find($args, $id);
-
-echo $gallery->id;
-echo $gallery->title;
-echo $gallery->description;
-echo $gallery->url;
-echo $gallery->published;
-$gallery->photos; // It is an array of objects, each object contains a picture data.
-echo $gallery->category;
-echo $gallery->keywords;
-echo $gallery->thumbnail;
-echo $gallery->size; // Gallery count of photos
-
-// Out
-// 655548798654898
-// My photos
-// My vacation photos! :)
-// www.webservice.com/johndoe84/gallery/655548798654898
-// 02/02/2012 18:57:03
-// null
-// null
-// www.webservice.com/johndoe84/photos/vacation-thumbnail.jpg
-// 5
-?>
+    ?>
 
 Contributing
 ------------
