@@ -41,7 +41,7 @@ abstract class RestGalleries
      *
      * @param    string            $username   User to order find.
      *
-     * @return   object/boolean                Returns the user when find him, else returns false.
+     * @return   object/boolean                Returns the user when find him, but returns false.
      */
     public static function findUser($username)
     {
@@ -57,7 +57,7 @@ abstract class RestGalleries
      *
      * @param    array            $args   Array of arguments to pass to the API (like, user_id, password, etc).
      *
-     * @return   object/boolean           Returns the galleries found, else returns false.
+     * @return   object/boolean           Returns the galleries found, but returns an empty array.
      */
     public static function all($args)
     {
@@ -74,7 +74,7 @@ abstract class RestGalleries
      * @param    array            $args   Array of arguments to pass to the API (like, user_id, password, etc).
      * @param    string/integer   $id     ID gallery number to search.
      *
-     * @return   object/boolean           Returns the gallery found, else returns false.
+     * @return   object/boolean           Returns the gallery found, but returns false.
      */
     public static function find($args, $id)
     {

@@ -34,7 +34,7 @@ class ClientApi
      * @param    string           $secret_key   API rest model value.
      * @param    array            $args         Array of arguments to pass to the API (like, user_id, password, etc).
      *
-     * @return   object/boolean                 Returns the galleries found, else returns false.
+     * @return   object/boolean                 Returns the galleries found, else returns an empty array.
      */
     public function get(ApiGallery $client, $api_key, $secret_key, $args)
     {

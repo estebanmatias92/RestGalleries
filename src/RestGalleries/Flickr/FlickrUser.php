@@ -24,7 +24,7 @@ class FlickrUser implements ApiUser
      * @param    string           $secret_key   API rest model value.
      * @param    string           $username     Username for search the user.
      *
-     * @return   object                         Returns the user when find him, else returns false.
+     * @return   object                         Returns the user when find him, but returns false.
      */
     public function findByUsername($api_key, $secret_key, $username)
     {
