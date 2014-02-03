@@ -40,27 +40,29 @@ class Flickr extends RestGalleries
 
 That's it! Now you can use this model in any controller:
 
-    <?php
+```php
+<?php
 
-    // Example namespace
-    use Model\Flickr;
+// Example namespace
+use Model\Flickr;
 
-    class GalleryController
+class GalleryController
+{
+    // Dummy function to get all galleries from flickr
+    public function index()
     {
-        // Dummy function to get all galleries from flickr
-        public function index()
-        {
-            $args = [
-                'user_id' => 'user-id',
-            ];
+        $args = [
+            'user_id' => 'user-id',
+        ];
 
-            $galleries = Flickr::all($args);
+        $galleries = Flickr::all($args);
 
-            return $galleries;
-        }
+        return $galleries;
     }
+}
 
-    ?>
+?>
+```
 
 ###Functions
 
@@ -72,20 +74,22 @@ This function receives as parameter a string with the username of an account.
 Return:
 If it finds the user returns an object with your account data. But returns false.
 
-    <?php
+```php
+<?php
 
-    $user = API::findUser('johndoe84');
+$user = API::findUser('johndoe84');
 
-    echo $user->id;
-    echo $user->url;
-    echo $user->realname;
+echo $user->id;
+echo $user->url;
+echo $user->realname;
 
-    // Out
-    // 548321895
-    // www.webservice.com/johndoe84
-    // John Doe
+// Out
+// 548321895
+// www.webservice.com/johndoe84
+// John Doe
 
-    ?>
+?>
+```
 
 ##### API::all($args)
 
@@ -97,71 +101,16 @@ This function receives as parameter an array with a key 'user-id' with a given u
 Return:
 Returns an array of objects where each object is a gallery. If the gallery is not found returning an empty array.
 
-    <?php
+```php
+<?php
 
-    $args = [
-        'user_id' => 548321895; // Or as string "548321895"
-    ];
+$args = [
+    'user_id' => 548321895; // Or as string "548321895"
+];
 
-    $galleries = API::all($args);
+$galleries = API::all($args);
 
-    foreach ($galleries as $gallery) {
-        echo $gallery->id;
-        echo $gallery->title;
-        echo $gallery->description;
-        echo $gallery->url;
-        echo $gallery->published;
-        $gallery->photos; // It is an array of objects, each object contains a picture data.
-        echo $gallery->category;
-        echo $gallery->keywords;
-        echo $gallery->thumbnail;
-        echo $gallery->size; // Gallery count of photos
-    }
-
-    // [0]
-    //
-    // 655548798654898
-    // My photos
-    // My vacation photos! :)
-    // www.webservice.com/johndoe84/gallery/655548798654898
-    // 02/02/2012 18:57:03
-    // null
-    // null
-    // www.webservice.com/johndoe84/photos/vacation-thumbnail-655548798654898.jpg
-    // 120
-
-    // [1]
-    //
-    // 998584664758855
-    // Another album
-    // More photos!
-    // www.webservice.com/johndoe84/gallery/998584664758855
-    // 03/05/2012 02:15:47
-    // null
-    // null
-    // www.webservice.com/johndoe84/photos/vacation-thumbnail-998584664758855.jpg
-    // 16
-
-    ?>
-
-##### API::find($args, $id)
-
-Parameters:
-This function receives as parameter an array with a key 'user-id' with a given user ID as a value, and a string or integer with the ID of the gallery to find.
-
-Return:
-Returns a data object with the gallery if found. But returns false.
-
-    <?php
-
-    $args = [
-        'user_id' => 548321895; // Or as string "548321895"
-    ];
-
-    $id = 6487;
-
-    $gallery = API::find($args, $id);
-
+foreach ($galleries as $gallery) {
     echo $gallery->id;
     echo $gallery->title;
     echo $gallery->description;
@@ -172,19 +121,78 @@ Returns a data object with the gallery if found. But returns false.
     echo $gallery->keywords;
     echo $gallery->thumbnail;
     echo $gallery->size; // Gallery count of photos
+}
 
-    // Out
-    // 655548798654898
-    // My photos
-    // My vacation photos! :)
-    // www.webservice.com/johndoe84/gallery/655548798654898
-    // 02/02/2012 18:57:03
-    // null
-    // null
-    // www.webservice.com/johndoe84/photos/vacation-thumbnail.jpg
-    // 5
+// [0]
+//
+// 655548798654898
+// My photos
+// My vacation photos! :)
+// www.webservice.com/johndoe84/gallery/655548798654898
+// 02/02/2012 18:57:03
+// null
+// null
+// www.webservice.com/johndoe84/photos/vacation-thumbnail-655548798654898.jpg
+// 120
 
-    ?>
+// [1]
+//
+// 998584664758855
+// Another album
+// More photos!
+// www.webservice.com/johndoe84/gallery/998584664758855
+// 03/05/2012 02:15:47
+// null
+// null
+// www.webservice.com/johndoe84/photos/vacation-thumbnail-998584664758855.jpg
+// 16
+
+?>
+```
+
+##### API::find($args, $id)
+
+Parameters:
+This function receives as parameter an array with a key 'user-id' with a given user ID as a value, and a string or integer with the ID of the gallery to find.
+
+Return:
+Returns a data object with the gallery if found. But returns false.
+
+```php
+<?php
+
+$args = [
+    'user_id' => 548321895; // Or as string "548321895"
+];
+
+$id = 6487;
+
+$gallery = API::find($args, $id);
+
+echo $gallery->id;
+echo $gallery->title;
+echo $gallery->description;
+echo $gallery->url;
+echo $gallery->published;
+$gallery->photos; // It is an array of objects, each object contains a picture data.
+echo $gallery->category;
+echo $gallery->keywords;
+echo $gallery->thumbnail;
+echo $gallery->size; // Gallery count of photos
+
+// Out
+// 655548798654898
+// My photos
+// My vacation photos! :)
+// www.webservice.com/johndoe84/gallery/655548798654898
+// 02/02/2012 18:57:03
+// null
+// null
+// www.webservice.com/johndoe84/photos/vacation-thumbnail.jpg
+// 5
+
+?>
+```
 
 Contributing
 ------------
