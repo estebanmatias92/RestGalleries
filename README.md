@@ -14,6 +14,10 @@ Installing
 
 The installation is done via composer, so it is necessary to have it installed. Copy and paste the code into your composer.json file.
 
+```json
+"require": { "restgalleries/restgalleries": "dev-master" }
+```
+
 Docomentation
 -------------
 
