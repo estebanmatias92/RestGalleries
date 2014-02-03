@@ -21,22 +21,22 @@ Docomentation
 
 To use this library, you can create a model of the application, with the name of the API to be used and which extends to the "rest-orm" this way:
 
-    ```php
-    <?php
+```php
+<?php
 
-    // Fist call the file via namespaces
-    use RestGalleries\RestGalleries;
+// Fist call the file via namespaces
+use RestGalleries\RestGalleries;
 
-    // Create the model to interact with flickr, and extend it
-    class Flickr extends RestGalleries
-    {
-        // These data are necessary to access and interact with the API
-        protected $api_key = 'your-flickr-api-key';
-        protected $secret_key = 'your-flickr-secret-key';
-    }
+// Create the model to interact with flickr, and extend it
+class Flickr extends RestGalleries
+{
+    // These data are necessary to access and interact with the API
+    protected $api_key = 'your-flickr-api-key';
+    protected $secret_key = 'your-flickr-secret-key';
+}
 
-    ?>
-    ```
+?>
+```
 
 That's it! Now you can use this model in any controller:
 
