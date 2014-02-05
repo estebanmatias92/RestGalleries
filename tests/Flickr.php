@@ -7,6 +7,6 @@ use RestGalleries\RestGalleries;
  */
 class Flickr extends RestGalleries
 {
-    protected $api_key = '733da5d76386b4cc73c93ea660c3433a';
+    protected $api_key = '2ce9d959cc02962998397006a002dfdf';
     protected $secret_key = '';
 }

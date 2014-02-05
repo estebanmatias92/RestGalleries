@@ -102,7 +102,7 @@ abstract class RestGalleries
             $classname = $matches[1];
         }
 
-        return __NAMESPACE__ . "\\" . $classname . "\\" . $classname;
+        return __NAMESPACE__ . "\\APIs\\" . $classname . "\\" . $classname;
     }
 
 }
