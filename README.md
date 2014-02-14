@@ -37,8 +37,8 @@ use RestGalleries\RestGalleries;
 class Flickr extends RestGalleries
 {
     // These data are necessary to access and interact with the API
-    protected $api_key = 'your-flickr-api-key';
-    protected $secret_key = 'your-flickr-secret-key';
+    protected static $apiKey = 'your-flickr-api-key';
+    protected static $secretKey = 'your-flickr-secret-key';
 }
 
 ?>
