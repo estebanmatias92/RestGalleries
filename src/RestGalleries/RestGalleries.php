@@ -3,26 +3,20 @@
 namespace RestGalleries;
 
 use RestGalleries\Client;
+use RestGalleries\Exception\RestGalleriesException;
 
 /**
- * Serves as adapter between the "rest-model", and the gallery APIs facade, has some of the typical methods of an active record.
+ * Serves as adapter between the "rest-model", and the gallery APIs facade, has some of the typical methods of an active record. Also serves as factory to instance the corrent api client class.
  */
 abstract class RestGalleries
 {
-    private $api;
-    private $client;
-    private $args;
+    protected static $api;
+    protected static $apiGallery;
+    protected static $apiUser;
+    protected static $developmentMode;
 
-    protected $api_key;
-    protected $secret_key;
-
-    public $user_id;
-    public $galleries;
-
-    public function __construct()
-    {
-        $this->client = $this->newClient();
-    }
+    protected static $apiKey;
+    protected static $secretKey;
 
     /**
      * Gets the Api to use, and the instance of client facade.
@@ -31,7 +25,9 @@ abstract class RestGalleries
      */
     private function newClient()
     {
-        $this->api = $this->getApi();
+        static::$api        = $this->getApi();
+        static::$apiGallery = static::$api . "Gallery";
+        static::$apiUser    = static::$api . "User";
 
         return new ClientApi();
     }
@@ -45,11 +41,13 @@ abstract class RestGalleries
      */
     public static function findUser($username)
     {
-        $instance = new static;
+        $instance  = new static;
 
-        $api      = $instance->api . "User";
+        $client    = $instance->newClient();
 
-        return $instance->client->findUser(new $api, $instance->api_key, $instance->secret_key, $username);
+        $apiObject = new static::$apiUser(static::$apiKey, static::$secretKey, static::$developmentMode);
+
+        return $client->findUser($apiObject, $username);
     }
 
     /**
@@ -61,11 +59,13 @@ abstract class RestGalleries
      */
     public static function all($args)
     {
-        $instance = new static;
+        $instance  = new static;
 
-        $api      = $instance->api;
+        $client    = $instance->newClient();
 
-        return $instance->client->get(new $api, $instance->api_key, $instance->secret_key, $args);
+        $apiObject = new static::$apiGallery(static::$apiKey, static::$secretKey, static::$developmentMode);
+
+        return $client->get($apiObject, $args);
     }
 
     /**
@@ -78,11 +78,13 @@ abstract class RestGalleries
      */
     public static function find($args, $id)
     {
-        $instance = new static;
+        $instance  = new static;
 
-        $api      = $instance->api;
+        $client    = $instance->newClient();
 
-        return $instance->client->find(new $api, $instance->api_key, $instance->secret_key, $args, $id);
+        $apiObject = new static::$apiGallery(static::$apiKey, static::$secretKey, static::$developmentMode);
+
+        return $client->find($apiObject, $args, $id);
     }
 
     /**
@@ -92,11 +94,13 @@ abstract class RestGalleries
      */
     public function getApi()
     {
-        if (isset($this->api)) {
-            $classname = $this->api;
+        if (isset(static::$api)) {
+            $classname = static::$api;
         } else {
             $classname = get_called_class();
         }
+
+        $classname = ucfirst($classname);
 
         if (preg_match("@\\\\([\w]+)$@", $classname, $matches)) {
             $classname = $matches[1];
@@ -105,4 +109,25 @@ abstract class RestGalleries
         return __NAMESPACE__ . "\\APIs\\" . $classname . "\\" . $classname;
     }
 
+    /**
+     * Use another function for sets properties dinamically.
+     *
+     * @param   string           $key     Property name.
+     * @param   string           $value   Property value.
+     */
+    public function __set($key, $value)
+    {
+        $this->setAttribute($key, $value);
+    }
+
+    /**
+     * Sets properties to the object.
+     *
+     * @param   string           $key     Property name.
+     * @param   string           $value   Property value.
+     */
+    public function setAttribute($key, $value)
+    {
+        static::$$key = $value;
+    }
 }

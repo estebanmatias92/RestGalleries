@@ -2,8 +2,8 @@
 
 namespace RestGalleries;
 
-use RestGalleries\interfaces\Gallery;
-use RestGalleries\interfaces\User;
+use RestGalleries\Interfaces\Gallery;
+use RestGalleries\Interfaces\User;
 
 /**
  * Serves as facade to interact with multiple APIs.
@@ -14,46 +14,40 @@ class ClientApi
     /**
      * Orders search to a particular api an user by his username.
      *
-     * @param    User             $client       API to interact with.
-     * @param    string           $api_key      API rest model value.
-     * @param    string           $secret_key   API rest model value.
+     * @param    User             $api          API to interact with.
      * @param    array            $username     Username for search the user.
      *
-     * @return   bject/boolean                  Returns the user when find him, else returns false.
+     * @return   object/boolean                 Returns the user when find him, else returns false.
      */
-    public function findUser(User $client, $api_key, $secret_key, $username)
+    public function findUser(User $api, $username)
     {
-        return $client->findByUsername($api_key, $secret_key, $username);
+        return $api->findByUsername($username);
     }
 
     /**
      * Orders search to a particular api all existing galleries for a particular user.
      *
-     * @param    Gallery          $client       API to interact with.
-     * @param    string           $api_key      API rest model value.
-     * @param    string           $secret_key   API rest model value.
+     * @param    Gallery          $api          API to interact with.
      * @param    array            $args         Array of arguments to pass to the API (like, user_id, password, etc).
      *
      * @return   object/boolean                 Returns the galleries found, else returns an empty array.
      */
-    public function get(Gallery $client, $api_key, $secret_key, $args)
+    public function get(Gallery $api, $args)
     {
-        return $client->get($api_key, $secret_key, $args);
+        return $api->get($args);
     }
 
     /**
      * Orders search to a particular api a particular gallery for a particular user.
      *
-     * @param    Gallery          $client       API to interact with.
-     * @param    string           $api_key      API rest model value.
-     * @param    string           $secret_key   API rest model value.
+     * @param    Gallery          $api          API to interact with.
      * @param    array            $args         Array of arguments to pass to the API (like, user_id, password, etc).
      * @param    string/integer   $id           ID gallery number to search.
      *
      * @return   object/boolean                 Returns the gallery found, else returns false.
      */
-    public function find(Gallery $client, $api_key, $secret_key, $args, $id)
+    public function find(Gallery $api, $args, $id)
     {
-        return $client->find($api_key, $secret_key, $args, $id);
+        return $api->find($args, $id);
     }
 }

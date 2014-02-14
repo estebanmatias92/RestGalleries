@@ -13,26 +13,41 @@ use RestGalleries\Interfaces\User;
 class FlickrUser implements User
 {
     private $rest_url = 'http://api.flickr.com/services/rest/';
+    private $apiKey;
+    private $secretKey;
+    private $developmentMode;
 
     public $id;
     public $url;
     public $realname;
 
     /**
+     * [__construct description]
+     *
+     * @param   string           $apiKey            API rest model value.
+     * @param   string           $secretKey         API rest model value.
+     * @param   boolean          $developmentMode   [description]
+     */
+    public function __construct($apiKey = null, $secretKey = null, $developmentMode = false)
+    {
+        $this->apiKey          = $apiKey;
+        $this->secretKey       = $secretKey;
+        $this->developmentMode = $developmentMode;
+    }
+
+    /**
      * Searchs and returns a specific user.
      *
-     * @param    array            $api_key      API rest model value.
-     * @param    string           $secret_key   API rest model value.
      * @param    string           $username     Username for search the user.
      *
      * @return   object                         Returns the user when find him, but returns false.
      */
-    public function findByUsername($api_key, $secret_key, $username)
+    public function findByUsername($username)
     {
         $client  = new Client($this->rest_url);
 
         $cache = new RestCache($client);
-        $cache->setDevMode(true);
+        $cache->setDevelopmentMode($this->developmentMode);
         $cache->make();
 
         $request = $client->get();
@@ -40,7 +55,7 @@ class FlickrUser implements User
 
         $query->set('format', 'json');
         $query->set('nojsoncallback', 1);
-        $query->set('api_key', $api_key);
+        $query->set('api_key', $this->apiKey);
         $query->set('username', $username);
 
         $query->set('method', 'flickr.people.findByUsername');
@@ -53,24 +68,23 @@ class FlickrUser implements User
             return false;
         }
 
-        return $this->get($api_key, $data->user->nsid);
+        return $this->get($data->user->nsid);
 
     }
 
     /**
      * Gets the user data from its ID.
      *
-     * @param    string           $api_key   API rest model value.
      * @param    string           $id        ser ID for search data.
      *
      * @return   object                      Raw data object.
      */
-    public function get($api_key, $id)
+    public function get($id)
     {
         $client  = new Client($this->rest_url);
 
         $cache = new RestCache($client);
-        $cache->setDevMode(true);
+        $cache->setDevelopmentMode($this->developmentMode);
         $cache->make();
 
         $request = $client->get();
@@ -78,7 +92,7 @@ class FlickrUser implements User
 
         $query->set('format', 'json');
         $query->set('nojsoncallback', 1);
-        $query->set('api_key', $api_key);
+        $query->set('api_key', $this->apiKey);
         $query->set('user_id', $id);
 
         $query->set('method', 'flickr.people.getInfo');
