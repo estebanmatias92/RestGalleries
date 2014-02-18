@@ -21,8 +21,6 @@ class FlickrPhoto
     public $photo;
 
     /**
-     * [__construct description]
-     *
      * @param   string           $apiKey            API rest model value.
      * @param   string           $secretKey         API rest model value.
      * @param   boolean          $developmentMode   [description]

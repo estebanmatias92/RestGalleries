@@ -22,8 +22,6 @@ class FlickrUser implements User
     public $realname;
 
     /**
-     * [__construct description]
-     *
      * @param   string           $apiKey            API rest model value.
      * @param   string           $secretKey         API rest model value.
      * @param   boolean          $developmentMode   [description]

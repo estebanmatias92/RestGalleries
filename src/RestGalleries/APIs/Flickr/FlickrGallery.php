@@ -30,8 +30,6 @@ class FlickrGallery implements Gallery
     public $size;
 
     /**
-     * [__construct description]
-     *
      * @param   string           $apiKey            API rest model value.
      * @param   string           $secretKey         API rest model value.
      * @param   boolean          $developmentMode   [description]
