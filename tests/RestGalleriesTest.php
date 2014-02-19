@@ -52,8 +52,8 @@ class RestGalleriesTest extends PHPUnit_Framework_TestCase
         $stub->__set('secretKey', $secretKey);
         $stub->__set('developmentMode', true);
 
+        $api       = ucfirst($api);
         $apiClass  = $this->apisNamespace . $api . '\\' . $api .  'User';
-
         $apiObject = new $apiClass($apiKey, $secretKey, $developmentMode = true);
 
         $stub::staticExpects($this->any())
@@ -76,6 +76,7 @@ class RestGalleriesTest extends PHPUnit_Framework_TestCase
         $stub->__set('secretKey', $secretKey);
         $stub->__set('developmentMode', true);
 
+        $api       = ucfirst($api);
         $apiClass  = $this->apisNamespace . $api . '\\' . $api .  'Gallery';
         $apiObject = new $apiClass($apiKey, $secretKey, $developmentMode = true);
 
@@ -106,6 +107,7 @@ class RestGalleriesTest extends PHPUnit_Framework_TestCase
         $stub->__set('secretKey', $secretKey);
         $stub->__set('developmentMode', true);
 
+        $api       = ucfirst($api);
         $apiClass  = $this->apisNamespace . $api . '\\' . $api .  'Gallery';
         $apiObject = new $apiClass($apiKey, $secretKey, $developmentMode = true);
 
