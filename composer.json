@@ -14,7 +14,7 @@
     "require": {
         "php": ">=5.4.0",
         "guzzle/guzzle": "3.8.*",
-        "doctrine/cache" : "*"
+        "doctrine/cache" : "1.4.*"
     },
 
     "require-dev": {
@@ -24,6 +24,12 @@
     "autoload": {
         "psr-0": {
             "RestGalleries": "src/"
+        }
+    },
+
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.2-dev"
         }
     }
 }

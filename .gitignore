@@ -1,5 +1,14 @@
-/vendor
+# Ingore common cruft
+.DS_Store
+.idea
+coverage
+Thumbs.db
+
+# Ignore potentially sensitive phpunit file
+phpunit.xml
+
+# Ignore composer generated files
 composer.phar
 composer.lock
-.DS_Store
-Thumbs.db
+composer-test.lock
+/vendor
