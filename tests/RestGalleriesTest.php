@@ -15,13 +15,21 @@ class RestGalleriesTest extends PHPUnit_Framework_TestCase
     public function apiProvider()
     {
         return [
-            [
+            /*[
                 '[api-name]',
                 '[api-key]',
                 '[secret-key]',
                 '[user]',
                 '[user-id]',
                 '[gallery-id]',
+            ],*/
+            [
+                'flickr',
+                '83e6915af3ba89ab2166a69f7dde4c07',
+                '',
+                'flickr',
+                '66956608@N06',
+                '72157640799982165',
             ],
         ];
     }
