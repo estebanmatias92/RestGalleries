@@ -1,7 +1,7 @@
 RestGalleries
 =============
 
-[![Build Status](https://travis-ci.org/estebanmatias92/RestGalleries.png?branch=master)](https://travis-ci.org/estebanmatias92/RestGalleries)
+[![Latest Stable Version](https://poser.pugx.org/restgalleries/restgalleries/v/stable.png)](https://packagist.org/packages/restgalleries/restgalleries) [![Total Downloads](https://poser.pugx.org/restgalleries/restgalleries/downloads.png)](https://packagist.org/packages/restgalleries/restgalleries) [![Latest Unstable Version](https://poser.pugx.org/restgalleries/restgalleries/v/unstable.png)](https://packagist.org/packages/restgalleries/restgalleries) [![Build Status](https://travis-ci.org/estebanmatias92/RestGalleries.png?branch=master)](https://travis-ci.org/estebanmatias92/RestGalleries) [![License](https://poser.pugx.org/restgalleries/restgalleries/license.png)](https://packagist.org/packages/restgalleries/restgalleries)
 
 Is an API Client interface for interact with restful services like Flickr between others image web services.
 
