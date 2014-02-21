@@ -1,9 +1,6 @@
 <?php
 
 use RestGalleries\RestGalleries;
-use RestGalleries\Interfaces\User;
-
-var_dump(new User); // BORRAR !!!!!
 
 /**
  * Rest-model test.
