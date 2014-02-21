@@ -2,8 +2,8 @@
 
 namespace RestGalleries;
 
-use RestGalleries\Interfaces\Gallery;
-use RestGalleries\Interfaces\User;
+use RestGalleries\interfaces\Gallery;
+use RestGalleries\interfaces\User;
 
 /**
  * Serves as facade to interact with multiple APIs.

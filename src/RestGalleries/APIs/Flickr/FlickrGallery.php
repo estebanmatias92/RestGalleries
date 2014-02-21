@@ -6,7 +6,7 @@ use Guzzle\Http\Client;
 use RestGalleries\APIs\Flickr\FlickrPhoto;
 use RestGalleries\Cache\RestCache;
 use RestGalleries\Exception\RestGalleriesException;
-use RestGalleries\Interfaces\Gallery;
+use RestGalleries\interfaces\Gallery;
 
 /**
  * An specific API client for interact with Flickr services.

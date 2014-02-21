@@ -5,7 +5,7 @@ namespace RestGalleries\APIs\Flickr;
 use Guzzle\Http\Client;
 use RestGalleries\Cache\RestCache;
 use RestGalleries\Exception\RestGalleriesException;
-use RestGalleries\Interfaces\User;
+use RestGalleries\interfaces\User;
 
 /**
  * This class is responsible for search and return a specific user from the API service.

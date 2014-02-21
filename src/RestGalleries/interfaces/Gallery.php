@@ -1,6 +1,6 @@
 <?php
 
-namespace RestGalleries\Interfaces;
+namespace RestGalleries\interfaces;
 
 /**
  * Gallery description.
