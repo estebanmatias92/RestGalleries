@@ -4,6 +4,7 @@ namespace RestGalleries\APIs\Flickr;
 
 use Guzzle\Http\Client;
 use RestGalleries\Cache\RestCache;
+use RestGalleries\Exception\RestGalleriesException;
 use RestGalleries\Interfaces\User;
 
 /**
@@ -39,6 +40,8 @@ class FlickrUser implements User
      * @param    string           $username     Username for search the user.
      *
      * @return   object                         Returns the user when find him, but returns false.
+     *
+     * @throws   RestGalleries\Exception\RestGalleriesException
      */
     public function findByUsername($username)
     {
@@ -62,8 +65,15 @@ class FlickrUser implements User
         $body     = $response->getBody();
         $data     = json_decode($body->__toString());
 
-        if (null === $data->user->nsid) {
-            return false;
+        if (!isset($data->user)) {
+            switch ($data->code) {
+                case 1:
+                    throw new RestGalleriesException('User not found');
+                    break;
+                case 100:
+                    throw new RestGalleriesException('Invalid API Key');
+                    break;
+            }
         }
 
         return $this->get($data->user->nsid);

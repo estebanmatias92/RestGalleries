@@ -2,7 +2,7 @@
 
 namespace RestGalleries;
 
-use RestGalleries\Client;
+use RestGalleries\ClientApi;
 use RestGalleries\Exception\RestGalleriesException;
 
 /**

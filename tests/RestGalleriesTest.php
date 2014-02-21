@@ -25,7 +25,7 @@ class RestGalleriesTest extends PHPUnit_Framework_TestCase
             ],*/
             [
                 'flickr',
-                '83e6915af3ba89ab2166a69f7dde4c07',
+                '637c35f724ffff2959a5eaf20a216961',
                 '',
                 'flickr',
                 '66956608@N06',
@@ -44,7 +44,6 @@ class RestGalleriesTest extends PHPUnit_Framework_TestCase
      */
     public function testFindUserReturnApiUserObject($api, $apiKey, $secretKey, $user)
     {
-
         $stub = $this->getMockForAbstractClass('RestGalleries\\RestGalleries');
 
         $stub->__set('api', $api);
