@@ -1,3 +1,3 @@
 <?php
-var_dump(__DIR__ . '/../vendor/autoload.php'); // BORRAR !!!!!
-require_once __DIR__ . '/../vendor/autoload.php';
+
+require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';

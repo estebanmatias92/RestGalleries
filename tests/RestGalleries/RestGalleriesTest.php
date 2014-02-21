@@ -1,7 +1,7 @@
 <?php
 
 use RestGalleries\RestGalleries;
-
+var_dump(dirname(dirname(__DIR__)) . '/vendor/autoload.php'); // BORRAR !!!!!!
 /**
  * Rest-model test.
  */
