@@ -25,7 +25,7 @@ class RestGalleriesTest extends PHPUnit_Framework_TestCase
             ],*/
             [
                 'flickr',
-                '637c35f724ffff2959a5eaf20a216961',
+                '2c5e4eb4eede8eccbd84a244d67232bb',
                 '',
                 'flickr',
                 '66956608@N06',
