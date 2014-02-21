@@ -1,6 +1,8 @@
 RestGalleries
 =============
 
+[![Build Status](https://travis-ci.org/estebanmatias92/RestGalleries.png?branch=master)](https://travis-ci.org/estebanmatias92/RestGalleries)
+
 Is an API Client interface for interact with restful services like Flickr between others image web services.
 
 Requirements
