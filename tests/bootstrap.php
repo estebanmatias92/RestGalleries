@@ -9,7 +9,4 @@ EOT
     );
 }*/
 
-$loader = require __DIR__ . "/../vendor/autoload.php";
-$loader->addPsr0('RestGalleries\\', __DIR__ . '/RestGalleries');
-
-date_default_timezone_set('UTC');
+include __DIR__ . "/../vendor/autoload.php";
