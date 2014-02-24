@@ -25,7 +25,7 @@ class RestGalleriesTest extends PHPUnit_Framework_TestCase
             ],*/
             [
                 'flickr',
-                '2c5e4eb4eede8eccbd84a244d67232bb',
+                'ebd8bc81870ad3586643b67420f79d30',
                 '',
                 'flickr',
                 '66956608@N06',
@@ -49,11 +49,10 @@ class RestGalleriesTest extends PHPUnit_Framework_TestCase
         $stub->__set('api', $api);
         $stub->__set('apiKey', $apiKey);
         $stub->__set('secretKey', $secretKey);
-        $stub->__set('developmentMode', true);
 
         $api       = ucfirst($api);
         $apiClass  = $this->apisNamespace . $api . '\\' . $api .  'User';
-        $apiObject = new $apiClass($apiKey, $secretKey, $developmentMode = true);
+        $apiObject = new $apiClass($apiKey, $secretKey);
 
         $stub::staticExpects($this->any())
              ->method('findUser')
@@ -73,11 +72,10 @@ class RestGalleriesTest extends PHPUnit_Framework_TestCase
         $stub->__set('api', $api);
         $stub->__set('apiKey', $apiKey);
         $stub->__set('secretKey', $secretKey);
-        $stub->__set('developmentMode', true);
 
         $api       = ucfirst($api);
         $apiClass  = $this->apisNamespace . $api . '\\' . $api .  'Gallery';
-        $apiObject = new $apiClass($apiKey, $secretKey, $developmentMode = true);
+        $apiObject = new $apiClass($apiKey, $secretKey);
 
         $args = [
             'user_id' => $userId,
@@ -104,11 +102,10 @@ class RestGalleriesTest extends PHPUnit_Framework_TestCase
         $stub->__set('api', $api);
         $stub->__set('apiKey', $apiKey);
         $stub->__set('secretKey', $secretKey);
-        $stub->__set('developmentMode', true);
 
         $api       = ucfirst($api);
         $apiClass  = $this->apisNamespace . $api . '\\' . $api .  'Gallery';
-        $apiObject = new $apiClass($apiKey, $secretKey, $developmentMode = true);
+        $apiObject = new $apiClass($apiKey, $secretKey);
 
         $args = [
             'user_id'    => $userId,

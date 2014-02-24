@@ -13,7 +13,6 @@ class FlickrPhoto
 {
     private $restUrl = 'http://api.flickr.com/services/rest/';
     private $apiKey;
-    private $developmentMode;
 
     public $id;
     public $title;
@@ -23,12 +22,10 @@ class FlickrPhoto
     /**
      * @param   string           $apiKey            API rest model value.
      * @param   string           $secretKey         API rest model value.
-     * @param   boolean          $developmentMode   [description]
      */
-    public function __construct($apiKey = null, $developmentMode = false)
+    public function __construct($apiKey = null)
     {
         $this->apiKey          = $apiKey;
-        $this->developmentMode = $developmentMode;
     }
 
     /**
@@ -43,7 +40,6 @@ class FlickrPhoto
         $client  = new Client($this->restUrl);
 
         $cache = new RestCache($client);
-        $cache->setDevelopmentMode($this->developmentMode);
         $cache->make();
 
         $request = $client->get();

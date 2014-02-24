@@ -16,7 +16,6 @@ class FlickrUser implements User
     private $rest_url = 'http://api.flickr.com/services/rest/';
     private $apiKey;
     private $secretKey;
-    private $developmentMode;
 
     public $id;
     public $url;
@@ -25,13 +24,11 @@ class FlickrUser implements User
     /**
      * @param   string           $apiKey            API rest model value.
      * @param   string           $secretKey         API rest model value.
-     * @param   boolean          $developmentMode   [description]
      */
-    public function __construct($apiKey = null, $secretKey = null, $developmentMode = false)
+    public function __construct($apiKey = null, $secretKey = null)
     {
         $this->apiKey          = $apiKey;
         $this->secretKey       = $secretKey;
-        $this->developmentMode = $developmentMode;
     }
 
     /**
@@ -48,7 +45,6 @@ class FlickrUser implements User
         $client  = new Client($this->rest_url);
 
         $cache = new RestCache($client);
-        $cache->setDevelopmentMode($this->developmentMode);
         $cache->make();
 
         $request = $client->get();
@@ -92,7 +88,6 @@ class FlickrUser implements User
         $client  = new Client($this->rest_url);
 
         $cache = new RestCache($client);
-        $cache->setDevelopmentMode($this->developmentMode);
         $cache->make();
 
         $request = $client->get();

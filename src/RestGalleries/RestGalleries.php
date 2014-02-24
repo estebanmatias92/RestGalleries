@@ -13,7 +13,6 @@ abstract class RestGalleries
     protected static $api;
     protected static $apiGallery;
     protected static $apiUser;
-    protected static $developmentMode;
 
     protected static $apiKey;
     protected static $secretKey;
@@ -45,7 +44,7 @@ abstract class RestGalleries
 
         $client    = $instance->newClient();
 
-        $apiObject = new static::$apiUser(static::$apiKey, static::$secretKey, static::$developmentMode);
+        $apiObject = new static::$apiUser(static::$apiKey, static::$secretKey);
 
         return $client->findUser($apiObject, $username);
     }
@@ -63,7 +62,7 @@ abstract class RestGalleries
 
         $client    = $instance->newClient();
 
-        $apiObject = new static::$apiGallery(static::$apiKey, static::$secretKey, static::$developmentMode);
+        $apiObject = new static::$apiGallery(static::$apiKey, static::$secretKey);
 
         return $client->get($apiObject, $args);
     }
@@ -82,7 +81,7 @@ abstract class RestGalleries
 
         $client    = $instance->newClient();
 
-        $apiObject = new static::$apiGallery(static::$apiKey, static::$secretKey, static::$developmentMode);
+        $apiObject = new static::$apiGallery(static::$apiKey, static::$secretKey);
 
         return $client->find($apiObject, $args, $id);
     }

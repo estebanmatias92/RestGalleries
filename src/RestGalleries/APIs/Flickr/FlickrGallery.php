@@ -17,7 +17,6 @@ class FlickrGallery implements Gallery
     private $restUrl = 'http://api.flickr.com/services/rest/';
     private $apiKey;
     private $secretKey;
-    private $developmentMode;
 
     public $id;
     public $title;
@@ -33,13 +32,11 @@ class FlickrGallery implements Gallery
     /**
      * @param   string           $apiKey            API rest model value.
      * @param   string           $secretKey         API rest model value.
-     * @param   boolean          $developmentMode   [description]
      */
-    public function __construct($apiKey = null, $secretKey = null, $developmentMode = false)
+    public function __construct($apiKey = null, $secretKey = null)
     {
         $this->apiKey          = $apiKey;
         $this->secretKey       = $secretKey;
-        $this->developmentMode = $developmentMode;
     }
 
     /**
@@ -56,7 +53,6 @@ class FlickrGallery implements Gallery
         $client  = new Client($this->restUrl);
 
         $cache = new RestCache($client);
-        $cache->setDevelopmentMode($this->developmentMode);
         $cache->make();
 
         $request = $client->get();
@@ -111,7 +107,6 @@ class FlickrGallery implements Gallery
         $client  = new Client($this->restUrl);
 
         $cache = new RestCache($client);
-        $cache->setDevelopmentMode($this->developmentMode);
         $cache->make();
 
         $request = $client->get();
@@ -163,7 +158,7 @@ class FlickrGallery implements Gallery
     private function getObject($gallery)
     {
         $instance              = new self;
-        $photo                 = new FlickrPhoto($this->apiKey, $this->developmentMode);
+        $photo                 = new FlickrPhoto($this->apiKey);
 
         $instance->id          = $gallery->id;
         $instance->title       = $gallery->title->_content;
