@@ -1,5 +1,5 @@
 <?php
 
-$_ENV['development'] = true;
+$_ENV['test'] = true;
 
 include __DIR__ . '/../vendor/autoload.php';

@@ -42,7 +42,7 @@ class RestCache
      */
     public function make()
     {
-        if (isset($_ENV['development']) && true == $_ENV['development']) {
+        if (isset($_ENV['test']) && true == $_ENV['test']) {
             $cachePlugin = new CachePlugin(array(
                 'adapter' => new DoctrineCacheAdapter(new ArrayCache())
             ));
