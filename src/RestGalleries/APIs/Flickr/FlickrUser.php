@@ -20,6 +20,7 @@ class FlickrUser implements User
     public $id;
     public $url;
     public $realname;
+    public $username;
 
     /**
      * @param   string           $apiKey            API rest model value.
@@ -27,8 +28,8 @@ class FlickrUser implements User
      */
     public function __construct($apiKey = null, $secretKey = null)
     {
-        $this->apiKey          = $apiKey;
-        $this->secretKey       = $secretKey;
+        $this->apiKey    = $apiKey;
+        $this->secretKey = $secretKey;
     }
 
     /**
@@ -42,7 +43,7 @@ class FlickrUser implements User
      */
     public function findByUsername($username)
     {
-        $client  = new Client($this->rest_url);
+        $client = new Client($this->rest_url);
 
         $cache = new RestCache($client);
         $cache->make();
@@ -85,7 +86,7 @@ class FlickrUser implements User
      */
     public function get($id)
     {
-        $client  = new Client($this->rest_url);
+        $client = new Client($this->rest_url);
 
         $cache = new RestCache($client);
         $cache->make();
@@ -122,6 +123,7 @@ class FlickrUser implements User
         $instance->id       = $user->id;
         $instance->url      = $user->profileurl->_content;
         $instance->realname = $user->realname->_content;
+        $instance->username = $user->username->_content;
 
         return $instance;
 

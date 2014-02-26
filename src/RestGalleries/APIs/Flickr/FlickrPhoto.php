@@ -25,7 +25,7 @@ class FlickrPhoto
      */
     public function __construct($apiKey = null)
     {
-        $this->apiKey          = $apiKey;
+        $this->apiKey = $apiKey;
     }
 
     /**
@@ -37,7 +37,7 @@ class FlickrPhoto
      */
     public function get($id)
     {
-        $client  = new Client($this->restUrl);
+        $client = new Client($this->restUrl);
 
         $cache = new RestCache($client);
         $cache->make();

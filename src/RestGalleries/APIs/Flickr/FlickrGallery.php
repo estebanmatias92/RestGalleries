@@ -35,8 +35,8 @@ class FlickrGallery implements Gallery
      */
     public function __construct($apiKey = null, $secretKey = null)
     {
-        $this->apiKey          = $apiKey;
-        $this->secretKey       = $secretKey;
+        $this->apiKey     = $apiKey;
+        $this->secretKey  = $secretKey;
     }
 
     /**
@@ -50,7 +50,7 @@ class FlickrGallery implements Gallery
      */
     public function get($args)
     {
-        $client  = new Client($this->restUrl);
+        $client = new Client($this->restUrl);
 
         $cache = new RestCache($client);
         $cache->make();
@@ -104,7 +104,7 @@ class FlickrGallery implements Gallery
      */
     public function find($args, $id)
     {
-        $client  = new Client($this->restUrl);
+        $client = new Client($this->restUrl);
 
         $cache = new RestCache($client);
         $cache->make();
