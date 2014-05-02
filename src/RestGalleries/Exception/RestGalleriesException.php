@@ -1,8 +1,3 @@
-<?php
+<?php namespace RestGalleries\Exception;
 
-namespace RestGalleries\Exception;
-
-/**
- * Custom Exception manager.
- */
 class RestGalleriesException extends \Exception {}
