@@ -32,6 +32,9 @@
         "classmap": [
             "src/RestGalleries/APIs",
             "tests/TestCase.php"
+        ],
+        "files": [
+            "src/RestGalleries/Support/helpers.php"
         ]
     },
 

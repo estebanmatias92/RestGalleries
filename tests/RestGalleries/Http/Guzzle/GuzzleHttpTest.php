@@ -11,7 +11,7 @@ class GuzzleHttpTest extends TestCase
         $this->url = 'http://api.flickr.com/services/rest/';
     }
 
-    public function testGet()
+    public function testGetRequest()
     {
         $request  = GuzzleHttp::init($this->url);
         $response = $request->GET();
@@ -21,7 +21,7 @@ class GuzzleHttpTest extends TestCase
 
     }
 
-    public function testPost()
+    public function testPostRequest()
     {
         $request  = GuzzleHttp::init($this->url);
         $response = $request->POST();
@@ -31,14 +31,15 @@ class GuzzleHttpTest extends TestCase
 
     }
 
-    public function testCache()
+    public function testRequestWithCache()
     {
         $request  = GuzzleHttp::init($this->url);
         $request->setCache('array');
 
         $response = $request->GET();
+        $headers  = $response->getHeaders();
 
-        $this->assertNotEquals(false, stripos($response->getHeaders()['via'], 'GuzzleCache'));
+        $this->assertNotEquals(false, stripos($headers['via'], 'GuzzleCache'));
 
     }
 
@@ -53,13 +54,13 @@ class GuzzleHttpTest extends TestCase
 
     }
 
-    public function testAuth()
+    public function testRequestWithAuth()
     {
         $request  = GuzzleHttp::init($this->url);
 
         $request->setAuth([
-            'consumer_key'    => 'dummy_key',
-            'consumer_secret' => 'dummy_secret',
+            'consumer_key'    => getenv('FLICKR_KEY'),
+            'consumer_secret' => getenv('FLICKR_SECRET'),
             'token'           => 'dummy_token',
             'token_secret'    => 'dummy_token_secret'
         ]);
@@ -69,8 +70,9 @@ class GuzzleHttpTest extends TestCase
         ]);
 
         $response = $request->GET();
+        $body     = $response->getBody();
 
-        $this->assertEquals('Invalid auth token', $response->getBody('xml')->err['msg']);
+        $this->assertEquals('Invalid auth token', $body->err['msg']);
 
     }
 

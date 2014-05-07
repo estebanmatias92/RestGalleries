@@ -10,40 +10,42 @@ class ResponseTest extends TestCase
 
         $this->url = 'http://api.flickr.com/services/rest/';
 
-        $this->stringJson = '[{"friends": [{"id": 0, "name": "Rhoda Lang"}, {"id": 1, "name": "Heath Brennan"}, {"id": 2, "name": "Steele Christian"} ] } ]';
-
-        $this->stringXml = '<?xml version="1.0"?> <catalog> <book id="bk101"> <author>Gambardella, Matthew</author> <title>XML Developer\'s Guide</title> <genre>Computer</genre> <price>44.95</price> <publish_date>2000-10-01</publish_date> <description>An in-depth look at creating applications with XML.</description> </book> </catalog>';
-
         $this->response = new Response;
     }
 
-    public function testGetBodyJson()
+    public function bodyProvider()
     {
-        $this->response->setBody($this->stringJson);
+        $json[] = '{"friends": [{"id": 0, "name": "Rhoda Lang"}, {"id": 1, "name": "Heath Brennan"}, {"id": 2, "name": "Steele Christian"} ] }';
 
-        $body = $this->response->getBody('json')[0];
+        $xml[] = '<?xml version="1.0"?> <catalog> <book id="bk101"> <author>Gambardella, Matthew</author> <title>XML Developer\'s Guide</title> <genre>Computer</genre> <price>44.95</price> <publish_date>2000-10-01</publish_date> <description>An in-depth look at creating applications with XML.</description> </book> </catalog>';
 
-        $this->assertNotEmpty($body->friends);
+        return [
+            $json,
+            $xml,
+        ];
 
     }
 
-    public function testGetBodyXml()
+    /**
+     * @dataProvider bodyProvider
+     */
+    public function testGetBodyReturnsObjects($string)
     {
-        $this->response->setBody($this->stringXml);
+        $this->response->setBody($string);
 
-        $body = $this->response->getBody('xml');
+        $body = $this->response->getBody();
 
-        $this->assertNotEmpty($body->book);
+        $this->assertTrue(is_object($body));
 
     }
 
-    public function testGetBodyInvalidArgument()
+    public function testGetBodyReturnsRawString()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->response->setBody('Just another string for testing');
 
-        $this->response->setBody($this->stringJson);
+        $body = $this->response->getBody();
 
-        $this->response->getBody('miss');
+        $this->assertTrue(is_string($body));
 
     }
 

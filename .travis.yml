@@ -1,11 +1,15 @@
 language: php
-
 php:
-  - 5.4
-  - 5.5
-
+- 5.4
+- 5.5
+env:
+  global:
+  - secure: Pb6+t2KDNvsGF0onBFWQvdII0DGpxU/WduHjMIM0SRIBK3zNIF0QaklpiycMV57ZoZZ+dMLJd1k1NLP8L0dHQRFWidSD/unX8Vksgx0FEq2dPZhgt+/zSgU4zcTW2PMp7QEnhWPebK6WQmDtddaYdaOlg5FBgYlF36KwSO/V4GQ=
+  - secure: cufQicHxRnvrjRqBJbM8ObwpsPJV9NMprPM/KAXRQK/pl2T+LwU/tzEXXl+Mb+/V7I/my/JzB+GxDwJCs55+zaqfJ5wHdrTVhFAnQuDdjugJyoi5QVcGAzmEFLstuJVP1FQ2UCTADzss++usOlGOxBNIu8Z8lcu7CxfCbgzeXBc=
+  - secure: e0qdNSs2DKChTVurUSOHF9AE8Ohl843u5bqc0hCPMyNHiSVdCacRK2h1qwMH7GZj0A/XPGcCNAEQDyWJfoCpcuzLWYROCgHyUx62KxbpDO5M5vlo2/2wUZm2cD35/UbabhilWHwCROYni7E6pMAkG/PNhnmeA2xTBASUimLZfPI=
 before_script:
-  - composer self-update
-  - composer install
-
+- composer self-update
+- composer install
 script: phpunit
+notifications:
+  email: estebanmatias92@gmail.com

@@ -49,26 +49,18 @@ class Response implements ResponseAdapter
     }
 
     /**
-     * Returns a json/xml of the body given, or throws an Exception.
+     * Returns a json/xml or a raw string of the body given
      *
-     * @param  string                   $parse
-     * @throws InvalidArgumentException
-     * @return json/xml object
+     * @return json/xml/string
      */
-    public function getBody($parse = 'json')
+    public function getBody()
     {
-        switch ($parse) {
-            case 'json':
-                return $this->json($this->body);
-                break;
-
-            case 'xml':
-                return $this->xml($this->body);
-                break;
-
-            default:
-                throw new \InvalidArgumentException('Invalid argument value passed for parameter ($parse)');
-                break;
+        if (is_xml($this->body)) {
+            return $this->xml($this->body);
+        } elseif (is_json($this->body)) {
+            return $this->json($this->body);
+        } else {
+            return $this->raw();
         }
 
     }
@@ -92,7 +84,17 @@ class Response implements ResponseAdapter
      */
     protected function xml($string)
     {
-        return new \SimpleXMLElement($string);
+        return simplexml_load_string($string);
+    }
+
+    /**
+     * Returns body string without changes.
+     *
+     * @return string
+     */
+    protected function raw()
+    {
+        return $this->body;
     }
 
     public function getHeaders()
