@@ -16,7 +16,8 @@
         "guzzle/guzzle": "3.8.*",
         "commerceguys/guzzle-oauth2-plugin": "dev-master",
         "doctrine/cache" : "1.4.*",
-        "illuminate/support": "4.1.*"
+        "illuminate/support": "4.1.*",
+        "estebanmatias92/ohmy-auth": "0.0.8"
     },
 
     "require-dev": {
@@ -26,8 +27,7 @@
 
     "autoload": {
         "psr-0": {
-            "RestGalleries": "src/",
-            "ohmy": "vendor/ohmy/auth/src"
+            "RestGalleries": "src/"
         },
         "classmap": [
             "src/RestGalleries/APIs",
