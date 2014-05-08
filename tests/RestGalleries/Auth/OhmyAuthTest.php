@@ -13,7 +13,7 @@ class OhmyAuthTest extends TestCase
 
     public function connectProvider()
     {
-        $auth1ThreeLegged = array(
+        $flickr = array(
             array(
                 'key'      => getenv('FLICKR_KEY'),
                 'secret'   => getenv('FLICKR_SECRET'),
@@ -25,7 +25,7 @@ class OhmyAuthTest extends TestCase
         );
 
         return array(
-            $auth1ThreeLegged,
+            $flickr,
         );
 
     }
@@ -55,7 +55,7 @@ class OhmyAuthTest extends TestCase
         $auth        = $this->auth;
         $credentials = $auth::connect($clientCredentials, $endPoints);
 
-        $this->assertTrue(!empty($credentials));
+        $this->assertTrue(is_string($credentials));
 
     }
 
