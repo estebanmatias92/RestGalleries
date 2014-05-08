@@ -54,7 +54,7 @@ class OhmyAuthTest extends TestCase
     {
         $auth        = $this->auth;
         $credentials = $auth::connect($clientCredentials, $endPoints);
-
+        var_dump($credentials);
         $this->assertTrue(is_string($credentials));
 
     }
