@@ -62,10 +62,10 @@ class OhmyAuthTest extends TestCase
     /**
      * @dataProvider verifyProvider
      */
-    public function testVerifyCredentials($tokenCredentials, $uri)
+    public function testVerifyCredentials($tokenCredentials, $url)
     {
         $auth = $this->auth;
-        $data = $auth::verifyCredentials($tokenCredentials, $uri);
+        $data = $auth::verifyCredentials($tokenCredentials, $url);
 
         $this->assertTrue(is_object($data));
 
