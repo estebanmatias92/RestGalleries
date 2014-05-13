@@ -52,7 +52,9 @@ abstract class ApiUser implements UserAdapter
 
         $auth = $this->auth;
 
-        return $auth::connect($clientCredentials, array_filter($endPoints));
+        $data = $auth::connect($clientCredentials, array_filter($endPoints));
+
+        return $this->getObject($data);
 
     }
 
@@ -64,20 +66,6 @@ abstract class ApiUser implements UserAdapter
      */
     public function verifyCredentials(array $tokenCredentials)
     {
-        $user = $this->getCredentials($tokenCredentials);
-
-        return (!$user) ? false : $user;
-
-    }
-
-    /**
-     * [getCredentials description]
-     *
-     * @param  array                          $tokenCredentials
-     * @return RestGalleries\APIs\Flickr\User
-     */
-    public function getCredentials(array $tokenCredentials)
-    {
         $auth = $this->auth;
 
         $data = $auth::verifyCredentials($tokenCredentials, $this->urlCheck);
@@ -86,7 +74,6 @@ abstract class ApiUser implements UserAdapter
 
     }
 
-
     /**
      * [getObject description]
      *
@@ -94,5 +81,42 @@ abstract class ApiUser implements UserAdapter
      * @return RestGalleries\APIs\Flickr\User
      */
     abstract protected function getObject($data);
+
+    protected function setDataTokens(&$data, $tokens)
+    {
+        foreach ($tokens as $key => $value) {
+
+            $attribute = camel_case($key);
+
+            if (!isset($data->{$attribute})) {
+                $data->{$attribute} = $value;
+            }
+
+        }
+
+    }
+
+    protected function getTokensFiltered($tokens)
+    {
+        $keyTokens1 = ['token', 'token_secret'];
+        $keyTokens2 = ['acces_token', 'expires'];
+
+        foreach ($tokens as $key => $value) {
+
+            $keyFiltered = str_replace('oauth_', '', $key);
+
+            if (!empty($keyFiltered)) {
+                array_forget($tokens, $key);
+                array_set($tokens, $keyFiltered, $value);
+            }
+
+        }
+
+        if (condition) {
+            # code...
+        }
+
+        return $tokens;
+    }
 
 }

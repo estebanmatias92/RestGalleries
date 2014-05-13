@@ -1,6 +1,5 @@
 <?php
 
-use Faker\Factory;
 use RestGalleries\APIs\Flickr\User;
 
 class UserTest extends TestCase
@@ -9,14 +8,15 @@ class UserTest extends TestCase
     {
         parent::setUp();
 
-        $this->faker = Factory::create();
-        $this->faker->addProvider(new Faker\Provider\Miscellaneous($this->faker));
-        $this->faker->addProvider(new Faker\Provider\Internet($this->faker));
+        $this->responseObject = simplexml_load_string('<?xml version="1.0" encoding="utf-8" ?> <oauth> <token>'.$this->token.'</token> <perms>write</perms> <user nsid="1121451801@N07" username="jamalf" fullname="Jamal F" /> </oauth>');
 
-        $this->consumerKey    = $this->faker->sha1;
-        $this->consumerSecret = $this->faker->md5;
-        $this->token          = 't-'.$this->faker->sha1;
-        $this->tokenSecret    = 'ts-'.$this->faker->md5;
+        $credentials = parse_url('fullname=Jamal%20Fanaian&oauth_token=72157626318069415-087bfc7b5816092c&oauth_token_secret=a202d1f853ec69de&user_nsid=21207597%40N07&username=jamalfanaian');
+
+        foreach ($credentials as $key => $value) {
+            $this->responseObject->credentials[$key] = $value;
+        }
+
+        $this->urlCheck = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken';
 
         $this->http = Mockery::mock('RestGalleries\\Http\\Guzzle\\GuzzleHttp');
 
@@ -40,21 +40,23 @@ class UserTest extends TestCase
             'access'    => 'https://www.flickr.com/services/oauth/access_token',
         ];
 
+        $urlCheck = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken';
+
         $this->auth
             ->shouldReceive('connect')
-            ->with($clientCredentials, $authEndPoints)
+            ->with($clientCredentials, $authEndPoints, $urlCheck)
             ->once()
-            ->andReturn([
-                'oauth_token' => 'succeful auth'
-            ]);
+            ->andReturn($this->responseObject);
 
-        $credentials = $this->user->connect($clientCredentials, $authEndPoints);
+        $user = $this->user->connect($clientCredentials);
 
-        $this->assertArrayHasKey('oauth_token', $credentials);
+        foreach ($this->credentialsOAuth1 as $value) {
+            $this->assertNotEmpty($user->{$value});
+        }
 
     }
 
-    public function testGetCredentials()
+    public function testVerifyCredentials()
     {
         $tokenCredentials = [
             'consumer_key'    => $this->consumerKey,
@@ -65,18 +67,17 @@ class UserTest extends TestCase
 
         $urlCheck = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken';
 
-        $xmlObject = simplexml_load_string('<?xml version="1.0" encoding="utf-8" ?> <oauth> <token>'.$this->token.'</token> <perms>write</perms> <user nsid="1121451801@N07" username="jamalf" fullname="Jamal F" /> </oauth>');
-
         $this->auth
             ->shouldReceive('verifyCredentials')
             ->with($tokenCredentials, $urlCheck)
             ->once()
-            ->andReturn($xmlObject);
+            ->andReturn($this->responseObject);
 
-        $user = $this->user->getCredentials($tokenCredentials);
+        $user = $this->user->verifyCredentials($tokenCredentials);
 
-        $this->assertInstanceOf('RestGalleries\\APIs\\Flickr\\User', $user);
-        $this->assertNotEmpty($user->token);
+        foreach ($this->credentialsOAuth1 as $value) {
+            $this->assertNotEmpty($user->{$value});
+        }
 
     }
 
