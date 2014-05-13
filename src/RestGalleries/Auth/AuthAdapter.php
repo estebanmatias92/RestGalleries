@@ -7,6 +7,6 @@ use RestGalleries\Http\HttpAdapter;
  */
 interface AuthAdapter
 {
-    public static function connect(array $clientCredentials, array $endPoints);
-    public static function verifyCredentials(array $tokenCredentials, $uri);
+    public static function connect(array $clientCredentials, array $endPoints, $checkUrl);
+    public static function verifyCredentials(array $tokenCredentials, $checkUrl);
 }

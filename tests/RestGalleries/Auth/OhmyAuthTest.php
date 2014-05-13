@@ -52,20 +52,20 @@ class OhmyAuthTest extends TestCase
      */
     public function testConnect($clientCredentials, $endPoints)
     {
-        $auth        = $this->auth;
-        $credentials = $auth::connect($clientCredentials, $endPoints);
+        $auth = $this->auth;
+        $data = $auth::connect($clientCredentials, $endPoints, $checkUrl);
 
-        $this->assertTrue(is_array($credentials));
+        $this->assertTrue(is_object($data));
 
     }
 
     /**
      * @dataProvider verifyProvider
      */
-    public function testVerifyCredentials($tokenCredentials, $uri)
+    public function testVerifyCredentials($tokenCredentials, $checkUrl)
     {
         $auth = $this->auth;
-        $data = $auth::verifyCredentials($tokenCredentials, $uri);
+        $data = $auth::verifyCredentials($tokenCredentials, $checkUrl);
 
         $this->assertTrue(is_object($data));
 
