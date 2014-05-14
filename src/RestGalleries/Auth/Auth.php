@@ -63,7 +63,9 @@ abstract class Auth implements AuthAdapter
     {
         if ($this->protocol == 1) {
             foreach ($tokenCredentials as $key => $value) {
+                unset($tokenCredentials[$key]);
                 $key = str_replace('oauth_', '', $key);
+                $tokenCredentials[$key] = $value;
             }
         }
 
