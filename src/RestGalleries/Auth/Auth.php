@@ -62,7 +62,7 @@ abstract class Auth implements AuthAdapter
     protected function filterTokens($tokenCredentials)
     {
         $credentials = array_merge($this->clientCredentials, $tokenCredentials);
-        $keys        = call_user_func_array([$this, 'getAuth'.$this->protocol.'DefaultKeys']);
+        $keys        = call_user_func_array([$this, 'getAuth'.$this->protocol.'DefaultKeys'], [null]);
 
         return array_only($credentials, $keys);
     }
