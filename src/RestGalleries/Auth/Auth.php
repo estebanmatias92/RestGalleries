@@ -40,6 +40,7 @@ abstract class Auth implements AuthAdapter
         $instance->checkProtocol($instance->clientCredentials);
 
         $tokenCredentials = $instance->getTokenCredentials();
+        var_dump($tokenCredentials);
         $tokenCredentials = $instance->filterTokens($tokenCredentials);
 
         return $instance->getAccount($tokenCredentials, $checkUrl);
