@@ -12,43 +12,25 @@ class OhmyAuth extends Auth
 {
     public function __construct()
     {
-        $this->http   = new GuzzleHttp;
+        parent::__construct();
+
         $this->client = new OAuth;
     }
 
-    /**
-     * Gets token data.
-     *
-     * @return string
-     */
     protected function getTokenCredentials()
     {
-        $this->client->finally(function($data) use(&$tokenCredentials) {
+        $client = $this->client;
+        $client = $client::init($this->clientCredentials);
+
+        foreach ($this->endPoints as $method => $url) {
+            $client = call_user_func_array([$client, $method], [$url]);
+        }
+
+        $client->finally(function($data) use(&$tokenCredentials) {
             $tokenCredentials = $data;
         });
 
         return $tokenCredentials;
-
-    }
-
-    /**
-     * Makes a request to test the token credentials, and returns response body.
-     *
-     * @param  array           $tokenCredentials
-     * @param  string          $checkUrl
-     * @return json/xml/string
-     */
-    public static function verifyCredentials(array $tokenCredentials, $checkUrl)
-    {
-        $instance       = new static;
-        $http           = $instance->http;
-        $instance->http = $http::init($checkUrl);
-
-        $instance->http->setAuth($tokenCredentials);
-
-        $response = $instance->http->GET();
-
-        return $response->getBody();
 
     }
 

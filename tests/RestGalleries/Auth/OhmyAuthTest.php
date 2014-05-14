@@ -15,13 +15,14 @@ class OhmyAuthTest extends TestCase
     {
         $flickr = array(
             array(
-                'key'      => getenv('FLICKR_KEY'),
-                'secret'   => getenv('FLICKR_SECRET'),
-                'callback' => getenv('CALLBACK'),
+                'consumer_key'    => getenv('FLICKR_KEY'),
+                'consumer_secret' => getenv('FLICKR_SECRET'),
+                'callback'        => getenv('CALLBACK'),
             ),
             array(
                 'request'   => 'https://www.flickr.com/services/oauth/request_token',
             ),
+            'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken'
         );
 
         return array(
@@ -50,7 +51,7 @@ class OhmyAuthTest extends TestCase
     /**
      * @dataProvider connectProvider
      */
-    public function testConnect($clientCredentials, $endPoints)
+    public function testConnect($clientCredentials, $endPoints, $checkUrl)
     {
         $auth = $this->auth;
         $data = $auth::connect($clientCredentials, $endPoints, $checkUrl);
