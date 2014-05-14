@@ -13,39 +13,40 @@ class OhmyAuthTest extends TestCase
 
     public function connectProvider()
     {
-        $flickr = array(
-            array(
+        $flickr = [
+            [
                 'consumer_key'    => getenv('FLICKR_KEY'),
                 'consumer_secret' => getenv('FLICKR_SECRET'),
                 'callback'        => getenv('CALLBACK'),
-            ),
-            array(
-                'request'   => 'https://www.flickr.com/services/oauth/request_token',
-            ),
-            'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken'
-        );
+            ],
+            [
+                'request' => 'https://www.flickr.com/services/oauth/request_token',
+            ],
+            'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken',
+        ];
 
-        return array(
+        return [
             $flickr,
-        );
+        ];
 
     }
 
     public function verifyProvider()
     {
-        $flickr = array(
-            array(
+        $flickr = [
+            [
                 'consumer_key'    => getenv('FLICKR_KEY'),
                 'consumer_secret' => getenv('FLICKR_SECRET'),
                 'token'           => 'dummy_token',
                 'token_secret'    => 'dummy_token_secret'
-            ),
-            'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken'
-        );
+            ],
+            'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken',
+        ];
 
-        return array(
+        return [
             $flickr,
-        );
+        ];
+
     }
 
     /**
