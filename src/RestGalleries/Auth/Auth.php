@@ -64,7 +64,7 @@ abstract class Auth implements AuthAdapter
         $credentials = array_merge($this->clientCredentials, $tokenCredentials);
         $keys        = call_user_func_array([$this, 'getAuth'.$this->protocol.'DefaultKeys'], [null]);
 
-        return array_only($credentials, $keys);
+        return array_only($credentials, $keys['token_credentials']);
     }
 
     /**
