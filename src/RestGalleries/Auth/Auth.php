@@ -96,8 +96,6 @@ abstract class Auth implements AuthAdapter
      */
     protected function addDataTokens(&$object, $tokens)
     {
-        //$object->tokens = [];
-
         foreach ($tokens as $key => $value) {
 
             $key = str_replace('oauth_', '', $key);
