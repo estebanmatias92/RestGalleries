@@ -1,8 +1,6 @@
 <?php namespace RestGalleries\Auth\OhmyAuth;
 
-use RestGalleries\Exception\AuthException;
 use RestGalleries\Auth\Auth;
-use RestGalleries\Http\Guzzle\GuzzleHttp;
 use ohmy\Auth as OAuth;
 
 /**
