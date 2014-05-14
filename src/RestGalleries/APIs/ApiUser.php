@@ -2,23 +2,18 @@
 
 use RestGalleries\Auth\AuthAdapter;
 use RestGalleries\Exception\RestGalleriesException;
-use RestGalleries\Http\HttpAdapter;
 use RestGalleries\Interfaces\UserAdapter;
-use RestGalleries\Support\Traits\Overload;
 
 /**
  * User description.
  */
 abstract class ApiUser implements UserAdapter
 {
-    use Overload; // un-useful
-
-    protected $urlCheck;
+    protected $checkUrl;
     protected $urlRequest;
     protected $urlAuthorize;
     protected $urlAccess;
 
-    protected $http;
     protected $auth;
 
     public $id;
@@ -30,10 +25,9 @@ abstract class ApiUser implements UserAdapter
     public $client_id;
     public $client_secret;
 
-    public function __construct(HttpAdapter $http, AuthAdapter $auth)
+    public function __construct(AuthAdapter $auth)
     {
         $this->auth = $auth;
-        $this->http = $http; // un-useful
     }
 
     /**
@@ -52,7 +46,7 @@ abstract class ApiUser implements UserAdapter
 
         $auth = $this->auth;
 
-        $data = $auth::connect($clientCredentials, array_filter($endPoints));
+        $data = $auth::connect($clientCredentials, array_filter($endPoints), $this->checkUrl);
 
         return $this->getObject($data);
 
@@ -68,7 +62,7 @@ abstract class ApiUser implements UserAdapter
     {
         $auth = $this->auth;
 
-        $data = $auth::verifyCredentials($tokenCredentials, $this->urlCheck);
+        $data = $auth::verifyCredentials($tokenCredentials, $this->checkUrl);
 
         return $this->getObject($data);
 
@@ -81,42 +75,5 @@ abstract class ApiUser implements UserAdapter
      * @return RestGalleries\APIs\Flickr\User
      */
     abstract protected function getObject($data);
-
-    protected function setDataTokens(&$data, $tokens)
-    {
-        foreach ($tokens as $key => $value) {
-
-            $attribute = camel_case($key);
-
-            if (!isset($data->{$attribute})) {
-                $data->{$attribute} = $value;
-            }
-
-        }
-
-    }
-
-    protected function getTokensFiltered($tokens)
-    {
-        $keyTokens1 = ['token', 'token_secret'];
-        $keyTokens2 = ['acces_token', 'expires'];
-
-        foreach ($tokens as $key => $value) {
-
-            $keyFiltered = str_replace('oauth_', '', $key);
-
-            if (!empty($keyFiltered)) {
-                array_forget($tokens, $key);
-                array_set($tokens, $keyFiltered, $value);
-            }
-
-        }
-
-        if (condition) {
-            # code...
-        }
-
-        return $tokens;
-    }
 
 }

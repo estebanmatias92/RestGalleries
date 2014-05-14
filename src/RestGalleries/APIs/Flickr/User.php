@@ -15,11 +15,12 @@ class User extends ApiUser
 
     protected function getObject($data)
     {
-        $this->id       = (string) $data->user['nsid'];
-        $this->username = (string) $data->user['username'];
-        $this->realname = (string) $data->user['fullname'];
-        $this->url      = 'https://secure.flickr.com/people/'.$this->username;
-        $this->token    = (string) $data->token;
+        $this->id          = (string) $data->user['nsid'];
+        $this->username    = (string) $data->user['username'];
+        $this->realname    = (string) $data->user['fullname'];
+        $this->url         = 'https://secure.flickr.com/people/'.$this->username;
+        $this->token       = (string) $data->token['token'];
+        $this->tokenSecret = (string) $data->token['token_secret'];
 
         return $this;
     }
