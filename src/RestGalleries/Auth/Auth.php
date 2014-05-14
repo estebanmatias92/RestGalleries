@@ -41,7 +41,6 @@ abstract class Auth implements AuthAdapter
 
         $tokenCredentials = $instance->getTokenCredentials();
         $tokenCredentials = $instance->filterTokens($tokenCredentials);
-        var_dump($tokenCredentials);
 
         return $instance->getAccount($tokenCredentials, $checkUrl);
 
@@ -63,6 +62,7 @@ abstract class Auth implements AuthAdapter
     protected function filterTokens($tokenCredentials)
     {
         $credentials = array_merge($this->clientCredentials, $tokenCredentials);
+        var_dump($credentials);
         $keys        = call_user_func_array([$this, 'getAuth'.$this->protocol.'DefaultKeys'], [null]);
 
         return array_only($credentials, $keys['token_credentials']);
