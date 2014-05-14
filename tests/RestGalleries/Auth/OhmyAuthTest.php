@@ -56,7 +56,10 @@ class OhmyAuthTest extends TestCase
         $auth = $this->auth;
         $data = $auth::connect($clientCredentials, $endPoints, $checkUrl);
 
-        $this->assertTrue(is_object($data));
+        $this->assertNotEmpty($data->token['consumer_key']);
+        $this->assertNotEmpty($data->token['consumer_secret']);
+        $this->assertNotEmpty($data->token['token']);
+        $this->assertNotEmpty($data->token['token_secret']);
 
     }
 
@@ -68,7 +71,10 @@ class OhmyAuthTest extends TestCase
         $auth = $this->auth;
         $data = $auth::verifyCredentials($tokenCredentials, $checkUrl);
 
-        $this->assertTrue(is_object($data));
+        $this->assertNotEmpty($data->token['consumer_key']);
+        $this->assertNotEmpty($data->token['consumer_secret']);
+        $this->assertNotEmpty($data->token['token']);
+        $this->assertNotEmpty($data->token['token_secret']);
 
     }
 
