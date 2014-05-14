@@ -5,24 +5,52 @@ use RestGalleries\Exception\AuthException;
 use RestGalleries\Http\Guzzle\GuzzleHttp;
 
 /**
- * Common Auth father that stores the properties for all auth clients.
+ * Common father class, makes the hard work to get the account data and verify the tokens.
  */
 abstract class Auth implements AuthAdapter
 {
+    /**
+     * Stores the Auth client from child class.
+     *
+     * @var object
+     */
     protected $client;
+
+    /**
+     * Stores the Http client.
+     *
+     * @var object
+     */
     protected $http;
 
+    /**
+     * "OAuth dance" URLs for the connect process.
+     *
+     * @var array
+     */
     protected $endPoints;
+
+    /**
+     * Input credentials to start the connect process.
+     *
+     * @var array
+     */
     protected $clientCredentials;
+
+    /**
+     * What protocol is going to treat?.
+     *
+     * @var integer
+     */
     protected $protocol;
 
     public function __construct()
     {
-        $this->http   = new GuzzleHttp;
+        $this->http = new GuzzleHttp;
     }
 
     /**
-     * Takes credentials and URIs, checks credentials and gets tokens.
+     * Takes credentials and URLs, checks credentials and gets tokens.
      * Returns an account with their credentials.
      *
      * @param  array  $clientCredentials
@@ -54,7 +82,7 @@ abstract class Auth implements AuthAdapter
     abstract protected function getTokenCredentials();
 
     /**
-     * [filterTokens description]
+     * Filters the given tokens for use them with the "Auth::getAccount" method.
      *
      * @param  array $tokenCredentials
      * @return array
@@ -76,7 +104,8 @@ abstract class Auth implements AuthAdapter
     }
 
     /**
-     * [getAccount description]
+     * Makes the http request to the "checkUrl", and gets an object with account data.
+     * Additionally it adds token credentials data to the object by if needed.
      *
      * @param  array  $tokenCredentials
      * @param  string $checkUrl
@@ -97,7 +126,7 @@ abstract class Auth implements AuthAdapter
     }
 
     /**
-     * [addDataTokens description]
+     * Add token credentials to the object.
      *
      * @param object $object
      * @param array $tokens
@@ -117,7 +146,7 @@ abstract class Auth implements AuthAdapter
     }
 
     /**
-     * [verifyCredentials description]
+     * Checks the token credentials and returns an object with its account data.
      *
      * @param  array  $tokenCredentials
      * @param  string $checkUrl
@@ -133,7 +162,7 @@ abstract class Auth implements AuthAdapter
     }
 
     /**
-     * [checkProtocol description]
+     * Checks credentials and sets up the OAuth protocol number, or throw an exception on wrong case.
      *
      * @param  array $credentials
      * @throws RestGalleries\Exception\AuthException
@@ -174,7 +203,7 @@ abstract class Auth implements AuthAdapter
     }
 
     /**
-     * [getAuth1DefaultKeys description]
+     * Credential keys (token-client ouath1) necessary for normalize the obtained tokens, and check the client token for know the protocol.
      *
      * @return array
      */
@@ -187,7 +216,7 @@ abstract class Auth implements AuthAdapter
     }
 
     /**
-     * [getAuth2DefaultKeys description]
+     * Credential keys (token-client ouath2)necessary for normalize the obtained tokens, and check for know the protocol.
      *
      * @return array
      */

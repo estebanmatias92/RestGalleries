@@ -4,7 +4,7 @@ use RestGalleries\Auth\Auth;
 use ohmy\Auth as OAuth;
 
 /**
- * Specific auth client based on Ohmy-Auth Client.
+ * Specific auth client made on Ohmy-Auth Client.
  */
 class OhmyAuth extends Auth
 {
