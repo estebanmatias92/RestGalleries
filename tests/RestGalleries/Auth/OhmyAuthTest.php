@@ -13,61 +13,70 @@ class OhmyAuthTest extends TestCase
 
     public function connectProvider()
     {
-        $flickr = array(
-            array(
-                'key'      => getenv('FLICKR_KEY'),
-                'secret'   => getenv('FLICKR_SECRET'),
-                'callback' => getenv('CALLBACK'),
-            ),
-            array(
-                'request'   => 'https://www.flickr.com/services/oauth/request_token',
-            ),
-        );
+        $flickr = [
+            [
+                'consumer_key'    => getenv('FLICKR_KEY'),
+                'consumer_secret' => getenv('FLICKR_SECRET'),
+                'callback'        => getenv('CALLBACK'),
+            ],
+            [
+                'request' => 'https://www.flickr.com/services/oauth/request_token',
+            ],
+            'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken',
+        ];
 
-        return array(
+        return [
             $flickr,
-        );
+        ];
 
     }
 
     public function verifyProvider()
     {
-        $flickr = array(
-            array(
+        $flickr = [
+            [
                 'consumer_key'    => getenv('FLICKR_KEY'),
                 'consumer_secret' => getenv('FLICKR_SECRET'),
                 'token'           => 'dummy_token',
                 'token_secret'    => 'dummy_token_secret'
-            ),
-            'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken'
-        );
+            ],
+            'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken',
+        ];
 
-        return array(
+        return [
             $flickr,
-        );
+        ];
+
     }
 
     /**
      * @dataProvider connectProvider
      */
-    public function testConnect($clientCredentials, $endPoints)
+    public function testConnect($clientCredentials, $endPoints, $checkUrl)
     {
-        $auth        = $this->auth;
-        $credentials = $auth::connect($clientCredentials, $endPoints);
+        $auth = $this->auth;
+        $data = $auth::connect($clientCredentials, $endPoints, $checkUrl);
 
-        $this->assertTrue(is_array($credentials));
+        $this->assertNotEmpty($data->tokens['consumer_key']);
+        $this->assertNotEmpty($data->tokens['consumer_secret']);
+        $this->assertNotEmpty($data->tokens['token']);
+        $this->assertNotEmpty($data->tokens['token_secret']);
 
     }
 
     /**
      * @dataProvider verifyProvider
      */
-    public function testVerifyCredentials($tokenCredentials, $url)
+    public function testVerifyCredentials($tokenCredentials, $checkUrl)
     {
         $auth = $this->auth;
-        $data = $auth::verifyCredentials($tokenCredentials, $url);
+        $data = $auth::verifyCredentials($tokenCredentials, $checkUrl);
 
-        $this->assertTrue(is_object($data));
+
+        $this->assertNotEmpty($data->tokens['consumer_key']);
+        $this->assertNotEmpty($data->tokens['consumer_secret']);
+        $this->assertNotEmpty($data->tokens['token']);
+        $this->assertNotEmpty($data->tokens['token_secret']);
 
     }
 
