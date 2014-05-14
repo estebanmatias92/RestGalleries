@@ -58,8 +58,8 @@ class OhmyAuthTest extends TestCase
 
         $this->assertNotEmpty($data->tokens['consumer_key']);
         $this->assertNotEmpty($data->tokens['consumer_secret']);
-        $this->assertEmpty($data->tokens['token']);
-        $this->assertEmpty($data->tokens['token_secret']);
+        $this->assertNotEmpty($data->tokens['token']);
+        $this->assertNotEmpty($data->tokens['token_secret']);
 
     }
 
