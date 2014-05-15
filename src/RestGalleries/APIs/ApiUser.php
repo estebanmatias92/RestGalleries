@@ -1,7 +1,8 @@
 <?php namespace RestGalleries\APIs;
 
+use Illuminate\Support\Fluent;
 use RestGalleries\Auth\AuthAdapter;
-use RestGalleries\Exception\RestGalleriesException;
+use RestGalleries\Exception\AuthException;
 use RestGalleries\Interfaces\UserAdapter;
 
 /**
@@ -9,21 +10,40 @@ use RestGalleries\Interfaces\UserAdapter;
  */
 abstract class ApiUser implements UserAdapter
 {
-    protected $checkUrl;
-    protected $urlRequest;
-    protected $urlAuthorize;
-    protected $urlAccess;
-
+    /**
+     * [$auth description]
+     *
+     * @var object
+     */
     protected $auth;
 
-    public $id;
-    public $url;
-    public $username;
-    public $realname;
-    public $token;
-    public $token_secret;
-    public $client_id;
-    public $client_secret;
+    /**
+     * [$checkUrl description]
+     *
+     * @var string
+     */
+    protected $checkUrl;
+
+    /**
+     * [$urlRequest description]
+     *
+     * @var string
+     */
+    protected $urlRequest;
+
+    /**
+     * [$urlAuthorize description]
+     *
+     * @var string
+     */
+    protected $urlAuthorize;
+
+    /**
+     * [$urlAccess description]
+     *
+     * @var string
+     */
+    protected $urlAccess;
 
     public function __construct(AuthAdapter $auth)
     {
@@ -34,7 +54,7 @@ abstract class ApiUser implements UserAdapter
      * [connect description]
      *
      * @param  array  $clientCredentials
-     * @return array
+     * @return object
      */
     public function connect(array $clientCredentials)
     {
@@ -48,7 +68,7 @@ abstract class ApiUser implements UserAdapter
 
         $data = $auth::connect($clientCredentials, array_filter($endPoints), $this->checkUrl);
 
-        return $this->getObject($data);
+        return $this->getUser($data);
 
     }
 
@@ -56,7 +76,7 @@ abstract class ApiUser implements UserAdapter
      * [verifyCredentials description]
      *
      * @param  array                                  $tokenCredentials
-     * @return boolean|RestGalleries\APIs\Flickr\User
+     * @return object
      */
     public function verifyCredentials(array $tokenCredentials)
     {
@@ -64,16 +84,36 @@ abstract class ApiUser implements UserAdapter
 
         $data = $auth::verifyCredentials($tokenCredentials, $this->checkUrl);
 
-        return $this->getObject($data);
+        return $this->getUser($data);
 
     }
 
     /**
-     * [getObject description]
+     * [getUser description]
      *
-     * @param  SimpleXmlElement               $data
-     * @return RestGalleries\APIs\Flickr\User
+     * @param  object $data
+     * @throws RestGalleries\Exception\AuthException;
+     * @return object
      */
-    abstract protected function getObject($data);
+    private function getUser($data)
+    {
+        $user = $this->getArrayData($data);
+
+        if (!$user) {
+            throw AuthException('The authentication credentials are outdated or are not valid');
+        }
+
+        return new Fluent($user);
+
+    }
+
+    /**
+     * [getArrayData description]
+     *
+     * @param  object        $data
+     * @return boolean|array
+     */
+    abstract protected function getArrayData($data);
+
 
 }

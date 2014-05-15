@@ -10,19 +10,16 @@ class UserTest extends TestCase
 
         $this->responseObject = simplexml_load_string('<?xml version="1.0" encoding="utf-8" ?> <oauth> <token>'.$this->token.'</token> <perms>write</perms> <user nsid="1121451801@N07" username="jamalf" fullname="Jamal F" /> </oauth>');
 
-        $credentials = parse_url('fullname=Jamal%20Fanaian&oauth_token=72157626318069415-087bfc7b5816092c&oauth_token_secret=a202d1f853ec69de&user_nsid=21207597%40N07&username=jamalfanaian');
+        parse_str('fullname=Jamal%20Fanaian&oauth_token=72157626318069415-087bfc7b5816092c&oauth_token_secret=a202d1f853ec69de&user_nsid=21207597%40N07&username=jamalfanaian');
 
-        foreach ($credentials as $key => $value) {
-            $this->responseObject->credentials[$key] = $value;
-        }
-
-        $this->urlCheck = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken';
-
-        $this->http = Mockery::mock('RestGalleries\\Http\\Guzzle\\GuzzleHttp');
+        $this->responseObject->tokens['token'] = $oauth_token;
+        $this->responseObject->tokens['token_secret'] = $oauth_token_secret;
+        $this->responseObject->tokens['consumer_key'] = $this->consumerKey;
+        $this->responseObject->tokens['consumer_secret'] = $this->consumerSecret;
 
         $this->auth = Mockery::mock('RestGalleries\\Auth\\OhmyAuth\\OhmyAuth');
 
-        $this->user = new User($this->http, $this->auth);
+        $this->user = new User($this->auth);
 
     }
 
@@ -40,19 +37,24 @@ class UserTest extends TestCase
             'access'    => 'https://www.flickr.com/services/oauth/access_token',
         ];
 
-        $urlCheck = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken';
+        $checkUrl = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken';
 
         $this->auth
             ->shouldReceive('connect')
-            ->with($clientCredentials, $authEndPoints, $urlCheck)
+            ->with($clientCredentials, $authEndPoints, $checkUrl)
             ->once()
             ->andReturn($this->responseObject);
 
         $user = $this->user->connect($clientCredentials);
 
-        foreach ($this->credentialsOAuth1 as $value) {
-            $this->assertNotEmpty($user->{$value});
-        }
+        $this->assertNotEmpty($user->id);
+        $this->assertNotEmpty($user->realname);
+        $this->assertNotEmpty($user->url);
+        $this->assertNotEmpty($user->username);
+        $this->assertNotEmpty($user->consumer_key);
+        $this->assertNotEmpty($user->consumer_secret);
+        $this->assertNotEmpty($user->token);
+        $this->assertNotEmpty($user->token_secret);
 
     }
 
@@ -65,19 +67,24 @@ class UserTest extends TestCase
             'token_secret'    => $this->tokenSecret,
         ];
 
-        $urlCheck = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken';
+        $checkUrl = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken';
 
         $this->auth
             ->shouldReceive('verifyCredentials')
-            ->with($tokenCredentials, $urlCheck)
+            ->with($tokenCredentials, $checkUrl)
             ->once()
             ->andReturn($this->responseObject);
 
         $user = $this->user->verifyCredentials($tokenCredentials);
 
-        foreach ($this->credentialsOAuth1 as $value) {
-            $this->assertNotEmpty($user->{$value});
-        }
+        $this->assertNotEmpty($user->id);
+        $this->assertNotEmpty($user->realname);
+        $this->assertNotEmpty($user->url);
+        $this->assertNotEmpty($user->username);
+        $this->assertNotEmpty($user->consumer_key);
+        $this->assertNotEmpty($user->consumer_secret);
+        $this->assertNotEmpty($user->token);
+        $this->assertNotEmpty($user->token_secret);
 
     }
 
