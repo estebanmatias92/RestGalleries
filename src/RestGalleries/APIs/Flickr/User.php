@@ -15,6 +15,10 @@ class User extends ApiUser
 
     protected function getArrayData($data)
     {
+        if (stristr($data->err['msg'], 'invalid')) {
+            return false;
+        }
+
         $user                    = [];
         $user['id']              = (string) $data->user['nsid'];
         $user['realname']        = (string) $data->user['fullname'];

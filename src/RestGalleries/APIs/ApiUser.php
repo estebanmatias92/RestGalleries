@@ -100,7 +100,7 @@ abstract class ApiUser implements UserAdapter
         $user = $this->getArrayData($data);
 
         if (!$user) {
-            throw AuthException('The authentication credentials are outdated or are not valid');
+            throw new AuthException('The authentication credentials are outdated or are not valid');
         }
 
         return new Fluent($user);
