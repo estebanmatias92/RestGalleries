@@ -57,14 +57,14 @@ class UserTest extends TestCase
 
         $user = $this->user->connect($this->clientCredentials);
 
-        $this->assertNotEmpty($user->id);
-        $this->assertNotEmpty($user->realname);
-        $this->assertNotEmpty($user->url);
-        $this->assertNotEmpty($user->username);
-        $this->assertNotEmpty($user->consumer_key);
-        $this->assertNotEmpty($user->consumer_secret);
-        $this->assertNotEmpty($user->token);
-        $this->assertNotEmpty($user->token_secret);
+        assertThat($user->id, is(nonEmptyString()));
+        assertThat($user->realname, is(nonEmptyString()));
+        assertThat($user->url, is(nonEmptyString()));
+        assertThat($user->username, is(nonEmptyString()));
+        assertThat($user->consumer_key, is(nonEmptyString()));
+        assertThat($user->consumer_secret, is(nonEmptyString()));
+        assertThat($user->token, is(nonEmptyString()));
+        assertThat($user->token_secret, is(nonEmptyString()));
 
     }
 
@@ -92,14 +92,14 @@ class UserTest extends TestCase
 
         $user = $this->user->verifyCredentials($this->tokenCredentials);
 
-        $this->assertNotEmpty($user->id);
-        $this->assertNotEmpty($user->realname);
-        $this->assertNotEmpty($user->url);
-        $this->assertNotEmpty($user->username);
-        $this->assertNotEmpty($user->consumer_key);
-        $this->assertNotEmpty($user->consumer_secret);
-        $this->assertNotEmpty($user->token);
-        $this->assertNotEmpty($user->token_secret);
+        assertThat($user->id, is(nonEmptyString()));
+        assertThat($user->realname, is(nonEmptyString()));
+        assertThat($user->url, is(nonEmptyString()));
+        assertThat($user->username, is(nonEmptyString()));
+        assertThat($user->consumer_key, is(nonEmptyString()));
+        assertThat($user->consumer_secret, is(nonEmptyString()));
+        assertThat($user->token, is(nonEmptyString()));
+        assertThat($user->token_secret, is(nonEmptyString()));
 
     }
 
