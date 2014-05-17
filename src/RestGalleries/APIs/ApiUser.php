@@ -51,7 +51,7 @@ abstract class ApiUser implements UserAdapter
     }
 
     /**
-     * Makes all the OAuth process to connect the app with the API, only, with the client credentials, the oauth endpoints urls, and an URL to get the user data.
+     * Makes all the OAuth process to connect the app with the API, only, with the client credentials, the oauth endpoints urls, and an URL to get the user data and token credentials.
      *
      * @param  array  $clientCredentials
      * @return object
@@ -73,7 +73,7 @@ abstract class ApiUser implements UserAdapter
     }
 
     /**
-     * Checks the token credentials and returns an object with the data from the user account.
+     * Checks the token credentials and returns an object with the data (and tokens) from the user account.
      * If for any reason the credentials are invalid, throws an exception.
      *
      * @param  array                                  $tokenCredentials
