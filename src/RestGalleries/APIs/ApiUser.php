@@ -6,40 +6,40 @@ use RestGalleries\Exception\AuthException;
 use RestGalleries\Interfaces\UserAdapter;
 
 /**
- * User description.
+ * Makes the hard work for the user classes of the different APIs.
  */
 abstract class ApiUser implements UserAdapter
 {
     /**
-     * [$auth description]
+     * Auth client.
      *
      * @var object
      */
     protected $auth;
 
     /**
-     * [$checkUrl description]
+     * Url where to get the account details..
      *
      * @var string
      */
     protected $checkUrl;
 
     /**
-     * [$urlRequest description]
+     * OAuth request endpoint.
      *
      * @var string
      */
     protected $urlRequest;
 
     /**
-     * [$urlAuthorize description]
+     * OAuth authorization endpoint.
      *
      * @var string
      */
     protected $urlAuthorize;
 
     /**
-     * [$urlAccess description]
+     * OAuth access endpoint.
      *
      * @var string
      */
@@ -51,7 +51,7 @@ abstract class ApiUser implements UserAdapter
     }
 
     /**
-     * [connect description]
+     * Makes all the OAuth process to connect the app with the API, only, with the client credentials, the oauth endpoints urls, and an URL to get the user data.
      *
      * @param  array  $clientCredentials
      * @return object
@@ -73,7 +73,8 @@ abstract class ApiUser implements UserAdapter
     }
 
     /**
-     * [verifyCredentials description]
+     * Checks the token credentials and returns an object with the data from the user account.
+     * If for any reason the credentials are invalid, throws an exception.
      *
      * @param  array                                  $tokenCredentials
      * @return object
@@ -89,11 +90,11 @@ abstract class ApiUser implements UserAdapter
     }
 
     /**
-     * [getUser description]
+     * Gets an array of account data and returns an object. If it not get user data throws an exception.
      *
      * @param  object $data
      * @throws RestGalleries\Exception\AuthException;
-     * @return object
+     * @return Illuminate\Support\Fluent
      */
     private function getUser($data)
     {
@@ -108,12 +109,11 @@ abstract class ApiUser implements UserAdapter
     }
 
     /**
-     * [getArrayData description]
+     * Normalize request given data into an array.
      *
      * @param  object        $data
      * @return boolean|array
      */
     abstract protected function getArrayData($data);
-
 
 }

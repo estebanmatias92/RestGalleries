@@ -4,7 +4,7 @@ use RestGalleries\APIs\ApiUser;
 use RestGalleries\Auth\OhmyAuth\OhmyAuth;
 
 /**
- * Description here.
+ * Specific API user to normalize obtained data.
  */
 class User extends ApiUser
 {

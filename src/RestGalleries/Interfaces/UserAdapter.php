@@ -3,7 +3,7 @@
 use RestGalleries\Auth\AuthAdapter;
 
 /**
- * UserAdapter description.
+ * Simplifies the User class work and implements the AuthAdapter for make the hard work with the oauth connection and token verification.
  */
 interface UserAdapter
 {
