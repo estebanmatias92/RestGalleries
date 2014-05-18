@@ -57,11 +57,10 @@ class OhmyAuthTest extends TestCase
         $auth = $this->auth;
         $data = $auth::connect($clientCredentials, $endPoints, $checkUrl);
 
-        $this->assertNotEmpty($data->tokens['consumer_key']);
-        $this->assertNotEmpty($data->tokens['consumer_secret']);
-        $this->assertNotEmpty($data->tokens['token']);
-        $this->assertNotEmpty($data->tokens['token_secret']);
-
+        assertThat($data->tokens['consumer_key'], is(not(nullOrEmptyString())));
+        assertThat($data->tokens['consumer_secret'], is(not(nullOrEmptyString())));
+        assertThat($data->tokens['token'], is(not(nullOrEmptyString())));
+        assertThat($data->tokens['token_secret'], is(not(nullOrEmptyString())));
     }
 
     /**
@@ -72,10 +71,12 @@ class OhmyAuthTest extends TestCase
         $auth = $this->auth;
         $data = $auth::verifyCredentials($tokenCredentials, $checkUrl);
 
-        $this->assertNotEmpty($data->tokens['consumer_key']);
-        $this->assertNotEmpty($data->tokens['consumer_secret']);
-        $this->assertNotEmpty($data->tokens['token']);
-        $this->assertNotEmpty($data->tokens['token_secret']);
+        $token = $data->tokens;
+
+        assertThat($data->tokens['consumer_key'], is(not(nullOrEmptyString())));
+        assertThat($data->tokens['consumer_secret'], is(not(nullOrEmptyString())));
+        assertThat($data->tokens['token'], is(not(nullOrEmptyString())));
+        assertThat($data->tokens['token_secret'], is(not(nullOrEmptyString())));
 
     }
 
