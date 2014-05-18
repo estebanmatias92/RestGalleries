@@ -71,12 +71,11 @@ class OhmyAuthTest extends TestCase
         $auth = $this->auth;
         $data = $auth::verifyCredentials($tokenCredentials, $checkUrl);
 
-        $token = $data->tokens;
-
         assertThat($data->tokens['consumer_key'], is(not(nullOrEmptyString())));
         assertThat($data->tokens['consumer_secret'], is(not(nullOrEmptyString())));
         assertThat($data->tokens['token'], is(not(nullOrEmptyString())));
         assertThat($data->tokens['token_secret'], is(not(nullOrEmptyString())));
+
 
     }
 
