@@ -16,8 +16,8 @@ class GuzzleHttpTest extends TestCase
         $request  = GuzzleHttp::init($this->url);
         $response = $request->GET();
 
-        $this->assertInstanceOf('RestGalleries\\Http\\ResponseAdapter', $response);
-        $this->assertEquals(200, $response->getStatusCode());
+        assertThat($response, is(anInstanceOf('RestGalleries\\Http\\ResponseAdapter')));
+        assertThat($response->getStatusCode(), is(equalTo(200)));
 
     }
 
@@ -26,8 +26,8 @@ class GuzzleHttpTest extends TestCase
         $request  = GuzzleHttp::init($this->url);
         $response = $request->POST();
 
-        $this->assertInstanceOf('RestGalleries\\Http\\ResponseAdapter', $response);
-        $this->assertEquals(200, $response->getStatusCode());
+        assertThat($response, is(anInstanceOf('RestGalleries\\Http\\ResponseAdapter')));
+        assertThat($response->getStatusCode(), is(equalTo(200)));
 
     }
 
@@ -39,7 +39,7 @@ class GuzzleHttpTest extends TestCase
         $response = $request->GET();
         $headers  = $response->getHeaders();
 
-        $this->assertNotEquals(false, stripos($headers['via'], 'GuzzleCache'));
+        assertThat($headers['via'], containsString('GuzzleCache'));
 
     }
 
@@ -72,7 +72,7 @@ class GuzzleHttpTest extends TestCase
         $response = $request->GET();
         $body     = $response->getBody();
 
-        $this->assertEquals('Invalid auth token', $body->err['msg']);
+        assertThat($body->err['msg'], is(equalTo('Invalid auth token')));
 
     }
 
