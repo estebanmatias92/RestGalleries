@@ -63,6 +63,29 @@ class OhmyAuthTest extends TestCase
         assertThat($data->tokens['token_secret'], is(not(nullOrEmptyString())));
     }
 
+    public function testConnectInvalidKeys()
+    {
+        $this->setExpectedException('RestGalleries\\Exception\\AuthException', 'Credentials keys are invalid');
+
+        $clientCredentials = [
+            'client_id' => $this->faker->md5,
+            'consumer_secret' => $this->faker->sha1,
+            'callback' => $this->faker->url
+        ];
+
+        $authEndPoints = [
+            'whatever' => $this->faker->url,
+            'authorize' => $this->faker->url,
+            'access' => $this->faker->url
+        ];
+
+        $checkUrl = $this->faker->url;
+
+        $auth = $this->auth;
+        $data = $auth::connect($clientCredentials, $authEndPoints, $checkUrl);
+
+    }
+
     /**
      * @dataProvider verifyProvider
      */
@@ -76,6 +99,24 @@ class OhmyAuthTest extends TestCase
         assertThat($data->tokens['token'], is(not(nullOrEmptyString())));
         assertThat($data->tokens['token_secret'], is(not(nullOrEmptyString())));
 
+    }
+
+    public function testVerifyCredentialsInvalidKeys()
+    {
+        $this->setExpectedException(
+          'RestGalleries\\Exception\\AuthException', 'Credentials keys are invalid'
+        );
+
+        $tokenCredentials = [
+            'consumer_key' => $this->faker->md5,
+            'consumer_secret' => $this->faker->sha1,
+            'access_token' => $this->faker->md5
+        ];
+
+        $checkUrl = $this->faker->url;
+
+        $auth = $this->auth;
+        $data = $auth::verifyCredentials($tokenCredentials, $checkUrl);
 
     }
 
