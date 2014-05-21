@@ -1,9 +1,3 @@
-# Ingore common cruft
-.DS_Store
-.idea
-coverage
-Thumbs.db
-
 # Ignore potentially sensitive phpunit file
 phpunit.xml
 
@@ -12,3 +6,6 @@ composer.phar
 composer.lock
 composer-test.lock
 /vendor
+
+# Ignore npm generated files
+/node_modules
