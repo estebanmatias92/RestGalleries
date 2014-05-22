@@ -1,0 +1,33 @@
+{
+  "name": "restgalleries",
+  "version": "0.4.0",
+  "description": "Is an API Client interface for interact with restful services like Flickr between others image web services.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-watch" : "~0.6.0",
+    "grunt-phpunit": "~0.3.3"
+  },
+  "scripts": {
+    "test": "phpunit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/estebanmatias92/RestGalleries.git"
+  },
+  "keywords": [
+    "galleries",
+    "images",
+    "api",
+    "orm"
+  ],
+  "author": "Matias Esteban <estebanmatias92@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/estebanmatias92/RestGalleries/issues"
+  },
+  "homepage": "https://github.com/estebanmatias92/RestGalleries"
+}

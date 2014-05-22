@@ -176,7 +176,7 @@ abstract class Auth implements AuthAdapter
         } elseif ($this->isAuth2($keys)) {
             $this->protocol = 2;
         } else {
-            throw new AuthException('Invalid client credentials');
+            throw new AuthException('Credentials keys are invalid');
         }
 
     }
