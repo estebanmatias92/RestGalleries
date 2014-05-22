@@ -1,3 +1,9 @@
+# Ignore common unnecessary files
+.DS_Store
+Thumbs.db
+*.log
+
+
 # Ignore potentially sensitive phpunit file
 phpunit.xml
 
