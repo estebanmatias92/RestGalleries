@@ -12,7 +12,7 @@ class ApiPhoto
 
     public function __construct(HttpAdapter $http)
     {
-        $this->http = $http;
+        $this->http = $http::init($this->endPoint);
     }
 
     public function setAuth(array $tokenCredentials)

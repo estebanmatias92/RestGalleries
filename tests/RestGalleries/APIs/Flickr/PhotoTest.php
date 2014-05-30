@@ -1,6 +1,7 @@
 <?php
 
 use RestGalleries\APIs\Flickr\Photo;
+use RestGalleries\Http\Guzzle\GuzzleHttp;
 
 class PhotoTest extends TestCase
 {
@@ -17,14 +18,17 @@ class PhotoTest extends TestCase
             'token_secret'    => $this->faker->sha1,
         ];
 
-        $this->http     = Mockery::mock('RestGalleries\\Http\\Guzzle\\GuzzleHttp');
+        $this->http     = Mockery::mock('RestGalleries\\Http\\Guzzle\\GuzzleHttp')->shouldDeferMissing();
         $this->response = Mockery::mock('RestGalleries\\Http\\Response');
-        $this->photo    = new Photo($this->http);
 
         $this->http
             ->shouldReceive('init')
             ->with($endPoint)
-            ->times(1);
+            ->times(1)
+            ->andReturn($this->http);
+
+        $this->photo = new Photo($this->http);
+
 
         $this->http
             ->shouldReceive('setAuth')
@@ -39,50 +43,128 @@ class PhotoTest extends TestCase
         $this->photo->setAuth($tokenCredentials);
         $this->photo->setCache('array', array());
 
+        $this->currentPath = dirname(__FILE__);
+
+        $this->responsePhotos     = file_get_contents($this->currentPath.'/responses/flickr.photosets.getphotos.json');
+        $this->responsePhotoInfo  = file_get_contents($this->currentPath.'/responses/flickr-photos-getinfo.json');
+        $this->responsePhotoSizes = file_get_contents($this->currentPath .'/responses/flickr-photos-getsizes.json');
+
     }
 
     public function testAll()
     {
-        $stringResponse = '{ "photoset": { "id": "72157633782247768", "primary": "8876434399", "owner": "96330205@N04", "ownername": "estebanmatias092", "photo": [{ "id": "8876434399", "secret": "ba75f7d354", "server": "3784", "farm": 4, "title": "23-02-9", "isprimary": 1 }, { "id": "8877049006", "secret": "741139a946", "server": "5461", "farm": 6, "title": "23-02-7", "isprimary": 0 } ], "page": 1, "per_page": "500", "perpage": "500", "pages": 1, "total": 2, "title": "Enseñanza - Nombre album 9" }, "stat": "ok" }';
+        $galleryId = '72157633782247768';
+        $photo1_id  = '8876434399';
+        $photo2_id = '8877049006';
 
-        $galleryId = 'gallery_id';
-        $query     = [
+        // Prepare responses objects
+        $photos            = json_decode($this->responsePhotos);
+        $photo             = json_decode($this->responsePhotoInfo);
+        $photo2            = json_decode($this->responsePhotoInfo);
+        $photo2->photo->id = $photo2_id;
+        $photoSizes        = json_decode($this->responsePhotoSizes);
+
+        // First gallery request (main)
+        $query = [
             'format'         => 'json',
             'nojsoncallback' => 1,
             'method'         => 'flickr.photosets.getPhotos',
             'photoset_id'    => $galleryId,
-            'extras'         => 'tags, url_o',
-            'privacy_filter' => null,
-            'per_page'       => 100,
+            'extras'         => '',
+            'privacy_filter' => 1,
+            'per_page'       => 50,
             'page'           => 1,
-            'media'          => 'all',
+            'media'          => 'photos',
         ];
-
 
         $this->http
             ->shouldReceive('setQuery')
             ->with($query)
-            ->once();
+            ->times(1);
 
         $this->http
             ->shouldReceive('GET')
-            ->once()
+            ->atLeast()
             ->andReturn($this->response);
 
         $this->response
             ->shouldReceive('getBody')
-            ->once()
-            ->andReturn(json_decode($stringResponse));
+            ->times(1)
+            ->andReturn($photos);
 
+        // Prepare photos requests queries
+        $photoQuery = $photoQuery2 = [
+            'format'         => 'json',
+            'nojsoncallback' => 1,
+            'method'         => 'flickr.photos.getInfo',
+            'photo_id'       => $photo1_id,
+            'secret'         => '',
+        ];
+
+        $sizeQuery = $sizeQuery2 = [
+            'format'         => 'json',
+            'nojsoncallback' => 1,
+            'method'         => 'flickr.photos.getSizes',
+            'photo_id'       => $photo1_id,
+        ];
+
+        $photoQuery2['photo_id'] = $photo2_id;
+        $sizeQuery2['photo_id']  = $photo2_id;
+
+        // Into the photos loop
+        //
+        // First phot
+        $this->http
+            ->shouldReceive('setQuery')
+            ->with($photoQuery)
+            ->times(1);
+
+        $this->response
+            ->shouldReceive('getBody')
+            ->times(1)
+            ->andReturn($photo);
+
+        $this->http
+            ->shouldReceive('setQuery')
+            ->with($sizeQuery)
+            ->times(1);
+
+        $this->response
+            ->shouldReceive('getBody')
+            ->times(1)
+            ->andReturn($photoSizes);
+
+        // Second photo
+        $this->http
+            ->shouldReceive('setQuery')
+            ->with($photoQuery2)
+            ->times(1);
+
+        $this->response
+            ->shouldReceive('getBody')
+            ->times(1)
+            ->andReturn($photo2);
+
+        $this->http
+            ->shouldReceive('setQuery')
+            ->with($sizeQuery2)
+            ->times(1);
+
+        $this->response
+            ->shouldReceive('getBody')
+            ->times(1)
+            ->andReturn($photoSizes);
+
+        // Method calling and assertions
         $photos = $this->photo->all($galleryId);
 
         assertThat($photos, is(anInstanceOf('Illuminate\\Support\\Collection')));
-        assertThat($photos->id, is(nonEmptyString()));
-        assertThat($photos->title, is(nonEmptyString()));
-        assertThat($photos->description, is(nonEmptyString()));
-        assertThat($photos->source, is(nonEmptyString()));
-        assertThat($photos->source_thumbnail, is(nonEmptyString()));
-        assertThat($photos->created, is(integerValue()));
+        assertThat($photos[0]->id, is(nonEmptyString()));
+        assertThat($photos[0]->title, is(nonEmptyString()));
+        assertThat($photos[0]->description, is(stringValue()));
+        assertThat($photos[0]->source, is(nonEmptyString()));
+        assertThat($photos[0]->source_thumbnail, is(nonEmptyString()));
+        assertThat($photos[0]->created, is(integerValue()));
 
     }
 

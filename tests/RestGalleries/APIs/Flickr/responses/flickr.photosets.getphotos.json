@@ -1,0 +1,33 @@
+{
+    "photoset": {
+        "id": "72157633782247768",
+        "primary": "8876434399",
+        "owner": "96330205@N04",
+        "ownername": "estebanmatias092",
+        "photo": [
+            {
+                "id": "8876434399",
+                "secret": "ba75f7d354",
+                "server": "3784",
+                "farm": 4,
+                "title": "23-02-9",
+                "isprimary": "1"
+            },
+            {
+                "id": "8877049006",
+                "secret": "741139a946",
+                "server": "5461",
+                "farm": 6,
+                "title": "23-02-7",
+                "isprimary": "0"
+            }
+        ],
+        "page": "1",
+        "per_page": "50",
+        "perpage": "50",
+        "pages": 1,
+        "total": "2",
+        "title": "Ense\u00f1anza - Nombre album 9"
+    },
+    "stat": "ok"
+}

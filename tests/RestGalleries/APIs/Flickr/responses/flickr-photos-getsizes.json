@@ -1,0 +1,66 @@
+{
+    "sizes": {
+        "canblog": 1,
+        "canprint": 1,
+        "candownload": 1,
+        "size": [
+            {
+                "label": "Square",
+                "width": 75,
+                "height": 75,
+                "source": "https://farm4.staticflickr.com/3784/8876434399_ba75f7d354_s.jpg",
+                "url": "https://www.flickr.com/photos/estebanmatias092/8876434399/sizes/sq/",
+                "media": "photo"
+            },
+            {
+                "label": "Large Square",
+                "width": "150",
+                "height": "150",
+                "source": "https://farm4.staticflickr.com/3784/8876434399_ba75f7d354_q.jpg",
+                "url": "https://www.flickr.com/photos/estebanmatias092/8876434399/sizes/q/",
+                "media": "photo"
+            },
+            {
+                "label": "Thumbnail",
+                "width": "100",
+                "height": "75",
+                "source": "https://farm4.staticflickr.com/3784/8876434399_ba75f7d354_t.jpg",
+                "url": "https://www.flickr.com/photos/estebanmatias092/8876434399/sizes/t/",
+                "media": "photo"
+            },
+            {
+                "label": "Small",
+                "width": "240",
+                "height": "180",
+                "source": "https://farm4.staticflickr.com/3784/8876434399_ba75f7d354_m.jpg",
+                "url": "https://www.flickr.com/photos/estebanmatias092/8876434399/sizes/s/",
+                "media": "photo"
+            },
+            {
+                "label": "Small 320",
+                "width": "320",
+                "height": 240,
+                "source": "https://farm4.staticflickr.com/3784/8876434399_ba75f7d354_n.jpg",
+                "url": "https://www.flickr.com/photos/estebanmatias092/8876434399/sizes/n/",
+                "media": "photo"
+            },
+            {
+                "label": "Medium",
+                "width": "500",
+                "height": "375",
+                "source": "https://farm4.staticflickr.com/3784/8876434399_ba75f7d354.jpg",
+                "url": "https://www.flickr.com/photos/estebanmatias092/8876434399/sizes/m/",
+                "media": "photo"
+            },
+            {
+                "label": "Original",
+                "width": "500",
+                "height": "375",
+                "source": "https://farm4.staticflickr.com/3784/8876434399_0e34a37afb_o.jpg",
+                "url": "https://www.flickr.com/photos/estebanmatias092/8876434399/sizes/o/",
+                "media": "photo"
+            }
+        ]
+    },
+    "stat": "ok"
+}

@@ -1,0 +1,99 @@
+{
+    "photo": {
+        "id": "8876434399",
+        "secret": "ba75f7d354",
+        "server": "3784",
+        "farm": 4,
+        "dateuploaded": "1369820062",
+        "isfavorite": 0,
+        "license": "0",
+        "safety_level": "0",
+        "rotation": 0,
+        "originalsecret": "0e34a37afb",
+        "originalformat": "jpg",
+        "owner": {
+            "nsid": "96330205@N04",
+            "username": "estebanmatias092",
+            "realname": "Matias Esteban",
+            "location": "Mar del Plata, Argentina",
+            "iconserver": "5446",
+            "iconfarm": 6,
+            "path_alias": "estebanmatias092"
+        },
+        "title": {
+            "_content": "23-02-9"
+        },
+        "description": {
+            "_content": ""
+        },
+        "visibility": {
+            "ispublic": 1,
+            "isfriend": 0,
+            "isfamily": 0
+        },
+        "dates": {
+            "posted": "1369820062",
+            "taken": "2012-03-06 00:07:37",
+            "takengranularity": "0",
+            "lastupdate": "1369881127"
+        },
+        "permissions": {
+            "permcomment": 3,
+            "permaddmeta": 2
+        },
+        "views": "10",
+        "editability": {
+            "cancomment": 1,
+            "canaddmeta": 1
+        },
+        "publiceditability": {
+            "cancomment": 1,
+            "canaddmeta": 0
+        },
+        "usage": {
+            "candownload": 1,
+            "canblog": 1,
+            "canprint": 1,
+            "canshare": 1
+        },
+        "comments": {
+            "_content": "0"
+        },
+        "notes": {
+            "note": []
+        },
+        "people": {
+            "haspeople": 0
+        },
+        "tags": {
+            "tag": [
+                {
+                    "id": "96298066-8876434399-763889",
+                    "author": "96330205@N04",
+                    "authorname": "estebanmatias092",
+                    "raw": "Ense\u00f1anza",
+                    "_content": "ense\u00f1anza",
+                    "machine_tag": 0
+                },
+                {
+                    "id": "96298066-8876434399-67815",
+                    "author": "96330205@N04",
+                    "authorname": "estebanmatias092",
+                    "raw": "todos",
+                    "_content": "todos",
+                    "machine_tag": 0
+                }
+            ]
+        },
+        "urls": {
+            "url": [
+                {
+                    "type": "photopage",
+                    "_content": "https://www.flickr.com/photos/estebanmatias092/8876434399/"
+                }
+            ]
+        },
+        "media": "photo"
+    },
+    "stat": "ok"
+}

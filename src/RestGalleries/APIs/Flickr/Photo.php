@@ -1,5 +1,7 @@
 <?php namespace RestGalleries\APIs\Flickr;
 
+use Illuminate\Support\Collection;
+use Illuminate\Support\Fluent;
 use RestGalleries\APIs\ApiPhoto;
 
 class Photo extends ApiPhoto
@@ -13,16 +15,56 @@ class Photo extends ApiPhoto
 
     public function all($galleryId)
     {
+        $page    = 1;
+        $perPage = 50;
+        $photos  = [];
+
+        do {
+            $query = array_merge(
+                $this->defaultQuery,
+                [
+                    'method'         => 'flickr.photosets.getPhotos',
+                    'photoset_id'    => $galleryId,
+                    'extras'         => '',
+                    'privacy_filter' => 1,
+                    'per_page'       => $perPage,
+                    'page'           => $page,
+                    'media'          => 'photos',
+                ]
+            );
+
+            $this->http->setQuery($query);
+
+            $response = $this->http->GET();
+            $body     = $response->getBody();
+            $photoset = &$body->photoset;
+
+            foreach ($photoset->photo as $photo) {
+
+                $photos[] = $this->getPhoto($photo->id);
+            }
+
+            ++$page;
+
+        } while ($page <= $photoset->pages);
+
+        return new Collection($photos);
+
+    }
+
+    public function find($id)
+    {
+        return $this->getPhoto($id);
+    }
+
+    protected function getPhoto($id)
+    {
         $query = array_merge(
             $this->defaultQuery,
             [
-                'method'         => 'flickr.photosets.getPhotos',
-                'photoset_id'    => $galleryId,
-                'extras'         => 'tags, url_o',
-                'privacy_filter' => null,
-                'per_page'       => 100,
-                'page'           => 1,
-                'media'          => 'all',
+                'method'   => 'flickr.photos.getInfo',
+                'photo_id' => $id,
+                'secret'   => '',
             ]
         );
 
@@ -31,14 +73,47 @@ class Photo extends ApiPhoto
         $response = $this->http->GET();
         $body     = $response->getBody();
 
+        $photo = $this->getArrayData($body);
 
-        var_dump($body);
+        return new Fluent($photo);
 
     }
 
-    public function find($id)
+    protected function getArrayData($data)
     {
-        //
+        $data = &$data->photo;
+
+        $photo                = [];
+        $photo['id']          = $data->id;
+        $photo['title']       = $data->title->_content;
+        $photo['description'] = $data->description->_content;
+        $photo['url']         = $data->urls->url[0]->_content;
+        $photo['created']     = (integer) $data->dates->posted;
+        $photo['views']       = $data->views;
+
+        $query = array_merge(
+            $this->defaultQuery,
+            [
+                'method'   => 'flickr.photos.getSizes',
+                'photo_id' => $data->id,
+            ]
+        );
+
+        $this->http->setQuery($query);
+
+        $response = $this->http->GET();
+        $body     = $response->getBody();
+
+        $images = array_where($body->sizes->size, function ($key, $value) {
+            return in_array($value->label, ['Original', 'Small 320']);
+        });
+
+        $images = array_flatten($images);
+
+        $photo['source']           = $images[1]->source;
+        $photo['source_thumbnail'] = $images[0]->source;
+
+        return $photo;
     }
 
 }

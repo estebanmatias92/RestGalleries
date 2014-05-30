@@ -19,7 +19,6 @@
             <exclude>tests/RestGalleries/RestGalleryTest.php</exclude>
             <exclude>tests/RestGalleries/APIs/FlickrTest.php</exclude>
             <exclude>tests/RestGalleries/APIs/Flickr/GalleryTest.php</exclude>
-            <exclude>tests/RestGalleries/APIs/Flickr/PhotoTest.php</exclude>
         </testsuite>
     </testsuites>
 </phpunit>
