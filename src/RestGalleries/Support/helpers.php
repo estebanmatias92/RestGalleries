@@ -47,10 +47,14 @@ if (!function_exists('xml_decode'))
      */
     function xml_decode($string, $array = false)
     {
-        $xml   = simplexml_load_string($string);
-        $json  = json_encode($xml);
+        if ($array == false) {
+            return simplexml_load_string($string);
+        } else {
+            $xml  = simplexml_load_string($string);
+            $json = json_encode($xml);
 
-        return json_decode($json, $array);
+            return json_decode($json, true);
+        }
 
     }
 }
