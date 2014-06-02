@@ -53,38 +53,27 @@ class Response implements ResponseAdapter
      *
      * @return json/xml/string
      */
-    public function getBody()
+    public function getBody($format = 'object')
     {
-        if (is_xml($this->body)) {
-            return $this->xml($this->body);
-        } elseif (is_json($this->body)) {
-            return $this->json($this->body);
-        } else {
-            return $this->raw();
+
+        switch ($format) {
+            case 'string':
+                return $this->raw();
+                break;
+
+            case 'array':
+                return $this->getArray();
+                break;
+
+            case 'object':
+                return $this->getObject();
+                break;
+
+            default:
+                return null;
+                break;
         }
 
-    }
-
-    /**
-     * Takes an string and converts it into a json object.
-     *
-     * @param  string      $string
-     * @return json object
-     */
-    protected function json($string)
-    {
-        return json_decode($string);
-    }
-
-    /**
-     * Takes an string and converts it into a xml object.
-     *
-     * @param  string     $string
-     * @return xml object
-     */
-    protected function xml($string)
-    {
-        return simplexml_load_string($string);
     }
 
     /**
@@ -96,6 +85,47 @@ class Response implements ResponseAdapter
     {
         return $this->body;
     }
+
+    protected function getArray()
+    {
+        if (is_xml($this->body)) {
+            return $this->xml(true);
+        } elseif (is_json($this->body)) {
+            return $this->json(true);
+        }
+    }
+
+    protected function getObject()
+    {
+        if (is_xml($this->body)) {
+            return $this->xml();
+        } elseif (is_json($this->body)) {
+            return $this->json();
+        }
+    }
+
+    /**
+     * Takes an string and converts it into a json object.
+     *
+     * @param  string      $string
+     * @return json object
+     */
+    protected function json($array = false)
+    {
+        return json_decode($this->body, $array);
+    }
+
+    /**
+     * Takes an string and converts it into a xml object.
+     *
+     * @param  string     $string
+     * @return xml object
+     */
+    protected function xml($array = false)
+    {
+        return xml_decode($this->body, $array);
+    }
+
 
     public function getHeaders()
     {

@@ -35,3 +35,26 @@ if (!function_exists('is_xml'))
     }
 
 }
+
+if (!function_exists('xml_decode'))
+{
+    /**
+     * Parse xml string to PHP array or object.
+     *
+     * @param  string       $string
+     * @param  boolean      $array
+     * @return array/object
+     */
+    function xml_decode($string, $array = false)
+    {
+        if ($array == false) {
+            return simplexml_load_string($string);
+        } else {
+            $xml  = simplexml_load_string($string);
+            $json = json_encode($xml);
+
+            return json_decode($json, true);
+        }
+
+    }
+}
