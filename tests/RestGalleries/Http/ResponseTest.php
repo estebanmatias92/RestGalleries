@@ -35,7 +35,20 @@ class ResponseTest extends TestCase
 
         $body = $this->response->getBody();
 
-        $this->assertTrue(is_object($body));
+        assertThat($body, is(objectValue()));
+
+    }
+
+    /**
+     * @dataProvider bodyProvider
+     */
+    public function testGetBodyReturnsArrays($string)
+    {
+        $this->response->setBody($string);
+
+        $body = $this->response->getBody('array');
+
+        assertThat($body, is(arrayValue()));
 
     }
 
@@ -43,9 +56,9 @@ class ResponseTest extends TestCase
     {
         $this->response->setBody('Just another string for testing');
 
-        $body = $this->response->getBody();
+        $body = $this->response->getBody('string');
 
-        $this->assertTrue(is_string($body));
+        assertThat($body, is(stringValue()));
 
     }
 
@@ -53,7 +66,9 @@ class ResponseTest extends TestCase
     {
         $this->response->setHeaders(['Test' => 'Test Header']);
 
-        $this->assertEquals('Test Header', $this->response->getHeaders()['Test']);
+        $headers = $this->response->getHeaders();
+
+        assertThat($headers['Test'], is(equalTo('Test Header')));
 
     }
 
@@ -61,7 +76,9 @@ class ResponseTest extends TestCase
     {
         $this->response->setStatusCode(200);
 
-        $this->assertInternalType('integer', $this->response->getStatusCode());
+        $statusCode = $this->response->getStatusCode();
+
+        assertThat($statusCode, is(integerValue()));
 
     }
 
