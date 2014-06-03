@@ -63,9 +63,24 @@ class Photo extends ApiPhoto
         $this->http->setQuery($query);
 
         $response = $this->http->GET();
-        $body     = $response->getBody();
+        $photo    = $response->getBody();
 
-        return $this->getArrayData($body);
+        $query = array_merge(
+            $this->defaultQuery,
+            [
+                'method'   => 'flickr.photos.getSizes',
+                'photo_id' => $id,
+            ]
+        );
+
+        $this->http->setQuery($query);
+
+        $response = $this->http->GET();
+        $sizes    = $response->getBody();
+
+        $photo->photo->sizes = $sizes->sizes;
+
+        return $this->getArrayData($photo);
 
     }
 
@@ -81,20 +96,7 @@ class Photo extends ApiPhoto
         $photo['created']     = (integer) $data->dates->posted;
         $photo['views']       = $data->views;
 
-        $query = array_merge(
-            $this->defaultQuery,
-            [
-                'method'   => 'flickr.photos.getSizes',
-                'photo_id' => $data->id,
-            ]
-        );
-
-        $this->http->setQuery($query);
-
-        $response = $this->http->GET();
-        $body     = $response->getBody();
-
-        $images = array_where($body->sizes->size, function ($key, $value) {
+        $images = array_where($data->sizes->size, function ($key, $value) {
             return in_array($value->label, ['Original', 'Small 320']);
         });
 
@@ -104,6 +106,7 @@ class Photo extends ApiPhoto
         $photo['source_thumbnail'] = $images[0]->source;
 
         return $photo;
+
     }
 
 }

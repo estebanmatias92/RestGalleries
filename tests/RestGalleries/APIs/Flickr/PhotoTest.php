@@ -114,7 +114,7 @@ class PhotoTest extends TestCase
 
         // Into the photos loop
         //
-        // First phot
+        // First photo
         $this->http
             ->shouldReceive('setQuery')
             ->with($photoQuery)
