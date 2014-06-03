@@ -1,9 +1,9 @@
-<?php RestGalleries\Interfaces;
+<?php namespace RestGalleries\Interfaces;
 
 use RestGalleries\Http\HttpAdapter;
 
 /**
- * PhotoAdapter description.
+ * This interface provides methods like CRUD from an MVC model, for enhance the usability. Also provides of cache and authentication.
  */
 interface PhotoAdapter
 {

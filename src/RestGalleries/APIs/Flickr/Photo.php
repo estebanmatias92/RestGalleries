@@ -2,6 +2,9 @@
 
 use RestGalleries\APIs\ApiPhoto;
 
+/**
+ * Specific implementation of the PhotoAdapter interface, makes requests and normalizes the given data for return them.
+ */
 class Photo extends ApiPhoto
 {
     protected $endPoint = 'http://api.flickr.com/services/rest/';
@@ -84,6 +87,12 @@ class Photo extends ApiPhoto
 
     }
 
+    /**
+     * Specific data are stored into an array and are returned.
+     *
+     * @param  object $data
+     * @return array
+     */
     protected function getArrayData($data)
     {
         $data = &$data->photo;
