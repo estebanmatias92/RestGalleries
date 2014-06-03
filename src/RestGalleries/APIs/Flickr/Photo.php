@@ -1,7 +1,5 @@
 <?php namespace RestGalleries\APIs\Flickr;
 
-use Illuminate\Support\Collection;
-use Illuminate\Support\Fluent;
 use RestGalleries\APIs\ApiPhoto;
 
 class Photo extends ApiPhoto
@@ -13,11 +11,11 @@ class Photo extends ApiPhoto
         'nojsoncallback' => 1,
     ];
 
-    public function all($galleryId)
+    public function getPhotoIds($galleryId)
     {
         $page    = 1;
         $perPage = 50;
-        $photos  = [];
+        $ids     = [];
 
         do {
             $query = array_merge(
@@ -36,25 +34,19 @@ class Photo extends ApiPhoto
             $this->http->setQuery($query);
 
             $response = $this->http->GET();
-            $body     = $response->getBody();
-            $photoset = &$body->photoset;
+            $body     = $response->getBody('array');
 
-            foreach ($photoset->photo as $photo) {
+            $photoset = &$body['photoset'];
 
-                $photos[] = $this->getPhoto($photo->id);
-            }
+            $pluckedIds = array_pluck($photoset['photo'], 'id');
+            $ids        = array_merge($ids, $pluckedIds);
 
             ++$page;
 
-        } while ($page <= $photoset->pages);
+        } while ($page <= $photoset['pages']);
 
-        return new Collection($photos);
+        return $ids;
 
-    }
-
-    public function find($id)
-    {
-        return $this->getPhoto($id);
     }
 
     protected function getPhoto($id)
@@ -73,9 +65,7 @@ class Photo extends ApiPhoto
         $response = $this->http->GET();
         $body     = $response->getBody();
 
-        $photo = $this->getArrayData($body);
-
-        return new Fluent($photo);
+        return $this->getArrayData($body);
 
     }
 

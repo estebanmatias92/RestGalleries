@@ -58,7 +58,7 @@ class PhotoTest extends TestCase
         $photo2_id = '8877049006';
 
         // Prepare responses objects
-        $photos            = json_decode($this->responsePhotos);
+        $photos            = json_decode($this->responsePhotos, true);
         $photo             = json_decode($this->responsePhotoInfo);
         $photo2            = json_decode($this->responsePhotoInfo);
         $photo2->photo->id = $photo2_id;
@@ -89,6 +89,7 @@ class PhotoTest extends TestCase
 
         $this->response
             ->shouldReceive('getBody')
+            ->with('array')
             ->times(1)
             ->andReturn($photos);
 
