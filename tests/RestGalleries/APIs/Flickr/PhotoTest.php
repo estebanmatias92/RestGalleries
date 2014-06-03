@@ -45,24 +45,27 @@ class PhotoTest extends TestCase
 
         $this->currentPath = dirname(__FILE__);
 
-        $this->responsePhotos     = file_get_contents($this->currentPath.'/responses/flickr.photosets.getphotos.json');
-        $this->responsePhotoInfo  = file_get_contents($this->currentPath.'/responses/flickr-photos-getinfo.json');
-        $this->responsePhotoSizes = file_get_contents($this->currentPath .'/responses/flickr-photos-getsizes.json');
+        // Prepare string responses
+        $this->photosetsGetPhotos     = file_get_contents($this->currentPath.'/responses/flickr-photosets-getphotos.json');
+        $this->photosetsGetPhotosFail = file_get_contents($this->currentPath.'/responses/flickr-photosets-getphotos-fail.json');
+        $this->photosGetInfo          = file_get_contents($this->currentPath.'/responses/flickr-photos-getinfo.json');
+        $this->photosGetInfoFail      = file_get_contents($this->currentPath.'/responses/flickr-photos-getinfo-fail.json');
+        $this->photosGetSizes         = file_get_contents($this->currentPath .'/responses/flickr-photos-getsizes.json');
 
     }
 
     public function testAll()
     {
         $galleryId = '72157633782247768';
-        $photo1_id  = '8876434399';
+        $photo1_id = '8876434399';
         $photo2_id = '8877049006';
 
         // Prepare responses objects
-        $photos            = json_decode($this->responsePhotos, true);
-        $photo             = json_decode($this->responsePhotoInfo);
-        $photo2            = json_decode($this->responsePhotoInfo);
+        $photoset          = json_decode($this->photosetsGetPhotos, true);
+        $photo             = json_decode($this->photosGetInfo);
+        $photo2            = json_decode($this->photosGetInfo);
         $photo2->photo->id = $photo2_id;
-        $photoSizes        = json_decode($this->responsePhotoSizes);
+        $photoSizes        = json_decode($this->photosGetSizes);
 
         // First gallery request (main)
         $query = [
@@ -91,7 +94,7 @@ class PhotoTest extends TestCase
             ->shouldReceive('getBody')
             ->with('array')
             ->times(1)
-            ->andReturn($photos);
+            ->andReturn($photoset);
 
         // Prepare photos requests queries
         $photoQuery = $photoQuery2 = [
@@ -160,15 +163,152 @@ class PhotoTest extends TestCase
         $photos = $this->photo->all($galleryId);
 
         assertThat($photos, is(anInstanceOf('Illuminate\\Support\\Collection')));
-        assertThat($photos[0]->id, is(nonEmptyString()));
-        assertThat($photos[0]->title, is(nonEmptyString()));
-        assertThat($photos[0]->description, is(stringValue()));
-        assertThat($photos[0]->source, is(nonEmptyString()));
-        assertThat($photos[0]->source_thumbnail, is(nonEmptyString()));
-        assertThat($photos[0]->created, is(integerValue()));
+        assertThat($photos, is(nonEmptyTraversable()));
+        assertThat($photos[0], is(anInstanceOf('Illuminate\Support\Fluent')));
+
 
     }
 
+    public function testAllFails()
+    {
+        $galleryId = '11111111111111111';
 
+        // Prepare responses objects
+        $photosetFail = json_decode($this->photosetsGetPhotosFail, true);
+
+        // Gallery request
+        $query = [
+            'format'         => 'json',
+            'nojsoncallback' => 1,
+            'method'         => 'flickr.photosets.getPhotos',
+            'photoset_id'    => $galleryId,
+            'extras'         => '',
+            'privacy_filter' => 1,
+            'per_page'       => 50,
+            'page'           => 1,
+            'media'          => 'photos',
+        ];
+
+        $this->http
+            ->shouldReceive('setQuery')
+            ->with($query)
+            ->times(1);
+
+        $this->http
+            ->shouldReceive('GET')
+            ->times(1)
+            ->andReturn($this->response);
+
+        $this->response
+            ->shouldReceive('getBody')
+            ->times(1)
+            ->andReturn($photosetFail);
+
+        // Method calling and assertions
+        $photos = $this->photo->all($galleryId);
+
+        assertThat($photos, is(emptyTraversable()));
+
+    }
+
+    public function testFind()
+    {
+        $photoId = '8876434399';
+
+        // Prepare responses objects
+        $photo = json_decode($this->photosGetInfo);
+        $sizes = json_decode($this->photosGetSizes);
+
+        // Prepare photo requests queries
+        $query = [
+            'format'         => 'json',
+            'nojsoncallback' => 1,
+            'method'         => 'flickr.photos.getInfo',
+            'photo_id'       => $photoId,
+            'secret'         => '',
+        ];
+
+        $this->http
+            ->shouldReceive('setQuery')
+            ->with($query)
+            ->times(1);
+
+        $this->http
+            ->shouldReceive('GET')
+            ->times(2)
+            ->andReturn($this->response);
+
+        $this->response
+            ->shouldReceive('getBody')
+            ->times(1)
+            ->andReturn($photo);
+
+        $sizesQuery = [
+            'format'         => 'json',
+            'nojsoncallback' => 1,
+            'method'         => 'flickr.photos.getSizes',
+            'photo_id'       => $photoId,
+        ];
+
+        $this->http
+            ->shouldReceive('setQuery')
+            ->with($sizesQuery)
+            ->times(1);
+
+        $this->response
+            ->shouldReceive('getBody')
+            ->times(1)
+            ->andReturn($sizes);
+
+        // Method calling and assertions
+        $photo = $this->photo->find($photoId);
+
+        assertThat($photo, is(anInstanceOf('Illuminate\Support\Fluent')));
+        assertThat($photo->id, is(nonEmptyString()));
+        assertThat($photo->title, is(nonEmptyString()));
+        assertThat($photo->description, is(stringValue()));
+        assertThat($photo->source, is(nonEmptyString()));
+        assertThat($photo->source_thumbnail, is(nonEmptyString()));
+        assertThat($photo->created, is(integerValue()));
+
+    }
+
+    public function testFindFails()
+    {
+        $photoId = '1111111111';
+
+        // Prepare responses objects
+        $photoFail = json_decode($this->photosGetInfoFail);
+
+        // Prepare photo request query
+        $query = [
+            'format'         => 'json',
+            'nojsoncallback' => 1,
+            'method'         => 'flickr.photos.getInfo',
+            'photo_id'       => $photoId,
+            'secret'         => '',
+        ];
+
+        $this->http
+            ->shouldReceive('setQuery')
+            ->with($query)
+            ->times(1);
+
+        $this->http
+            ->shouldReceive('GET')
+            ->times(1)
+            ->andReturn($this->response);
+
+        $this->response
+            ->shouldReceive('getBody')
+            ->times(1)
+            ->andReturn($photoFail);
+
+        // Method calling and assertions
+        $photo = $this->photo->find($photoId);
+
+        assertThat($photo, is(notSet('id')));
+
+    }
 
 }

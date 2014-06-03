@@ -39,16 +39,32 @@ class Photo extends ApiPhoto
             $response = $this->http->GET();
             $body     = $response->getBody('array');
 
-            $photoset = &$body['photoset'];
+            $newIds = $this->getArrayIds($body);
 
-            $pluckedIds = array_pluck($photoset['photo'], 'id');
-            $ids        = array_merge($ids, $pluckedIds);
+            if ($newIds == false) {
+                return null;
+            }
+
+            $photoset = &$body['photoset'];
+            $ids      = array_merge($ids, $newIds);
 
             ++$page;
 
         } while ($page <= $photoset['pages']);
 
         return $ids;
+
+    }
+
+    protected function getArrayIds($data)
+    {
+        if ($data['stat'] == 'fail') {
+            return false;
+        }
+
+        $photoset = &$data['photoset'];
+
+        return array_pluck($photoset['photo'], 'id');
 
     }
 
@@ -66,24 +82,16 @@ class Photo extends ApiPhoto
         $this->http->setQuery($query);
 
         $response = $this->http->GET();
-        $photo    = $response->getBody();
+        $body     = $response->getBody();
 
-        $query = array_merge(
-            $this->defaultQuery,
-            [
-                'method'   => 'flickr.photos.getSizes',
-                'photo_id' => $id,
-            ]
-        );
+        $photo = $this->getArrayPhoto($body);
 
-        $this->http->setQuery($query);
+        if($photo == false)
+        {
+            return null;
+        }
 
-        $response = $this->http->GET();
-        $sizes    = $response->getBody();
-
-        $photo->photo->sizes = $sizes->sizes;
-
-        return $this->getArrayData($photo);
+        return $photo;
 
     }
 
@@ -93,8 +101,12 @@ class Photo extends ApiPhoto
      * @param  object $data
      * @return array
      */
-    protected function getArrayData($data)
+    protected function getArrayPhoto($data)
     {
+        if ($data->stat == 'fail') {
+            return false;
+        }
+
         $data = &$data->photo;
 
         $photo                = [];
@@ -105,7 +117,21 @@ class Photo extends ApiPhoto
         $photo['created']     = (integer) $data->dates->posted;
         $photo['views']       = $data->views;
 
-        $images = array_where($data->sizes->size, function ($key, $value) {
+        $query = array_merge(
+            $this->defaultQuery,
+            [
+                'method'   => 'flickr.photos.getSizes',
+                'photo_id' => $data->id,
+            ]
+        );
+
+        $this->http->setQuery($query);
+
+        $response = $this->http->GET();
+        $sizes    = $response->getBody();
+        $sizes    = &$sizes->sizes->size;
+
+        $images = array_where($sizes, function ($key, $value) {
             return in_array($value->label, ['Original', 'Small 320']);
         });
 

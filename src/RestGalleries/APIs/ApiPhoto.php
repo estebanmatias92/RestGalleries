@@ -38,7 +38,12 @@ abstract class ApiPhoto implements PhotoAdapter
     public function all($galleryId)
     {
         $photoIds = $this->getPhotoIds($galleryId);
-        $photos   = [];
+
+        if (empty($photoIds)) {
+            return new Collection;
+        }
+
+        $photos = [];
 
         foreach ($photoIds as $id) {
             $photo    = $this->getPhoto($id);
@@ -66,6 +71,10 @@ abstract class ApiPhoto implements PhotoAdapter
     public function find($id)
     {
         $photo = $this->getPhoto($id);
+
+        if (empty($photo)) {
+            return new Fluent;
+        }
 
         return new Fluent($photo);
 
