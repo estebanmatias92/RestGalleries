@@ -31,6 +31,7 @@ abstract class ApiPhoto implements PhotoAdapter
 
     /**
      * Gets IDs of photos, seeks and gets the photo and makes a Collection for send it back.
+     * If the gallery is empty, returns an empty Collection.
      *
      * @param  string                        $galleryId
      * @return Illuminate\Support\Collection
@@ -56,14 +57,16 @@ abstract class ApiPhoto implements PhotoAdapter
 
     /**
      * Makes the request to get the IDs of gallery photos and return it as array.
+     * If it does not find the gallery, returns null.
      *
-     * @param  string $galleryId
-     * @return array
+     * @param  string     $galleryId
+     * @return array|null
      */
     abstract protected function getPhotoIds($galleryId);
 
     /**
      * Gets the photo and returns an object.
+     * If photo is empty, returns an empty Fluent object.
      *
      * @param  string                    $id
      * @return Illuminate\Support\Fluent
@@ -81,10 +84,11 @@ abstract class ApiPhoto implements PhotoAdapter
     }
 
     /**
-     * Here are made the necessary requests to get info of photography, turn it  into an array, and send it back.
+     * Here are made the necessary requests to get info of photography, turn it into an array, and send it back.
+     * If it does not find the photo, returns null.
      *
-     * @param  string $id
-     * @return array
+     * @param  string     $id
+     * @return array|null
      */
     abstract protected function getPhoto($id);
 

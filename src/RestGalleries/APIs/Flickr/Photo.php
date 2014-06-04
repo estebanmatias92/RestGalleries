@@ -56,6 +56,12 @@ class Photo extends ApiPhoto
 
     }
 
+    /**
+     * It receives an array with gallery data and returns an array with Ids from the gallery photos, if gets an failure, returns false.
+     *
+     * @param  array         $data
+     * @return array|boolean
+     */
     protected function getArrayIds($data)
     {
         if ($data['stat'] == 'fail') {
@@ -96,10 +102,10 @@ class Photo extends ApiPhoto
     }
 
     /**
-     * Specific data are stored into an array and are returned.
+     * Specific data are stored into an array and are returned, when it receive an failure, returns false.
      *
-     * @param  object $data
-     * @return array
+     * @param  object        $data
+     * @return array|boolean
      */
     protected function getArrayPhoto($data)
     {
