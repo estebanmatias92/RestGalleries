@@ -49,13 +49,12 @@ class Response implements ResponseAdapter
     }
 
     /**
-     * Returns a json/xml or a raw string of the body given
+     * It returns the xml|json string in any of these formats.
      *
-     * @return json/xml/string
+     * @return string|array|object
      */
     public function getBody($format = 'object')
     {
-
         switch ($format) {
             case 'string':
                 return $this->raw();
@@ -86,6 +85,11 @@ class Response implements ResponseAdapter
         return $this->body;
     }
 
+    /**
+     * It return the xml|json as an array.
+     *
+     * @return array
+     */
     protected function getArray()
     {
         if (is_xml($this->body)) {
@@ -93,8 +97,14 @@ class Response implements ResponseAdapter
         } elseif (is_json($this->body)) {
             return $this->json(true);
         }
+
     }
 
+    /**
+     * It return the xml|json as an object.
+     *
+     * @return array
+     */
     protected function getObject()
     {
         if (is_xml($this->body)) {
@@ -102,13 +112,14 @@ class Response implements ResponseAdapter
         } elseif (is_json($this->body)) {
             return $this->json();
         }
+
     }
 
     /**
-     * Takes an string and converts it into a json object.
+     * Takes an string and converts it into a json object or array.
      *
-     * @param  string      $string
-     * @return json object
+     * @param  string       $string
+     * @return array|object
      */
     protected function json($array = false)
     {
@@ -116,10 +127,10 @@ class Response implements ResponseAdapter
     }
 
     /**
-     * Takes an string and converts it into a xml object.
+     * Takes an string and converts it into a xml object or array.
      *
-     * @param  string     $string
-     * @return xml object
+     * @param  string       $string
+     * @return array|object
      */
     protected function xml($array = false)
     {

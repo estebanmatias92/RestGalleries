@@ -11,6 +11,7 @@ class ResponseTest extends TestCase
         $this->url = 'http://api.flickr.com/services/rest/';
 
         $this->response = new Response;
+
     }
 
     public function bodyProvider()
