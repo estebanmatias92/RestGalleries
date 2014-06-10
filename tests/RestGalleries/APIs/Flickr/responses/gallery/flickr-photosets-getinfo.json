@@ -1,0 +1,28 @@
+{
+    "photoset": {
+        "id": "72157633782247768",
+        "owner": "96330205@N04",
+        "username": "estebanmatias092",
+        "primary": "8876434399",
+        "secret": "ba75f7d354",
+        "server": "3784",
+        "farm": 4,
+        "photos": 2,
+        "count_views": 1,
+        "count_comments": 0,
+        "count_photos": 2,
+        "count_videos": 0,
+        "title": {
+            "_content": "Ense\u00f1anza - Nombre album 9"
+        },
+        "description": {
+            "_content": "Peque\u00f1a descripci\u00f3n sobre el album 9, Peque\u00f1a descripci\u00f3n sobre el album 9, Peque\u00f1a descripci\u00f3n sobre el album 9"
+        },
+        "can_comment": 1,
+        "date_create": "1369820747",
+        "date_update": "1369820748",
+        "coverphoto_server": 0,
+        "coverphoto_farm": 0
+    },
+    "stat": "ok"
+}

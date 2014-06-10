@@ -1,0 +1,56 @@
+{
+    "photosets": {
+        "cancreate": 1,
+        "page": 1,
+        "pages": 1,
+        "perpage": 50,
+        "total": 9,
+        "photoset": [
+            {
+                "id": "72157633782247768",
+                "primary": "8876434399",
+                "secret": "ba75f7d354",
+                "server": "3784",
+                "farm": 4,
+                "photos": 2,
+                "videos": 0,
+                "title": {
+                    "_content": "Ense\u00f1anza - Nombre album 9"
+                },
+                "description": {
+                    "_content": "Peque\u00f1a descripci\u00f3n sobre el album 9, Peque\u00f1a descripci\u00f3n sobre el album 9, Peque\u00f1a descripci\u00f3n sobre el album 9"
+                },
+                "needs_interstitial": 0,
+                "visibility_can_see_set": 1,
+                "count_views": 1,
+                "count_comments": 0,
+                "can_comment": 1,
+                "date_create": "1369820747",
+                "date_update": "1369820748"
+            },
+            {
+                "id": "72157633780835561",
+                "primary": "8876434143",
+                "secret": "66d93a5a15",
+                "server": "5328",
+                "farm": 6,
+                "photos": 2,
+                "videos": 0,
+                "title": {
+                    "_content": "Seminario - Nombre album 8"
+                },
+                "description": {
+                    "_content": "Peque\u00f1a descripci\u00f3n sobre el album 8, Peque\u00f1a descripci\u00f3n sobre el album 8"
+                },
+                "needs_interstitial": 0,
+                "visibility_can_see_set": 1,
+                "count_views": 0,
+                "count_comments": 0,
+                "can_comment": 1,
+                "date_create": "1369820715",
+                "date_update": "1369820717"
+            }
+        ]
+    },
+    "stat": "ok"
+}
