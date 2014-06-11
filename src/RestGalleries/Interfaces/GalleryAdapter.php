@@ -5,7 +5,8 @@ use RestGalleries\Http\HttpAdapter;
 use RestGalleries\Interfaces\PhotoAdapter;
 
 /**
- * GalleryAdapter description.
+ * This interface provides methods like CRUD from an MVC model, for enhance the usability.
+ * Provides too from cache, authentication to request and user connection methods.
  */
 interface GalleryAdapter
 {

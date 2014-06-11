@@ -1,11 +1,9 @@
 <?php namespace RestGalleries\APIs\Flickr;
 
 use RestGalleries\APIs\ApiGallery;
-use RestGalleries\Exception\RestGalleriesException;
 
 /**
- * An specific API client for interact with Flickr services.
- * Uses HTTP Client for interact via Restful with the service API.
+ * Specific implementation of the GalleryAdapter interface, makes requests and normalizes the given data for return them.
  */
 class Gallery extends ApiGallery
 {
@@ -13,6 +11,11 @@ class Gallery extends ApiGallery
 
     protected $http = null;
 
+    /**
+     * Common query values for all the requests.
+     *
+     * @var array
+     */
     private $defaultQuery = [
         'format'         => 'json',
         'nojsoncallback' => 1
@@ -49,12 +52,24 @@ class Gallery extends ApiGallery
 
     }
 
-
+    /**
+     * Extracts from the given array data, the identifiers of galleries.
+     *
+     * @param  array $data
+     * @return array
+     */
     private function extractIdsArray($data)
     {
         return array_pluck($data['photoset'], 'id');
     }
 
+    /**
+     * Adds to the identifiers array, a new array of identifiers.
+     *
+     * @param  array $ids
+     * @param  array $newIds
+     * @return array|null
+     */
     private function addIds(array $ids, array $newIds)
     {
         if (! empty($newIds)) {
@@ -79,6 +94,12 @@ class Gallery extends ApiGallery
 
     }
 
+    /**
+     * Extracts the data for the object gallery from the array data given, normalizes them and returns them.
+     *
+     * @param  object $data
+     * @return array|null
+     */
     private function extractGalleryArray($data)
     {
         if ($data->stat == 'fail') {
@@ -107,6 +128,4 @@ class Gallery extends ApiGallery
 
     }
 
-
 }
-
