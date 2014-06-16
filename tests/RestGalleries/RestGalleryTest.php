@@ -8,66 +8,70 @@ class RestGalleryTest extends TestCase
     {
         parent::setUp();
 
-        $this->api = Mockery::mock('Flickr');
+        $this->galleryService  = Mockery::mock('RestGalleries\\APIs\\Flickr\\Gallery');
 
-        $this->mock = Mockery::mock('RestGalleries\\RestGallery', [$this->api])->makePartial();
+        $this->auth = Mockery::mock('RestGalleries\\Auth\\OhmyAuth\\OhmyAuth');
 
-    }
-
-    public function testAllReturnArray()
-    {
-        $this->api
-            ->shouldReceive('all')
-            ->andReturn(array());
-
-        $galleries = $this->mock->all();
-
-        $this->assertInternalType('array', $galleries);
+        $this->restGallery = Mockery::mock(
+            'RestGalleries\\RestGallery',
+            [$this->auth, $this->galleryService]
+            )->makePartial();
 
     }
 
-    public function testAllReturnCorrectInstances()
+    public function testAll()
     {
-        $this->api
+        $this->galleryService
             ->shouldReceive('all')
-            ->andReturn([Mockery::mock('RestGalleries\\Apis\\Flickr\\Gallery')]);
+            ->andReturn(new Illuminate\Support\Collection(
+                [
+                    new Illuminate\Support\Fluent,
+                    new Illuminate\Support\Fluent
+                ]
+            ));
 
-        $galleries = $this->mock->all();
+        $galleries = $this->restGallery->all();
 
-        $this->assertInstanceOf('RestGalleries\\APIs\\Flickr\\Gallery', $galleries[0]);
+        assertThat($galleries, is(nonEmptyTraversable()));
+        assertThat((array) $galleries, everyItem(hasValue(anObject())));
 
     }
 
     public function testFind()
     {
-        $galleryId = '12354galleryId';
+        $id = '123456789123456';
 
-        $this->api
+        $this->galleryService
             ->shouldReceive('find')
-            ->with($galleryId)
-            ->andReturn($galleryMock =Mockery::mock('RestGalleries\\Apis\\Flickr\\Gallery'));
+            ->with($id)
+            ->andReturn(new Illuminate\Support\Fluent);
 
-        $galleryMock->id = $galleryId;
+        $gallery = $this->restGallery->find($id);
 
-        $gallery = $this->mock->find($galleryId);
+        assertThat($gallery, is(objectValue()));
 
-        $this->assertEquals($galleryId, $gallery->id);
     }
 
-    public function testFindUser()
+    public function testAuthenticate()
     {
-        $username = 'username';
+        $apiKeys = [
+            'consumer_key'    => 'dummy-consumer-key',
+            'consumer_secret' => 'dummy-consumer-secret'
+        ];
 
-        $this->api
-            ->shouldReceive('findUser')
-            ->with($username)
-            ->andReturn($userMock = Mockery::mock('RestGalleries\\APIs\\Flickr\\User'));
+        $credentials = [
+            'consumer_key'    => 'dummy-consumer-key',
+            'consumer_secret' => 'dummy-consumer-secret',
+            'token'           => 'dummy-token',
+            'token_secret'    => 'dummy-token-secret'
+        ];
 
-        $userMock->username = $username;
+        $this->galleryService
+            ->shouldReceive('setAuth')
+            ->with($credentials);
 
-        $user = $this->mock->findUser($username);
 
-        $this->assertEquals($username, $user->username);
+        $this->restGallery->authenticate($credentials);
     }
 
 }

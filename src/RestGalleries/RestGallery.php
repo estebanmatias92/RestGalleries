@@ -1,46 +1,84 @@
 <?php namespace RestGalleries;
 
+use RestGalleries\Auth\AuthAdapter;
 use RestGalleries\Factory;
-use RestGalleries\Interfaces\Api;
+use RestGalleries\Interfaces\GalleryAdapter;
 
 abstract class RestGallery
 {
-    private $api;
+    protected $service;
 
-    protected $apiKey;
+    protected $gallery;
 
-    protected $secretKey;
+    protected $credentials;
 
-    public function __construct(Api $api = null)
+    public function __construct(AuthAdapter $auth, GalleryAdapter $gallery = null)
     {
-        $this->api = isset($api) ? $api : Factory::make(get_class($this));
-    }
+        static::$clientCredentialKeys = $auth::getClientCredentialKeys();
+        static::$tokenCredentialKeys  = $auth::getAccessCredentialKeys();
 
-    public function setAccount($username, $password)
-    {
-        $data = [
-            'username'  => $username,
-            'password'  => $password,
-            'apiKey'    => $this->apiKey,
-            'secretKey' => $this->secretKey,
-        ];
+        if (empty($gallery)) {
+            $gallery = Factory::make(get_class($this));
+        }
 
-        $this->api->setAccount($data);
+        $this->auth    = $auth;
+        $this->gallery = $gallery;
+
     }
 
     public function all()
     {
-        return $this->api->all();
+        return $this->gallery->all();
     }
 
     public function find($id)
     {
-        return $this->api->find($id);
+        return $this->gallery->find($id);
     }
 
-    public function findUser($username)
+    public function authenticate(array $tokenCredentials)
     {
-        return $this->api->findUser($username);
+        $this->setTokenCredentials($tokenCredentials);
+        $this->gallery->setAuth($this->credentials);
+    }
+
+    public static function connect(array $clientCredentials)
+    {
+        $this->setClientCredentials($clienCredentials);
+
+        return $this->auth->connect($this->credentials);
+
+    }
+
+    public static function verifyCredentials(array $tokenCredentials)
+    {
+        $this->setTokenCredentials($tokenCredentials);
+
+        return $this->auth->verifyCredentials($this->credentials);
+
+    }
+
+    protected function setClientCredentials($credentials)
+    {
+        $this->addToCredentials($credentials);
+        $this->filterCredentials(static::$clientCredentialKeys);
+    }
+
+    protected function setTokenCredentials($credentials)
+    {
+        $this->addToCredentials($credentials);
+        $this->filterCredentials(static::$tokenCredentialKeys);
+    }
+
+    private function addToCredentials($credentials)
+    {
+        $this->credentials = array_merge($this->credentials, $credentials);
+    }
+
+    private function filterCredentials(array $keys)
+    {
+        $credentials       = array_filter($this->credentials);
+        $this->credentials = array_only($credentials, $keys);
     }
 
 }
