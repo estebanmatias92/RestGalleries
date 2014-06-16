@@ -228,6 +228,11 @@ abstract class Auth implements AuthAdapter
         ];
     }
 
+    /**
+     * Returns the client keys of oauth1 protocol and oauth2 protocol.
+     *
+     * @return array
+     */
     public static function getClientKeys()
     {
         return [
@@ -236,6 +241,11 @@ abstract class Auth implements AuthAdapter
         ];
     }
 
+    /**
+     * Returns the token keys of oauth1 protocol and oauth2 protocol.
+     *
+     * @return array
+     */
     public static function getTokenKeys()
     {
         return [
