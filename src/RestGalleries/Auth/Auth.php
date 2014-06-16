@@ -228,4 +228,20 @@ abstract class Auth implements AuthAdapter
         ];
     }
 
+    public static function getClientKeys()
+    {
+        return [
+            'oauth1' => ['consumer_key', 'consumer_secret', 'callback'],
+            'oauth2' => ['client_id', 'client_secret', 'redirect'],
+        ];
+    }
+
+    public static function getTokenKeys()
+    {
+        return [
+            'oauth1' => ['consumer_key', 'consumer_secret', 'token', 'token_secret'],
+            'oauth2' => ['acces_token', 'expires']
+        ];
+    }
+
 }
