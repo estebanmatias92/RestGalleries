@@ -75,12 +75,14 @@ if (! function_exists('array_remove_key_prefix')) {
             throw new \InvalidArgumentException('Prefix argument should be an string, ' . $type . ' given.');
         }
 
-        $callback = function ($item) use ($prefix) {
-            if (strpos($item, $prefix) === 0) {
-                return trim($item, $prefix);
+        $stringLength = strlen($prefix);
+
+        $callback = function ($item) use ($prefix, $stringLength) {
+            if (strpos($item, $prefix) !== 0) {
+                return $item;
             }
 
-            return $item;
+            return substr($item, $stringLength);
 
         };
 
