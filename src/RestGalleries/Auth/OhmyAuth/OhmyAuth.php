@@ -18,7 +18,7 @@ class OhmyAuth extends Auth
     protected function getTokenCredentials()
     {
         $client = $this->client;
-        $client = $client::init($this->clientCredentials);
+        $client = $client::init($this->credentials);
 
         foreach ($this->endPoints as $method => $url) {
             $client = call_user_func_array([$client, $method], [$url]);
