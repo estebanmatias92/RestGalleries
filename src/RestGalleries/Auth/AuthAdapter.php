@@ -6,7 +6,8 @@
 interface AuthAdapter
 {
     public static function connect(array $clientCredentials, array $endPoints, $checkUrl);
-    public static function getClientKeys();
-    public static function getTokenKeys();
+    public static function getAuthProtocol(array $credentials);
+    public static function getOauth1Keys();
+    public static function getOauth2Keys();
     public static function verifyCredentials(array $tokenCredentials, $checkUrl);
 }

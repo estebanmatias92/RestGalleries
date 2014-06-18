@@ -58,3 +58,37 @@ if (!function_exists('xml_decode'))
 
     }
 }
+
+
+if (! function_exists('array_remove_key_prefix')) {
+
+    /**
+     * Remove the given string from all key prefixes.
+     *
+     * @param  array  $array
+     * @param  string $prefix
+     * @return array
+     */
+    function array_remove_key_prefix(array $array, $prefix)
+    {
+        if ($type = gettype($prefix) != 'string') {
+            throw new \InvalidArgumentException('Prefix argument should be an string, ' . $type . ' given.');
+        }
+
+        $callback = function ($item) use ($prefix) {
+            if (strpos($item, $prefix) === 0) {
+                return trim($item, $prefix);
+            }
+
+            return $item;
+
+        };
+
+        $arrayFlipped    = array_flip($array);
+        $arrayUnPrefixed = array_map($callback, $arrayFlipped);
+
+        return array_flip($arrayUnPrefixed);
+
+    }
+
+}

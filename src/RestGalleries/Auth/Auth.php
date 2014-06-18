@@ -31,11 +31,11 @@ abstract class Auth implements AuthAdapter
     protected $endPoints;
 
     /**
-     * Input credentials to start the connect process.
+     * Stores the client credentials and token credentials.
      *
      * @var array
      */
-    protected $clientCredentials;
+    protected $credentials = [];
 
     /**
      * What protocol is going to treat?.
@@ -62,15 +62,18 @@ abstract class Auth implements AuthAdapter
     {
         $instance = new static;
 
-        $instance->clientCredentials = array_change_key_case($clientCredentials);
-        $instance->endPoints         = array_change_key_case($endPoints);
+        if (! $instance->protocol = self::getAuthProtocol($clientCredentials)) {
+            throw new AuthException('Credentials keys are invalid');
+        }
 
-        $instance->checkProtocol($instance->clientCredentials);
+        $instance->credentials = $clientCredentials;
+        $instance->endPoints   = $endPoints;
+        $tokenCredentials      = $instance->getTokenCredentials();
 
-        $tokenCredentials = $instance->getTokenCredentials();
-        $tokenCredentials = $instance->filterTokens($tokenCredentials);
+        $instance->addToCredentials($tokenCredentials);
+        $instance->filterCredentials('token_credentials');
 
-        return $instance->getAccount($tokenCredentials, $checkUrl);
+        return $instance->getAccountData($checkUrl);
 
     }
 
@@ -82,25 +85,55 @@ abstract class Auth implements AuthAdapter
     abstract protected function getTokenCredentials();
 
     /**
-     * Filters the given tokens for use them with the "Auth::getAccount" method.
+     * [addToCredentials description]
+     *
+     * @param  array $credentials
+     * @return void
+     */
+    protected function addToCredentials(array $credentials)
+    {
+        $this->credentials = array_merge(
+            $this->credentials,
+            $credentials
+        );
+    }
+
+    /**
+     * Filters the given tokens for use them with the "Auth::getAccountData" method.
      *
      * @param  array $tokenCredentials
-     * @return array
+     * @return void
      */
-    protected function filterTokens($tokenCredentials)
+    protected function filterCredentials($filter = 'client_credentials')
     {
-        if ($this->protocol == 1) {
-            foreach ($tokenCredentials as $key => $value) {
-                unset($tokenCredentials[$key]);
-                $key = str_replace('oauth_', '', $key);
-                $tokenCredentials[$key] = $value;
-            }
+        if (! in_array($filter, ['client_crecentials', 'token_credentials'])) {
+            return;
         }
 
-        $credentials = array_merge($this->clientCredentials, $tokenCredentials);
-        $keys        = call_user_func_array([$this, 'getAuth'.$this->protocol.'DefaultKeys'], [null]);
+        $this->removeCredentialPrefixes('oauth_');
 
-        return array_only($credentials, $keys['token_credentials']);
+        $protocol = ucfirst($this->protocol);
+        $keys     = call_user_func_array([$this, 'get' . $protocol . 'Keys'], [null]);
+
+        $this->credentials = array_only(
+            $this->credentials,
+            $keys[$filter]
+        );
+
+    }
+
+    /**
+     * [removeCredentialPrefixes description]
+     *
+     * @param  string $prefix
+     * @return void
+     */
+    protected function removeCredentialPrefixes($prefix)
+    {
+        $this->credentials = array_remove_key_prefix(
+            $this->credentials,
+            $prefix
+        );
     }
 
     /**
@@ -111,15 +144,15 @@ abstract class Auth implements AuthAdapter
      * @param  string $checkUrl
      * @return object
      */
-    protected function getAccount($tokenCredentials, $checkUrl)
+    protected function getAccountData($checkUrl)
     {
         $http           = $this->http;
         $http           = $http::init($checkUrl);
-        $http->setAuth($tokenCredentials);
+        $http->setAuth($this->credentials);
 
         $response       = $http->GET();
         $responseObject = $response->getBody();
-        $this->addDataTokens($responseObject, $tokenCredentials);
+        $this->addDataTokens($responseObject, $this->credentials);
 
         return $responseObject;
 
@@ -131,17 +164,15 @@ abstract class Auth implements AuthAdapter
      * @param object $object
      * @param array $tokens
      */
-    protected function addDataTokens(&$object, $tokens)
+    protected function addDataTokens(&$object, $tokenCredentials)
     {
-        foreach ($tokens as $key => $value) {
+        $tokens = &$object->tokens;
 
-            $key = str_replace('oauth_', '', $key);
+        $callback = function ($value, $key) use ($tokens) {
+            $tokens = array_add($tokens, $key, $value);
+        };
 
-            if (!isset($object->tokens[$key])) {
-                $object->tokens[$key] = $value;
-            }
-
-        }
+        return array_walk($tokenCredentials, $callback);
 
     }
 
@@ -155,36 +186,40 @@ abstract class Auth implements AuthAdapter
     public static function verifyCredentials(array $tokenCredentials, $checkUrl)
     {
         $instance = new static;
-        $instance->checkProtocol($tokenCredentials);
 
-        return $instance->getAccount($tokenCredentials, $checkUrl);
-
-    }
-
-    /**
-     * Checks credentials and sets up the OAuth protocol number, or throw an exception on wrong case.
-     *
-     * @param  array $credentials
-     * @throws RestGalleries\Exception\AuthException
-     */
-    protected function checkProtocol($credentials)
-    {
-        $keys = array_keys($credentials);
-
-        if ($this->isAuth1($keys)) {
-            $this->protocol = 1;
-        } elseif ($this->isAuth2($keys)) {
-            $this->protocol = 2;
-        } else {
+        if (! $instance->protocol = self::getAuthProtocol($tokenCredentials)) {
             throw new AuthException('Credentials keys are invalid');
         }
 
+        $instance->addToCredentials($tokenCredentials);
+        $instance->filterCredentials('token_credentials');
+
+        return $instance->getAccountData($checkUrl);
+
     }
 
-    protected function isAuth1($credentials)
+    public static function getAuthProtocol(array $credentials)
+    {
+        $instance       = new static;
+        $credentialKeys = array_keys($credentials);
+
+        if ($instance->isOauth1($credentialKeys)) {
+            return 'oauth1';
+        }
+
+        if ($instance->isOauth2($credentialKeys)) {
+            return 'oauth2';
+        }
+
+        return false;
+        throw new AuthException('Credentials keys are invalid');
+
+    }
+
+    protected function isOauth1($credentials)
     {
 
-        if (in_array($credentials, $this->getAuth1DefaultKeys())) {
+        if (in_array($credentials, $this->getOauth1Keys())) {
             return true;
         }
 
@@ -192,9 +227,9 @@ abstract class Auth implements AuthAdapter
 
     }
 
-    protected function isAuth2($credentials)
+    protected function isOauth2($credentials)
     {
-        if (in_array($credentials, $this->getAuth2DefaultKeys())) {
+        if (in_array($credentials, $this->getOauth2Keys())) {
             return true;
         }
 
@@ -207,7 +242,7 @@ abstract class Auth implements AuthAdapter
      *
      * @return array
      */
-    protected function getAuth1DefaultKeys()
+    public static function getOauth1Keys()
     {
         return [
             'client_credentials' => ['consumer_key', 'consumer_secret', 'callback'],
@@ -220,37 +255,11 @@ abstract class Auth implements AuthAdapter
      *
      * @return array
      */
-    protected function getAuth2DefaultKeys()
+    public static function getOauth2Keys()
     {
         return [
             'client_credentials' => ['client_id', 'client_secret', 'redirect'],
             'token_credentials' => ['acces_token', 'expires']
-        ];
-    }
-
-    /**
-     * Returns the client keys of oauth1 protocol and oauth2 protocol.
-     *
-     * @return array
-     */
-    public static function getClientKeys()
-    {
-        return [
-            'oauth1' => ['consumer_key', 'consumer_secret', 'callback'],
-            'oauth2' => ['client_id', 'client_secret', 'redirect'],
-        ];
-    }
-
-    /**
-     * Returns the token keys of oauth1 protocol and oauth2 protocol.
-     *
-     * @return array
-     */
-    public static function getTokenKeys()
-    {
-        return [
-            'oauth1' => ['consumer_key', 'consumer_secret', 'token', 'token_secret'],
-            'oauth2' => ['acces_token', 'expires']
         ];
     }
 
