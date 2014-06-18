@@ -63,7 +63,7 @@ abstract class Auth implements AuthAdapter
         $instance = new static;
 
         if (! $instance->protocol = self::getAuthProtocol($clientCredentials)) {
-            throw new AuthException('Credentials keys are invalid');
+            throw new AuthException('Credentials keys are invalid.');
         }
 
         $instance->credentials = $clientCredentials;
@@ -71,7 +71,7 @@ abstract class Auth implements AuthAdapter
         $tokenCredentials      = $instance->getTokenCredentials();
 
         $instance->addToCredentials($tokenCredentials);
-        $instance->filterCredentials('token_credentials');
+        $instance->filterCredentialsByKey('token_credentials');
 
         return $instance->getAccountData($checkUrl);
 
@@ -85,9 +85,9 @@ abstract class Auth implements AuthAdapter
     abstract protected function getTokenCredentials();
 
     /**
-     * [addToCredentials description]
+     * Merge the new credential values to the existing credentials.
      *
-     * @param  array $credentials
+     * @param  array  $credentials
      * @return void
      */
     protected function addToCredentials(array $credentials)
@@ -99,19 +99,19 @@ abstract class Auth implements AuthAdapter
     }
 
     /**
-     * Filters the given tokens for use them with the "Auth::getAccountData" method.
+     * Filters the given credentials for use them with the "Auth::getAccountData" method.
      *
-     * @param  array $tokenCredentials
+     * @param  array  $tokenCredentials
      * @return void
      */
-    protected function filterCredentials($filter = 'client_credentials')
+    protected function filterCredentialsByKey($filter = 'client_credentials')
     {
         if (! in_array($filter, ['client_crecentials', 'token_credentials'])) {
             return;
         }
 
         $this->removeCredentialPrefixes('oauth_');
-        var_dump($this->credentials);
+
         $protocol = ucfirst($this->protocol);
         $keys     = call_user_func_array([$this, 'get' . $protocol . 'Keys'], [null]);
 
@@ -123,9 +123,9 @@ abstract class Auth implements AuthAdapter
     }
 
     /**
-     * [removeCredentialPrefixes description]
+     * Remove an string from the the beginning of each credential key.
      *
-     * @param  string $prefix
+     * @param  string  $prefix
      * @return void
      */
     protected function removeCredentialPrefixes($prefix)
@@ -140,7 +140,6 @@ abstract class Auth implements AuthAdapter
      * Makes the http request to the "checkUrl", and gets an object with account data.
      * Additionally it adds token credentials data to the object by if needed.
      *
-     * @param  array  $tokenCredentials
      * @param  string $checkUrl
      * @return object
      */
@@ -161,8 +160,9 @@ abstract class Auth implements AuthAdapter
     /**
      * Add token credentials to the object.
      *
-     * @param object $object
-     * @param array $tokens
+     * @param  object  $object
+     * @param  array   $tokens
+     * @return void
      */
     protected function addDataTokens(&$object, $tokenCredentials)
     {
@@ -172,7 +172,7 @@ abstract class Auth implements AuthAdapter
             $tokens = array_add($tokens, $key, $value);
         };
 
-        return array_walk($tokenCredentials, $callback);
+        array_walk($tokenCredentials, $callback);
 
     }
 
@@ -188,16 +188,22 @@ abstract class Auth implements AuthAdapter
         $instance = new static;
 
         if (! $instance->protocol = self::getAuthProtocol($tokenCredentials)) {
-            throw new AuthException('Credentials keys are invalid');
+            throw new AuthException('Credentials keys are invalid.');
         }
 
         $instance->addToCredentials($tokenCredentials);
-        $instance->filterCredentials('token_credentials');
+        $instance->filterCredentialsByKey('token_credentials');
 
         return $instance->getAccountData($checkUrl);
 
     }
 
+    /**
+     * Checks the credentials and returns the name of the auth system used, if credentials are not founds, returns false.
+     *
+     * @param  array  $credentials
+     * @return string|boolean
+     */
     public static function getAuthProtocol(array $credentials)
     {
         $instance       = new static;
@@ -212,13 +218,17 @@ abstract class Auth implements AuthAdapter
         }
 
         return false;
-        throw new AuthException('Credentials keys are invalid');
 
     }
 
+    /**
+     * Checks if the credentials are using OAuth1.0.
+     *
+     * @param  array  $credentials
+     * @return boolean
+     */
     protected function isOauth1($credentials)
     {
-
         if (in_array($credentials, $this->getOauth1Keys())) {
             return true;
         }
@@ -227,6 +237,12 @@ abstract class Auth implements AuthAdapter
 
     }
 
+    /**
+     * Checks if the credentials are using OAuth2.0.
+     *
+     * @param  array  $credentials
+     * @return boolean
+     */
     protected function isOauth2($credentials)
     {
         if (in_array($credentials, $this->getOauth2Keys())) {
