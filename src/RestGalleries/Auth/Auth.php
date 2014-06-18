@@ -111,7 +111,7 @@ abstract class Auth implements AuthAdapter
         }
 
         $this->removeCredentialPrefixes('oauth_');
-
+        var_dump($this->credentials);
         $protocol = ucfirst($this->protocol);
         $keys     = call_user_func_array([$this, 'get' . $protocol . 'Keys'], [null]);
 
@@ -130,7 +130,6 @@ abstract class Auth implements AuthAdapter
      */
     protected function removeCredentialPrefixes($prefix)
     {
-        var_dump($this->credentials);
         $this->credentials = array_remove_key_prefix(
             $this->credentials,
             $prefix
@@ -147,7 +146,6 @@ abstract class Auth implements AuthAdapter
      */
     protected function getAccountData($checkUrl)
     {
-        var_dump($this->credentials);
         $http           = $this->http;
         $http           = $http::init($checkUrl);
         $http->setAuth($this->credentials);
