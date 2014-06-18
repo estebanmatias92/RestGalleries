@@ -130,6 +130,7 @@ abstract class Auth implements AuthAdapter
      */
     protected function removeCredentialPrefixes($prefix)
     {
+        var_dump($this->credentials);
         $this->credentials = array_remove_key_prefix(
             $this->credentials,
             $prefix
@@ -146,6 +147,7 @@ abstract class Auth implements AuthAdapter
      */
     protected function getAccountData($checkUrl)
     {
+        var_dump($this->credentials);
         $http           = $this->http;
         $http           = $http::init($checkUrl);
         $http->setAuth($this->credentials);
