@@ -1,84 +1,112 @@
 <?php namespace RestGalleries;
 
-use RestGalleries\Auth\AuthAdapter;
 use RestGalleries\Factory;
-use RestGalleries\Interfaces\GalleryAdapter;
 
 abstract class RestGallery
 {
     protected $service;
 
-    protected $gallery;
+    protected $query;
 
-    protected $credentials;
-
-    public function __construct(AuthAdapter $auth, GalleryAdapter $gallery = null)
-    {
-        static::$clientCredentialKeys = $auth::getClientCredentialKeys();
-        static::$tokenCredentialKeys  = $auth::getAccessCredentialKeys();
-
-        if (empty($gallery)) {
-            $gallery = Factory::make(get_class($this));
-        }
-
-        $this->auth    = $auth;
-        $this->gallery = $gallery;
-
-    }
+    protected $credentials = [];
 
     public function all()
     {
-        return $this->gallery->all();
+        return $this->query->all();
     }
 
     public function find($id)
     {
-        return $this->gallery->find($id);
+        return $this->query->find($id);
     }
 
-    public function authenticate(array $tokenCredentials)
+    public static function authenticate(array $tokenCredentials)
     {
-        $this->setTokenCredentials($tokenCredentials);
-        $this->gallery->setAuth($this->credentials);
+        $instance        = new static;
+        $query           = $instance->newQuery();
+        $instance->query = &$query;
+
+        $instance->setCredentials($tokenCredentials);
+        $query->setAuth($instance->getCredentials());
+
+        return $instance;
+
+    }
+
+    public function newQuery()
+    {
+        $class = $this->getService() . '\\Gallery';
+
+        return Factory::make($class);
+
     }
 
     public static function connect(array $clientCredentials)
     {
-        $this->setClientCredentials($clienCredentials);
+        $instance = new static;
+        $auth     = $instance->newAuthentication();
 
-        return $this->auth->connect($this->credentials);
+        $instance->setCredentials($clientCredentials);
+
+        return $auth->connect($instance->getCredentials());
 
     }
 
     public static function verifyCredentials(array $tokenCredentials)
     {
-        $this->setTokenCredentials($tokenCredentials);
+        $instance = new static;
+        $auth     = $instance->newAuthentication();
 
-        return $this->auth->verifyCredentials($this->credentials);
+        $instance->setCredentials($tokenCredentials);
+
+        return $auth->verifyCredentials($instance->getCredentials());
 
     }
 
-    protected function setClientCredentials($credentials)
+    public function newAuthentication()
     {
-        $this->addToCredentials($credentials);
-        $this->filterCredentials(static::$clientCredentialKeys);
+        $class = $this->getService() . '\\User';
+
+        return Factory::make($class);
+
     }
 
-    protected function setTokenCredentials($credentials)
+    public function getCredentials()
     {
-        $this->addToCredentials($credentials);
-        $this->filterCredentials(static::$tokenCredentialKeys);
+        return $this->credentials;
     }
 
-    private function addToCredentials($credentials)
+    public function setCredentials(array $credentials)
     {
-        $this->credentials = array_merge($this->credentials, $credentials);
+        $this->credentials = $this->addCredentials($credentials);
+        $this->credentials = $this->cleanCredentials();
     }
 
-    private function filterCredentials(array $keys)
+    private function addCredentials($credentials)
     {
-        $credentials       = array_filter($this->credentials);
-        $this->credentials = array_only($credentials, $keys);
+        return array_merge($this->getCredentials(), $credentials);
     }
 
+    private function cleanCredentials()
+    {
+        $filtered = array_filter($this->getCredentials());
+
+        return array_unique_keys($filtered);
+
+    }
+
+    public function getService()
+    {
+        if (isset($this->service)) {
+            return $this->service;
+        }
+
+        return class_basename($this);
+
+    }
+
+    public function setService($service)
+    {
+        $this->service = $service;
+    }
 }

@@ -1,16 +1,13 @@
 <?php namespace RestGalleries;
 
-use RestGalleries\Interfaces\Api;
-
 abstract class ApiCreator
 {
     abstract public function fire($class);
-    abstract public function createApi(Api $api);
+    abstract public function createApi($api);
 
     public static function make($api)
     {
-        if (!is_string($api))
-        {
+        if (! is_string($api)) {
             throw new \InvalidArgumentException('Invalid argument type.');
         }
 
@@ -19,4 +16,5 @@ abstract class ApiCreator
         return $instance->fire($api);
 
     }
+
 }

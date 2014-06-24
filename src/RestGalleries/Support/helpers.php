@@ -87,9 +87,28 @@ if (! function_exists('array_remove_key_prefix')) {
         };
 
         $arrayFlipped    = array_flip($array);
-        $arrayUnPrefixed = array_map($callback, $arrayFlipped);
+        $arrayNonPrefixed = array_map($callback, $arrayFlipped);
 
-        return array_flip($arrayUnPrefixed);
+        return array_flip($arrayNonPrefixed);
+
+    }
+
+}
+
+if (! function_exists('array_unique_keys'))
+{
+    /**
+     * Returns an array without repeated keys.
+     *
+     * @param  array  $array
+     * @return array
+     */
+    function array_unique_keys(array $array)
+    {
+        $arrayFlipped  = array_flip($array);
+        $arrayUnique   = array_unique($arrayFlipped);
+
+        return array_flip($arrayUnique);
 
     }
 
