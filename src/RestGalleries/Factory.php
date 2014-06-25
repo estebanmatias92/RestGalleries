@@ -7,12 +7,12 @@ class Factory extends ServiceCreator
 {
     public function fire($class)
     {
-        if (! class_exists($class_namespace))
+        if (! class_exists($class))
         {
             throw new ApiNotFoundException('Api not found.');
         }
 
-        return new $class_namespace;
+        return new $class;
 
     }
 
