@@ -14,9 +14,9 @@ class FactoryTest extends TestCase
         $this->mock
             ->shouldReceive('createApi')
             ->once()
-            ->andReturn(Mockery::mock('Flickr'));
+            ->andReturn(Mockery::mock('Flickr\\Gallery'));
 
-        $api = $this->mock->fire('flickr');
+        $api = $this->mock->fire('Flickr\\Gallery');
 
         $this->assertInstanceOf('Flickr', $api);
 
@@ -30,7 +30,7 @@ class FactoryTest extends TestCase
 
         $this->setExpectedException('RestGalleries\\Exception\\ApiNotFoundException');
 
-        $api = $this->mock->fire('invalid api');
+        $api = $this->mock->fire('InvalidApi');
     }
 
 }
