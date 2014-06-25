@@ -1,36 +1,31 @@
 <?php
 
+use RestGalleries\Factory;
+
 class FactoryTest extends TestCase
 {
-    public function setUp()
+    public function testMakeGallery()
     {
-        parent::setUp();
+        $serviceGallery = Factory::makeGallery('Flickr');
 
-        $this->mock = Mockery::mock('RestGalleries\\Factory')->makePartial();
-    }
-
-    public function testCanCreateObject()
-    {
-        $this->mock
-            ->shouldReceive('createApi')
-            ->once()
-            ->andReturn(Mockery::mock('Flickr\\Gallery'));
-
-        $api = $this->mock->fire('Flickr\\Gallery');
-
-        $this->assertInstanceOf('Flickr', $api);
+        assertThat($serviceGallery, is(objectValue()));
 
     }
 
-    public function testCanNotCreateObject()
+    public function testMakeUser()
     {
-        $this->mock
-            ->shouldReceive('createApi')
-            ->never();
+        $serviceUser = Factory::makeUser('Flickr');
 
+        assertThat($serviceUser, is(objectValue()));
+
+    }
+
+    public function testInvalidServiceName()
+    {
         $this->setExpectedException('RestGalleries\\Exception\\ApiNotFoundException');
 
-        $api = $this->mock->fire('InvalidApi');
+        $result = Factory::make('InvalidApi');
+
     }
 
 }

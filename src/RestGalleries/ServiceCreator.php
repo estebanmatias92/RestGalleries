@@ -11,17 +11,15 @@ abstract class ServiceCreator
         $instance = new static;
 
         return $instance->fire($class);
+
     }
 
     public static function makeGallery($service)
     {
-        if (! is_string($service)) {
-            throw new \InvalidArgumentException('Invalid argument type.');
-        }
-
-        $class = $instance->servicesNamespace;
-        $class .= $service ;
-        $class .= '\\Gallery';
+        $instance = new static;
+        $class    = $instance->servicesNamespace;
+        $class    .= $service ;
+        $class    .= '\\Gallery';
 
         return self::make($class);
 
@@ -29,13 +27,10 @@ abstract class ServiceCreator
 
     public static function makeUser($service)
     {
-        if (! is_string($service)) {
-            throw new \InvalidArgumentException('Invalid argument type.');
-        }
-
-        $class = $instance->servicesNamespace;
-        $class .= $service ;
-        $class .= '\\User';
+        $instance = new static;
+        $class    = $instance->servicesNamespace;
+        $class    .= $service ;
+        $class    .= '\\User';
 
         return self::make($class);
 
