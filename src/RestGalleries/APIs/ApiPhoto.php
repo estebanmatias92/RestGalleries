@@ -24,9 +24,9 @@ abstract class ApiPhoto implements PhotoAdapter
      */
     protected $http;
 
-    public function __construct(HttpAdapter $http)
+    public function __construct(HttpAdapter $http = null)
     {
-        $this->http = $http::init($this->endPoint);
+        $this->http = $http;
     }
 
     /**
@@ -38,20 +38,21 @@ abstract class ApiPhoto implements PhotoAdapter
      */
     public function all($galleryId)
     {
-        $photoIds = $this->getPhotoIds($galleryId);
+        return $this->getPhotos($galleryId);
+    }
 
-        if (empty($photoIds)) {
-            return new Collection;
+    /**
+     *
+     *
+     * @return \Illuminate\Support\Collection|null
+     */
+    protected function getPhotos($galleryId)
+    {
+        if (! is_null($ids = $this->fetchIds($galleryId))) {
+            $photos = array_map([$this, 'getPhoto'], $ids);
+
+            return new Collection($photos);
         }
-
-        $photos = [];
-
-        foreach ($photoIds as $id) {
-            $photo    = $this->getPhoto($id);
-            $photos[] = new Fluent($photo);
-        }
-
-        return new Collection($photos);
 
     }
 
@@ -62,7 +63,7 @@ abstract class ApiPhoto implements PhotoAdapter
      * @param  string     $galleryId
      * @return array|null
      */
-    abstract protected function getPhotoIds($galleryId);
+    abstract protected function fetchIds($galleryId);
 
     /**
      * Gets the photo and returns an object.
@@ -73,14 +74,20 @@ abstract class ApiPhoto implements PhotoAdapter
      */
     public function find($id)
     {
-        $photo = $this->getPhoto($id);
+        return $this->getPhoto($id);
+    }
 
-        if (empty($photo)) {
-            return new Fluent;
+    /**
+     * Fetch a gallery as array and returns a object ArrayAccess-type with that data.
+     *
+     * @param  string $id
+     * @return \Illuminate\Support\Fluent|null
+     */
+    protected function getPhoto($id)
+    {
+        if (! is_null($photo = $this->fetchPhoto($id))) {
+            return new Fluent($photo);
         }
-
-        return new Fluent($photo);
-
     }
 
     /**
@@ -90,27 +97,21 @@ abstract class ApiPhoto implements PhotoAdapter
      * @param  string     $id
      * @return array|null
      */
-    abstract protected function getPhoto($id);
+    abstract protected function fetchPhoto($id);
 
-    /**
-     * Set tokens for authentication.
-     *
-     * @param array $tokenCredentials
-     */
-    public function setAuth(array $tokenCredentials)
+    public function newHttp(HttpAdapter $http = null)
     {
-        $this->http->setAuth($tokenCredentials);
-    }
+        if (empty($http)) {
+            $http = new GuzzleHttp;
+        }
 
-    /**
-     * Set cache file system and path, for caching.
-     *
-     * @param string $fileSystem
-     * @param array  $path
-     */
-    public function setCache($fileSystem, array $path)
-    {
-        $this->http->setCache($fileSystem, $path);
+        $http = $http::init($this->endPoint);
+        $http->setAuth($this->getCredentials());
+        $cache = $this->getCache();
+        $http->setCache($cache['file_system'], $cache['path']);
+
+        return $http;
+
     }
 
 }

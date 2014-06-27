@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
-use RestGalleries\Auth\AuthAdapter;
 use RestGalleries\Http\HttpAdapter;
+use RestGalleries\Http\Guzzle\GuzzleHttp;
 use RestGalleries\Interfaces\GalleryAdapter;
 use RestGalleries\Interfaces\PhotoAdapter;
 
@@ -19,42 +19,9 @@ abstract class ApiGallery implements GalleryAdapter
      */
     protected $endPoint;
 
-    /**
-     * Auth client to connect with the service and verify the credentials.
-     *
-     * @var object
-     */
-    protected $auth;
+    protected $credentials = [];
 
-    /**
-     * HTTP client to make the requests to the API.
-     *
-     * @var object
-     */
-    protected $http;
-
-    /**
-     * Stores the photo object.
-     *
-     * @var object
-     */
-    protected $photo;
-
-    /**
-     * Initializes instance variables.
-     *
-     * @param  \RestGalleries\Auth\AuthAdapter        $auth
-     * @param  \RestGalleries\Http\HttpAdapter        $http
-     * @param  \RestGalleries\Interfaces\PhotoAdapter $photo
-     * @return void
-     */
-    public function __construct(AuthAdapter $auth, HttpAdapter $http, PhotoAdapter $photo)
-    {
-        $this->auth  = $auth;
-        $this->http  = $http::init($this->endPoint);
-        $this->photo = $photo;
-
-    }
+    protected $cache  = [];
 
     /**
      * Returns all galleries currently available on the photos service.
@@ -89,6 +56,17 @@ abstract class ApiGallery implements GalleryAdapter
     abstract protected function fetchIds();
 
     /**
+     * Returns a particular gallery.
+     *
+     * @param  string $id
+     * @return \Illuminate\Support\Fluent|null
+     */
+    public function find($id)
+    {
+        return $this->getGallery($id);
+    }
+
+    /**
      * Fetch a gallery as array and returns a object ArrayAccess-type with that data.
      *
      * @param  string $id
@@ -110,39 +88,57 @@ abstract class ApiGallery implements GalleryAdapter
      */
     abstract protected function fetchGallery($id);
 
-    /**
-     * Returns a particular gallery.
-     *
-     * @param  string $id
-     * @return \Illuminate\Support\Fluent|null
-     */
-
-    public function find($id)
+    public function newHttp(HttpAdapter $http = null)
     {
-        return $this->getGallery($id);
+        if (empty($http)) {
+            $http = new GuzzleHttp;
+        }
+
+        $http = $http::init($this->endPoint);
+        $http->setAuth($this->getCredentials());
+        $cache = $this->getCache();
+        $http->setCache($cache['file_system'], $cache['path']);
+
+        return $http;
+
     }
 
-    /**
-     * Set tokens for authentication.
-     *
-     * @param  array $tokenCredentials
-     * @return void
-     */
-    public function setAuth(array $tokenCredentials)
+    public function newPhoto(PhotoAdapter $photo = null)
     {
-        $this->http->setAuth($tokenCredentials);
+        if (empty($photo)) {
+            $namespace = $this->getChildClassNamespace();
+            $class     = $namespace . '\\Photo';
+            $photo     = new $class($this->newHttp());
+        }
+
+        return $photo;
+
     }
 
-    /**
-     * Set cache file system and path, for caching.
-     *
-     * @param  string $fileSystem
-     * @param  array  $path
-     * @return void
-     */
+    protected function getChildClassNamespace()
+    {
+        return addslashes(get_class_namespace($this));
+    }
+
+    public function setCredentials(array $credentials)
+    {
+        $this->credentials = $credentials;
+    }
+
+    public function getCredentials()
+    {
+        return $this->credentials;
+    }
+
     public function setCache($fileSystem, array $path)
     {
-        $this->http->setCache($fileSystem, $path);
+        $this->cache['file_system'] = $fileSystem;
+        $this->cache['path']        = $path;
+    }
+
+    public function getCache()
+    {
+        return $this->cache;
     }
 
 }

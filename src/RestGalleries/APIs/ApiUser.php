@@ -11,13 +11,6 @@ use RestGalleries\Interfaces\UserAdapter;
 abstract class ApiUser implements UserAdapter
 {
     /**
-     * Auth client.
-     *
-     * @var object
-     */
-    protected $auth;
-
-    /**
      * Url where to get the account details..
      *
      * @var string
@@ -45,11 +38,6 @@ abstract class ApiUser implements UserAdapter
      */
     protected $urlAccess;
 
-    public function __construct(AuthAdapter $auth)
-    {
-        $this->auth = $auth;
-    }
-
     /**
      * Makes all the OAuth process to connect the app with the API, only, with the client credentials, the oauth endpoints urls, and an URL to get the user data and token credentials.
      *
@@ -64,8 +52,7 @@ abstract class ApiUser implements UserAdapter
             'access'    => $this->urlAccess,
         ];
 
-        $auth = $this->auth;
-
+        $auth = $this->newAuth();
         $data = $auth::connect($clientCredentials, array_filter($endPoints), $this->checkUrl);
 
         return $this->getUser($data);
@@ -81,11 +68,20 @@ abstract class ApiUser implements UserAdapter
      */
     public function verifyCredentials(array $tokenCredentials)
     {
-        $auth = $this->auth;
-
+        $auth = $this->newAuth();
         $data = $auth::verifyCredentials($tokenCredentials, $this->checkUrl);
 
         return $this->getUser($data);
+
+    }
+
+    public function newAuth(AuthAdapter $auth = null)
+    {
+        if (empty($auth)) {
+            $auth = new OhmyAuth;
+        }
+
+        return $auth;
 
     }
 
@@ -98,9 +94,9 @@ abstract class ApiUser implements UserAdapter
      */
     private function getUser($data)
     {
-        $user = $this->getArrayData($data);
+        $user = $this->extractUserArray($data);
 
-        if (!$user) {
+        if (! $user) {
             throw new AuthException('The authentication credentials are outdated or are not valid');
         }
 
@@ -114,6 +110,6 @@ abstract class ApiUser implements UserAdapter
      * @param  object        $data
      * @return boolean|array
      */
-    abstract protected function getArrayData($data);
+    abstract protected function extractUserArray($data);
 
 }

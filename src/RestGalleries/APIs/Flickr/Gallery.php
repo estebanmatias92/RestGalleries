@@ -9,8 +9,6 @@ class Gallery extends ApiGallery
 {
     protected $endPoint = 'http://api.flickr.com/services/rest/';
 
-    protected $http = null;
-
     /**
      * Common query values for all the requests.
      *
@@ -23,10 +21,12 @@ class Gallery extends ApiGallery
 
     protected function fetchIds()
     {
+        $http  = $this->newHttp();
         $ids   = [];
         $query = array_merge(
             $this->defaultQuery,
             [
+                'method'               => 'flickr.photosets.getList',
                 'page'                 => 1,
                 'per_page'             => 50,
                 'primary_photo_extras' => ''
@@ -34,8 +34,8 @@ class Gallery extends ApiGallery
         );
 
         do {
-            $this->http->setQuery($query);
-            $response = $this->http->GET();
+            $http->setQuery($query);
+            $response = $http->GET();
             $body     = $response->getBody('array');
 
             if ($body['stat'] == 'fail') {
@@ -79,15 +79,17 @@ class Gallery extends ApiGallery
 
     protected function fetchGallery($id)
     {
+        $http  = $this->newHttp();
         $query = array_merge(
             $this->defaultQuery,
             [
+                'method'      => 'flickr.photosets.getInfo',
                 'photoset_id' => $id,
             ]
         );
 
-        $this->http->setQuery($query);
-        $response = $this->http->GET();
+        $http->setQuery($query);
+        $response = $http->GET();
         $body     = $response->getBody();
 
         return $this->extractGalleryArray($body);
@@ -107,14 +109,14 @@ class Gallery extends ApiGallery
         }
 
         $photoset = &$data->photoset;
-        $photo    = &$this->photo;
+        $photo    = $this->newPhoto();
 
         $gallery                = [];
         $gallery['id']          = $photoset->id;
         $gallery['title']       = $photoset->title->_content;
         $gallery['description'] = $photoset->description->_content;
         $gallery['photos']      = $photo->all($photoset->id);
-        $gallery['created']     = $photoset->date_create;
+        $gallery['created']     = (string) $photoset->date_create;
         $gallery['url']         = 'https://www.flickr.com/photos/';
         $gallery['url']         .= $photoset->owner;
         $gallery['url']         .= '/sets/';

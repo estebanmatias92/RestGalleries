@@ -10,10 +10,14 @@ use RestGalleries\Interfaces\PhotoAdapter;
  */
 interface GalleryAdapter
 {
-    public function __construct(AuthAdapter $auth, HttpAdapter $http, PhotoAdapter $photo);
     public function all();
     public function find($id);
-    public function setAuth(array $tokenCredentials);
+    public function newHttp(HttpAdapter $http = null);
+    public function newPhoto(PhotoAdapter $photo = null);
+    public function setCredentials(array $credentials);
+    public function getCredentials();
+
     public function setCache($fileSystem, array $path);
+    public function getCache();
 
 }

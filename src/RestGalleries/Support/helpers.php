@@ -113,3 +113,21 @@ if (! function_exists('array_unique_keys'))
     }
 
 }
+
+if (! function_exists('get_class_namespace'))
+{
+    /**
+     * Uses ReflectionClass to return the namespace from an absolute class name, or from an object.
+     *
+     * @param  string|object $class
+     * @return string
+     */
+    function get_class_namespace($class)
+    {
+        $reflector = new \ReflectionClass($class);
+
+        return $reflector->getNamespaceName();
+
+    }
+
+}
