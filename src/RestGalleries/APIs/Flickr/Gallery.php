@@ -108,9 +108,8 @@ class Gallery extends ApiGallery
             return;
         }
 
-        $photoset = &$data->photoset;
-        $photo    = $this->newPhoto();
-
+        $photoset               = &$data->photoset;
+        $photo                  = $this->newPhoto();
         $gallery                = [];
         $gallery['id']          = $photoset->id;
         $gallery['title']       = $photoset->title->_content;

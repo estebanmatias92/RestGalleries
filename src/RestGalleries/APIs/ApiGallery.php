@@ -21,7 +21,7 @@ abstract class ApiGallery implements GalleryAdapter
 
     protected $credentials = [];
 
-    protected $cache  = [];
+    protected $cache = [];
 
     /**
      * Returns all galleries currently available on the photos service.
@@ -96,8 +96,10 @@ abstract class ApiGallery implements GalleryAdapter
 
         $http = $http::init($this->endPoint);
         $http->setAuth($this->getCredentials());
-        $cache = $this->getCache();
-        $http->setCache($cache['file_system'], $cache['path']);
+
+        if ($cache = $this->getCache()) {
+            $http->setCache($cache['file_system'], $cache['path']);
+        }
 
         return $http;
 
@@ -106,9 +108,15 @@ abstract class ApiGallery implements GalleryAdapter
     public function newPhoto(PhotoAdapter $photo = null)
     {
         if (empty($photo)) {
-            $namespace = $this->getChildClassNamespace();
-            $class     = $namespace . '\\Photo';
-            $photo     = new $class($this->newHttp());
+            $class = $this->getChildClassNamespace();
+            $class .= '\\Photo';
+            $photo = new $class;
+        }
+
+        $photo->setCredentials($this->getCredentials());
+
+        if ($cache = $this->getCache()) {
+            $photo->setCache($cache['file_system'], $cache['path']);
         }
 
         return $photo;
@@ -117,7 +125,7 @@ abstract class ApiGallery implements GalleryAdapter
 
     protected function getChildClassNamespace()
     {
-        return addslashes(get_class_namespace($this));
+        return get_class_namespace($this);
     }
 
     public function setCredentials(array $credentials)

@@ -7,8 +7,13 @@ use RestGalleries\Http\HttpAdapter;
  */
 interface PhotoAdapter
 {
-    public function __construct(HttpAdapter $http = null);
     public function all($galleryId);
     public function find($id);
+    public function newHttp(HttpAdapter $http = null);
+    public function setCredentials(array $credentials);
+    public function getCredentials();
+
+    public function setCache($fileSystem, array $path);
+    public function getCache();
 
 }

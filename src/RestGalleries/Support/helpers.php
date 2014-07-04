@@ -131,3 +131,17 @@ if (! function_exists('get_class_namespace'))
     }
 
 }
+
+if (! function_exists('get_caller_function')) {
+
+    function get_caller_function()
+    {
+        if (! isset(debug_backtrace()[2]['function'])) {
+            return false;
+        }
+
+        return debug_backtrace()[2]['function'];
+
+    }
+
+}

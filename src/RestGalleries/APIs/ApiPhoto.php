@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
+use RestGalleries\Http\Guzzle\GuzzleHttp;
 use RestGalleries\Http\HttpAdapter;
 use RestGalleries\Interfaces\PhotoAdapter;
 
@@ -17,17 +18,9 @@ abstract class ApiPhoto implements PhotoAdapter
      */
     protected $endPoint;
 
-    /**
-     * HTTP client to make the requests to the API.
-     *
-     * @var object
-     */
-    protected $http;
+    protected $credentials = [];
 
-    public function __construct(HttpAdapter $http = null)
-    {
-        $this->http = $http;
-    }
+    protected $cache = [];
 
     /**
      * Gets IDs of photos, seeks and gets the photo and makes a Collection for send it back.
@@ -107,11 +100,34 @@ abstract class ApiPhoto implements PhotoAdapter
 
         $http = $http::init($this->endPoint);
         $http->setAuth($this->getCredentials());
-        $cache = $this->getCache();
-        $http->setCache($cache['file_system'], $cache['path']);
+
+        if ($cache = $this->getCache()) {
+            $http->setCache($cache['file_system'], $cache['path']);
+        }
 
         return $http;
 
+    }
+
+    public function setCredentials(array $credentials)
+    {
+        $this->credentials = $credentials;
+    }
+
+    public function getCredentials()
+    {
+        return $this->credentials;
+    }
+
+    public function setCache($fileSystem, array $path)
+    {
+        $this->cache['file_system'] = $fileSystem;
+        $this->cache['path']        = $path;
+    }
+
+    public function getCache()
+    {
+        return $this->cache;
     }
 
 }

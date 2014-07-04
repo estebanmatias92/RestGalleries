@@ -14,8 +14,9 @@ class Photo extends ApiPhoto
         'nojsoncallback' => 1,
     ];
 
-    public function fetchIds($galleryId)
+    protected function fetchIds($galleryId)
     {
+        $http  = $this->newHttp();
         $ids   = [];
         $query = array_merge(
             $this->defaultQuery,
@@ -31,8 +32,8 @@ class Photo extends ApiPhoto
         );
 
         do {
-            $this->http->setQuery($query);
-            $response = $this->http->GET();
+            $http->setQuery($query);
+            $response = $http->GET();
             $body     = $response->getBody('array');
 
             if ($body['stat'] == 'fail') {
@@ -76,6 +77,7 @@ class Photo extends ApiPhoto
 
     protected function fetchPhoto($id)
     {
+        $http  = $this->newHttp();
         $query = array_merge(
             $this->defaultQuery,
             [
@@ -85,8 +87,8 @@ class Photo extends ApiPhoto
             ]
         );
 
-        $this->http->setQuery($query);
-        $response = $this->http->GET();
+        $http->setQuery($query);
+        $response = $http->GET();
         $body     = $response->getBody();
 
         return $this->extractPhotoArray($body);
@@ -99,33 +101,31 @@ class Photo extends ApiPhoto
      * @param  object        $data
      * @return array|boolean
      */
-    private function extractPhotoArray($data)
+    private function extractPhotoArray($source)
     {
-        if ($data->stat == 'fail') {
+        if ($source->stat == 'fail') {
             return;
         }
 
-        $data = &$data->photo;
-
-        $photo                = [];
-        $photo['id']          = $data->id;
-        $photo['title']       = $data->title->_content;
-        $photo['description'] = $data->description->_content;
-        $photo['url']         = $data->urls->url[0]->_content;
-        $photo['created']     = (string) $data->dates->posted;
-        $photo['views']       = $data->views;
-
-        $images = array_flatten($this->fetchSizes($data->id));
-
-        $photo['source']           = $images[1]->source;
-        $photo['source_thumbnail'] = $images[0]->source;
+        $data                      = &$source->photo;
+        $photo                     = [];
+        $photo['id']               = $data->id;
+        $photo['title']            = $data->title->_content;
+        $photo['description']      = $data->description->_content;
+        $photo['url']              = $data->urls->url[0]->_content;
+        $photo['created']          = (string) $data->dates->posted;
+        $photo['views']            = $data->views;
+        $images                    = $this->fetchImages($photo['id']);
+        $photo['source']           = $images[1];
+        $photo['source_thumbnail'] = $images[0];
 
         return $photo;
 
     }
 
-    private function fetchSizes($photoId)
+    private function fetchImages($photoId)
     {
+        $http  = $this->newHttp();
         $query = array_merge(
             $this->defaultQuery,
             [
@@ -134,19 +134,23 @@ class Photo extends ApiPhoto
             ]
         );
 
-        $this->http->setQuery($query);
-        $response = $this->http->GET();
-        $body     = $response->getBody();
+        $http->setQuery($query);
+        $response = $http->GET();
+        $body     = $response->getBody('array');
 
-        $sizes = &$body->sizes->size;
+        return $this->extractImagesArray($body);
 
-        $sizeImages = array_where($sizes, function ($key, $value) {
-            return in_array($value->label, ['Original', 'Small 320']);
+    }
+
+    private function extractImagesArray($source)
+    {
+        $sizes  = array_get($source, 'sizes.size');
+        $images = array_where($sizes, function ($key, $value) {
+            return in_array($value['label'], ['Original', 'Small 320']);
         });
 
-        return $sizeImages;
+        return array_fetch($images, 'source');
 
     }
 
 }
-

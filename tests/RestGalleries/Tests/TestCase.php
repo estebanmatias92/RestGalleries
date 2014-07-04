@@ -1,9 +1,10 @@
-<?php
+<?php namespace RestGalleries\Tests;
 
-use Faker\Factory;
-use Hamcrest\MatcherAssert;
+use Faker;
+use Hamcrest;
+use Mockery;
 
-class TestCase extends PHPUnit_Framework_TestCase
+abstract class TestCase extends \PHPUnit_Framework_TestCase
 {
     /**
      * Collects assertions performed by Hamcrest matchers during the test.
@@ -12,14 +13,14 @@ class TestCase extends PHPUnit_Framework_TestCase
      */
     public function runBare()
     {
-        MatcherAssert::resetCount();
+        Hamcrest\MatcherAssert::resetCount();
 
         try {
             parent::runBare();
         }
         catch (\Exception $exception) {}
 
-        $this->addToAssertionCount(MatcherAssert::getCount());
+        $this->addToAssertionCount(Hamcrest\MatcherAssert::getCount());
 
         if (isset($exception)) {
             throw $exception;
@@ -29,7 +30,7 @@ class TestCase extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->faker = Factory::create();
+        $this->faker = Faker\Factory::create();
         $this->faker->addProvider(new Faker\Provider\Miscellaneous($this->faker));
         $this->faker->addProvider(new Faker\Provider\Internet($this->faker));
 
