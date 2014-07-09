@@ -53,9 +53,8 @@ class Response implements ResponseAdapter
      */
     public function getBody($format = 'object')
     {
-
         if (! $this->isValidBodyFormat($format)) {
-            return null;
+            return;
         }
 
         $method = 'getBody' . ucfirst($format);
@@ -64,6 +63,12 @@ class Response implements ResponseAdapter
 
     }
 
+    /**
+     * Checks if a format are between valid formats.
+     *
+     * @param  string  $format
+     * @return boolean
+     */
     protected function isValidBodyFormat($format)
     {
         $formats = ['string', 'array', 'object'];

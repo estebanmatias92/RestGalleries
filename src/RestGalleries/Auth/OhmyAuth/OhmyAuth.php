@@ -12,19 +12,19 @@ class OhmyAuth extends Auth
     {
         parent::__construct();
 
-        $this->client = new OAuth;
+        $this->auth = new OAuth;
     }
 
-    protected function getTokenCredentials()
+    protected function fetchTokenCredentials()
     {
-        $client = $this->client;
-        $client = $client::init($this->credentials);
+        $auth = $this->auth;
+        $auth = $auth::init($this->credentials);
 
         foreach ($this->endPoints as $method => $url) {
-            $client = call_user_func_array([$client, $method], [$url]);
+            $auth = call_user_func_array([$auth, $method], [$url]);
         }
 
-        $client->finally(function($data) use(&$tokenCredentials) {
+        $auth->finally(function($data) use(&$tokenCredentials) {
             $tokenCredentials = $data;
         });
 

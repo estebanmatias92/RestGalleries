@@ -48,10 +48,10 @@ abstract class Auth implements AuthAdapter
      *
      * @param  array  $clientCredentials
      * @param  array  $endPoints
-     * @param  string $checkUrl
+     * @param  string $userDataUrl
      * @return object
      */
-    public static function connect(array $clientCredentials, array $endPoints, $checkUrl)
+    public static function connect(array $clientCredentials, array $endPoints, $userDataUrl)
     {
         $instance = new static;
 
@@ -62,12 +62,14 @@ abstract class Auth implements AuthAdapter
         $instance->protocol    = $protocol;
         $instance->credentials = $clientCredentials;
         $instance->endPoints   = $endPoints;
-        $tokenCredentials      = $instance->getTokenCredentials();
+        $tokenCredentials      = $instance->fetchTokenCredentials();
 
         $instance->addToCredentials($tokenCredentials);
         $instance->filterCredentialsByKey('token_credentials');
 
-        return $instance->getAccountData($checkUrl);
+        $userData = $instance->fetchUserData($userDataUrl);
+
+        return $userData;
 
     }
 
@@ -76,7 +78,7 @@ abstract class Auth implements AuthAdapter
      *
      * @return array
      */
-    abstract protected function getTokenCredentials();
+    abstract protected function fetchTokenCredentials();
 
     /**
      * Merge the new credential values to the existing credentials.
@@ -93,7 +95,7 @@ abstract class Auth implements AuthAdapter
     }
 
     /**
-     * Filters the given credentials for use them with the "Auth::getAccountData" method.
+     * Filters the given credentials for use them with the "Auth::fetchUserData" method.
      *
      * @param  array  $tokenCredentials
      * @return void
@@ -133,20 +135,20 @@ abstract class Auth implements AuthAdapter
      * Makes the http request to the "checkUrl", and gets an object with account data.
      * Additionally it adds token credentials data to the object by if needed.
      *
-     * @param  string $checkUrl
+     * @param  string $userDataUrl
      * @return object
      */
-    protected function getAccountData($checkUrl)
+    protected function fetchUserData($userDataUrl)
     {
         $http     = $this->http;
-        $response = $http::init($checkUrl)
+        $userData = $http::init($userDataUrl)
             ->setAuth($this->credentials)
             ->GET()
             ->getBody();
 
-        $this->addDataTokens($response, $this->credentials);
+        $this->addDataTokens($userData, $this->credentials);
 
-        return $response;
+        return $userData;
 
     }
 
@@ -173,10 +175,10 @@ abstract class Auth implements AuthAdapter
      * Checks the token credentials and returns an object with its account data.
      *
      * @param  array  $tokenCredentials
-     * @param  string $checkUrl
+     * @param  string $userDataUrl
      * @return object
      */
-    public static function verifyCredentials(array $tokenCredentials, $checkUrl)
+    public static function verifyCredentials(array $tokenCredentials, $userDataUrl)
     {
         $instance = new static;
 
@@ -189,7 +191,9 @@ abstract class Auth implements AuthAdapter
         $instance->addToCredentials($tokenCredentials);
         $instance->filterCredentialsByKey('token_credentials');
 
-        return $instance->getAccountData($checkUrl);
+        $userData = $instance->fetchUserData($userDataUrl);
+
+        return $userData;
 
     }
 
