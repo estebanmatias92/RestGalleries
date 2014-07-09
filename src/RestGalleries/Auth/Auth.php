@@ -10,13 +10,6 @@ use RestGalleries\Http\Guzzle\GuzzleHttp;
 abstract class Auth implements AuthAdapter
 {
     /**
-     * Stores the Auth client from child class.
-     *
-     * @var object
-     */
-    protected $client;
-
-    /**
      * Stores the Http client.
      *
      * @var object
@@ -62,10 +55,11 @@ abstract class Auth implements AuthAdapter
     {
         $instance = new static;
 
-        if (! $instance->protocol = self::getAuthProtocol($clientCredentials)) {
+        if (! $protocol = self::getAuthProtocol($clientCredentials)) {
             throw new AuthException('Credentials keys are invalid.');
         }
 
+        $instance->protocol    = $protocol;
         $instance->credentials = $clientCredentials;
         $instance->endPoints   = $endPoints;
         $tokenCredentials      = $instance->getTokenCredentials();
@@ -106,14 +100,13 @@ abstract class Auth implements AuthAdapter
      */
     protected function filterCredentialsByKey($filter = 'client_credentials')
     {
-        if (! in_array($filter, ['client_crecentials', 'token_credentials'])) {
-            return;
-        }
-
         $this->removeCredentialPrefixes('oauth_');
 
-        $protocol = ucfirst($this->protocol);
-        $keys     = call_user_func_array([$this, 'get' . $protocol . 'Keys'], [null]);
+        $method = 'get';
+        $method .= ucfirst($this->protocol);
+        $method .= 'Keys';
+
+        $keys = call_user_func_array([$this, $method], [null]);
 
         $this->credentials = array_only(
             $this->credentials,
@@ -145,15 +138,15 @@ abstract class Auth implements AuthAdapter
      */
     protected function getAccountData($checkUrl)
     {
-        $http           = $this->http;
-        $http           = $http::init($checkUrl);
-        $http->setAuth($this->credentials);
+        $http     = $this->http;
+        $response = $http::init($checkUrl)
+            ->setAuth($this->credentials)
+            ->GET()
+            ->getBody();
 
-        $response       = $http->GET();
-        $responseObject = $response->getBody();
-        $this->addDataTokens($responseObject, $this->credentials);
+        $this->addDataTokens($response, $this->credentials);
 
-        return $responseObject;
+        return $response;
 
     }
 
@@ -187,9 +180,11 @@ abstract class Auth implements AuthAdapter
     {
         $instance = new static;
 
-        if (! $instance->protocol = self::getAuthProtocol($tokenCredentials)) {
+        if (! $protocol = self::getAuthProtocol($tokenCredentials)) {
             throw new AuthException('Credentials keys are invalid.');
         }
+
+        $instance->protocol = $protocol;
 
         $instance->addToCredentials($tokenCredentials);
         $instance->filterCredentialsByKey('token_credentials');
@@ -208,6 +203,7 @@ abstract class Auth implements AuthAdapter
     {
         $instance       = new static;
         $credentialKeys = array_keys($credentials);
+        sort($credentialKeys);
 
         if ($instance->isOauth1($credentialKeys)) {
             return 'oauth1';

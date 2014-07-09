@@ -18,33 +18,31 @@ class Response implements ResponseAdapter
      */
     public function setBody($body)
     {
-        if (is_string($body)) {
-            $this->body = $body;
-        } else {
-            throw new \InvalidArgumentException('$body argument should be a string.');
-        }
         $this->body = $body;
+
+        return $this;
 
     }
 
     public function setHeaders(array $headers)
     {
         $this->headers = $headers;
+
+        return $this;
+
     }
 
     /**
      * Sets the status code number or throws an Exception,
      *
-     * @param  integer                  $statusCode
+     * @param  integer                  $code
      * @throws InvalidArgumentException
      */
-    public function setStatusCode($statusCode)
+    public function setStatusCode($code)
     {
-        if (is_integer($statusCode)) {
-            $this->statusCode = $statusCode;
-        } else {
-            throw new \InvalidArgumentException('$statusCode argument should be an integer.');
-        }
+        $this->statusCode = $code;
+
+        return $this;
 
     }
 
@@ -55,23 +53,26 @@ class Response implements ResponseAdapter
      */
     public function getBody($format = 'object')
     {
-        switch ($format) {
-            case 'string':
-                return $this->raw();
-                break;
 
-            case 'array':
-                return $this->getArray();
-                break;
-
-            case 'object':
-                return $this->getObject();
-                break;
-
-            default:
-                return null;
-                break;
+        if (! $this->isValidBodyFormat($format)) {
+            return null;
         }
+
+        $method = 'getBody' . ucfirst($format);
+
+        return call_user_func_array([$this, $method], [null]);
+
+    }
+
+    protected function isValidBodyFormat($format)
+    {
+        $formats = ['string', 'array', 'object'];
+
+        if (! in_array($format, $formats)) {
+            return false;
+        }
+
+        return true;
 
     }
 
@@ -80,7 +81,7 @@ class Response implements ResponseAdapter
      *
      * @return string
      */
-    protected function raw()
+    protected function getBodyString()
     {
         return $this->body;
     }
@@ -90,12 +91,14 @@ class Response implements ResponseAdapter
      *
      * @return array
      */
-    protected function getArray()
+    protected function getBodyArray()
     {
         if (is_xml($this->body)) {
-            return $this->xml(true);
-        } elseif (is_json($this->body)) {
-            return $this->json(true);
+            return $this->bodyXml(true);
+        }
+
+        if (is_json($this->body)) {
+            return $this->bodyJson(true);
         }
 
     }
@@ -105,12 +108,14 @@ class Response implements ResponseAdapter
      *
      * @return array
      */
-    protected function getObject()
+    protected function getBodyObject()
     {
         if (is_xml($this->body)) {
-            return $this->xml();
-        } elseif (is_json($this->body)) {
-            return $this->json();
+            return $this->bodyxml();
+        }
+
+        if (is_json($this->body)) {
+            return $this->bodyJson();
         }
 
     }
@@ -121,7 +126,7 @@ class Response implements ResponseAdapter
      * @param  string       $string
      * @return array|object
      */
-    protected function json($array = false)
+    protected function bodyJson($array = false)
     {
         return json_decode($this->body, $array);
     }
@@ -132,7 +137,7 @@ class Response implements ResponseAdapter
      * @param  string       $string
      * @return array|object
      */
-    protected function xml($array = false)
+    protected function bodyXml($array = false)
     {
         return xml_decode($this->body, $array);
     }

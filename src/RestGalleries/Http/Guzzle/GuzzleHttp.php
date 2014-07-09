@@ -18,14 +18,18 @@ class GuzzleHttp extends Http
 {
     public function __construct()
     {
-        $this->client = new Client;
+        $this->http = new Client;
     }
 
     public function setAuth(array $credentials)
     {
         parent::setAuth($credentials);
 
-        $this->client->addSubscriber($this->auth);
+        $this->http->addSubscriber(
+            $this->getAuth()
+        );
+
+        return $this;
 
     }
 
@@ -35,12 +39,9 @@ class GuzzleHttp extends Http
      * @param  array       $credentials
      * @return OauthPlugin
      */
-    protected function getOAuth($credentials)
+    protected function getOauth1Extension()
     {
-        $oauth = new OauthPlugin($credentials);
-
-        return $oauth;
-
+        return new OauthPlugin($this->authCredentials);
     }
 
     /**
@@ -49,20 +50,22 @@ class GuzzleHttp extends Http
      * @param  array        $credentials
      * @return Oauth2Plugin
      */
-    protected function getOAuth2($credentials)
+    protected function getOauth2Extension()
     {
         $oauth2 = new Oauth2Plugin();
-        $oauth2->setAccessToken($credentials);
+        $oauth2->setAccessToken($this->authCredentials);
 
         return $oauth2;
 
     }
 
-    public function setCache($system = 'filesystem', array $path = array())
+    public function setCache($system = 'system', array $path = array())
     {
         parent::setCache($system, $path);
 
-        $this->client->addSubscriber($this->cache);
+        $this->http->addSubscriber($this->getCache());
+
+        return $this;
 
     }
 
@@ -71,11 +74,11 @@ class GuzzleHttp extends Http
      *
      * @return ArrayCache
      */
-    protected function getCacheArray()
+    protected function getArraySystem()
     {
-        return new CachePlugin(array(
+        return new CachePlugin([
             'adapter' => new DoctrineCacheAdapter(new ArrayCache())
-        ));
+        ]);
 
     }
 
@@ -85,15 +88,15 @@ class GuzzleHttp extends Http
      * @param  array           $path
      * @return FilesystemCache
      */
-    protected function getCacheFileSystem($path)
+    protected function getFileSystem()
     {
-        return new CachePlugin(array(
+        return new CachePlugin([
             'storage' => new DefaultCacheStorage(
                 new DoctrineCacheAdapter(
-                    new FilesystemCache($this->path['folder'])
+                    new FilesystemCache($this->cachePath['folder'])
                 )
             )
-        ));
+        ]);
 
     }
 
@@ -105,24 +108,18 @@ class GuzzleHttp extends Http
      * @param  string $endPoint
      * @return Object
      */
-    public function sendRequest($method = 'GET', $endPoint = '')
+    protected function sendRequest($method = 'GET', $endPoint = '')
     {
         $method  = strtolower($method);
-        $options = array_flip(['query', 'headers', 'body']);
+        $options = array_filter([
+            'query'   => $this->getQuery(),
+            'headers' => $this->getHeaders(),
+            'body'    => $this->getBody()
+        ]);
 
-        foreach ($options as $key => $value) {
 
-            if (isset($this->{$key})) {
-                $options[$key] = $this->{$key};
-            } else {
-                unset($options[$key]);
-            }
-
-        }
-
-        $uri = $this->url.$endPoint;
-
-        $request = $this->client->$method($uri, [], $options);
+        $url     = $this->url . $endPoint;
+        $request = call_user_func_array([$this->http, $method], [$url, array(), $options]);
 
         return $request->send();
 
@@ -135,24 +132,22 @@ class GuzzleHttp extends Http
      * @param  ResponseAdapter $response
      * @return Response
      */
-    public function getResponse($raw, ResponseAdapter $response)
+    protected function processResponse($raw, ResponseAdapter $response)
     {
-        $body       = $raw->getBody();
-        $body       = $body->__toString();
+        $body       = $raw->getBody()->__toString();
+        $headersRaw = $raw->getHeaders();
         $headers    = [];
-        $rawHeaders = $raw->getHeaders();
 
-        foreach ($rawHeaders as $key => $value) {
+        foreach ($headersRaw as $key => $value) {
             $headers[$key] = (string) $raw->getHeader($key);
         }
 
         $statusCode = $raw->getStatusCode();
 
-        $response->setBody($body);
-        $response->setHeaders($headers);
-        $response->setStatusCode($statusCode);
-
-        return $response;
+        $this->response = $response
+            ->setBody($body)
+            ->setHeaders($headers)
+            ->setStatusCode($statusCode);
 
     }
 

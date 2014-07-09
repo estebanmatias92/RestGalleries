@@ -1,8 +1,8 @@
-<?php
+<?php namespace RestGalleries\Tests\Http\Guzzle;
 
 use RestGalleries\Http\Guzzle\GuzzleHttp;
 
-class GuzzleHttpTest extends TestCase
+class GuzzleHttpTest extends \RestGalleries\Tests\TestCase
 {
     public function setUp()
     {

@@ -11,8 +11,6 @@ interface HttpAdapter
     public function DELETE($endPoint = '');
     public function POST($endPoint = '');
     public function PUT($endPoint = '');
-    public function getResponse($raw, ResponseAdapter $response);
-    public function sendRequest($method = 'GET', $endPoint = '');
     public function setAuth(array $credentials);
     public function setBody($body);
     public function setCache($system, array $path = array());

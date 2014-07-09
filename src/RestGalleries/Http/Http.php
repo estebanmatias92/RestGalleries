@@ -1,7 +1,9 @@
 <?php namespace RestGalleries\Http;
 
+use RestGalleries\Auth\OhmyAuth\OhmyAuth;
 use RestGalleries\Exception\HttpException;
 use RestGalleries\Http\HttpAdapter;
+use RestGalleries\Http\ResponseAdapter;
 use RestGalleries\Http\Response;
 
 /**
@@ -10,17 +12,17 @@ use RestGalleries\Http\Response;
 abstract class Http implements HttpAdapter
 {
     protected $auth;
+    protected $authCredentials;
+    protected $authProtocol;
     protected $body;
     protected $cache;
-    protected $client;
+    protected $cacheSystem;
+    protected $cachePath;
+    protected $http;
     protected $headers;
     protected $query;
+    protected $response;
     protected $url;
-
-    abstract protected function getOAuth($credentials);
-    abstract protected function getOAuth2($credentials);
-    abstract protected function getCacheArray();
-    abstract protected function getCacheFileSystem($path);
 
     /**
      * Uses the construct to starts the class.
@@ -31,12 +33,7 @@ abstract class Http implements HttpAdapter
     public static function init($url = '')
     {
         $instance = new static;
-
-        if (is_string($url)) {
-            $instance->url = $url;
-        } else {
-            throw new \InvalidArgumentException('Invalid argument type passed for parameter ($url), must be a string');
-        }
+        $instance->url = $url;
 
         return $instance;
 
@@ -50,45 +47,34 @@ abstract class Http implements HttpAdapter
      */
     public function setAuth(array $credentials)
     {
-        $OAuthProtocols  = $this->getOAuthProtocols();
-        $credentialsKeys = array_keys($credentials);
-
-        sort($credentialsKeys);
-
-        foreach ($OAuthProtocols as $protocol => $array) {
-
-            if (in_array($credentialsKeys, $array)) {
-
-                $this->auth = call_user_func_array([$this, 'get'.$protocol], [$credentials]);
-
-                return;
-
-            }
-
+        if (! $protocol = OhmyAuth::getAuthProtocol($credentials)) {
+            throw new \InvalidArgumentException('Credentials are invalid. ' . __METHOD__);
         }
 
-        throw new \InvalidArgumentException('Invalid argument value passed for parameter ($credentials)');
+        $this->authCredentials = $credentials;
+        $this->authProtocol    = $protocol;
+        $this->auth            = $this->getAuthExtension();
 
+        return $this;
 
     }
 
-    /**
-     * Gives default credential keys for each protocol.
-     *
-     * @return array
-     */
-    protected function getOAuthProtocols()
+    protected function getAuthExtension()
     {
-        return [
-            'OAuth' => [
-                ['consumer_key', 'consumer_secret'],
-                ['consumer_key', 'consumer_secret', 'token', 'token_secret'],
-            ],
-            'OAuth2' => [
-                ['access_token', 'expires'],
-            ],
-        ];
+        $method = 'get';
+        $method .= $this->authProtocol;
+        $method .= 'Extension';
 
+        return call_user_func_array([$this, $method], [null]);
+
+    }
+
+    abstract protected function getOauth1Extension();
+    abstract protected function getOauth2Extension();
+
+    public function getAuth()
+    {
+        return $this->auth;
     }
 
     /**
@@ -98,47 +84,90 @@ abstract class Http implements HttpAdapter
      * @param  array  $path
      * @throws InvalidArgumentException
      */
-    public function setCache($system = 'filesystem', array $path = array())
+    public function setCache($system = 'system', array $path = array())
     {
+        if (! $this->isValidCacheSystem($system)) {
+            throw new \InvalidArgumentException('Cache system is invalid. ' . __METHOD__);
+        }
+
         if (empty($path)) {
             $path = [
                 'folder' => dirname(dirname(dirname(__FILE__))) . '/storage/cache',
             ];
         }
 
-        $systems = ['array', 'filesystem'];
+        $this->cacheSystem = $system;
+        $this->cachePath   = $path;
+        $this->cache       = $this->getCacheExtension();
 
-        if (in_array($system, $systems)) {
+        return $this;
 
-            $system      = ucfirst($system);
-            $this->cache = call_user_func_array([$this, 'getCache'.$system], [$path]);
+    }
 
-            return;
+    protected function isValidCacheSystem($system)
+    {
+        $systems = ['array', 'system'];
 
+        if (! in_array($system, $systems)) {
+            return false;
         }
 
-        throw new \InvalidArgumentException('Invalid argument value passed for parameter ($system)');
+        return true;
 
+    }
+
+    protected function getCacheExtension()
+    {
+        $method = 'get';
+        $method .= ucfirst($this->cacheSystem);
+        $method .= 'System';
+
+        return call_user_func_array([$this, $method], [null]);
+
+    }
+
+    abstract protected function getArraySystem();
+    abstract protected function getFileSystem();
+
+    public function getCache()
+    {
+        return $this->cache;
     }
 
     public function setQuery(array $query)
     {
         $this->query = $query;
+
+        return $this;
+    }
+
+    public function getQuery()
+    {
+        return $this->query;
     }
 
     public function setBody($body)
     {
-        if (is_string($body)) {
-            $this->body = $body;
-        } else {
-            throw new \InvalidArgumentException('Invalid argument type passed for parameter ($body), must be a string');
-        }
+        $this->body = $body;
 
+        return $this;
+    }
+
+    public function getBody()
+    {
+        return $this->body;
     }
 
     public function setHeaders(array $headers)
     {
         $this->headers = $headers;
+
+        return $this;
+    }
+
+    public function getHeaders()
+    {
+        return $this->headers;
     }
 
     /**
@@ -148,31 +177,39 @@ abstract class Http implements HttpAdapter
      */
     public function GET($endPoint = '')
     {
-        $raw = $this->sendRequest('GET', $endPoint);
-
-        return $this->getResponse($raw, new Response);
-
+        return $this->makeHttpTransaction('GET', $endPoint);
     }
 
     public function POST($endPoint = '')
     {
-        $raw = $this->sendRequest('POST', $endPoint);
-
-        return $this->getResponse($raw, new Response);
+        return $this->makeHttpTransaction('POST', $endPoint);
     }
 
     public function PUT($endPoint = '')
     {
-        $raw = $this->sendRequest('PUT', $endPoint);
-
-        return $this->getResponse($raw, new Response);
+        return $this->makeHttpTransaction('PUT', $endPoint);
     }
 
     public function DELETE($endPoint = '')
     {
-        $raw = $this->sendRequest('DELETE', $endPoint);
+        return $this->makeHttpTransaction('DELETE', $endPoint);
+    }
 
-        return $this->getResponse($raw, new Response);
+    protected function makeHttpTransaction($method = 'GET', $endPoint = '')
+    {
+        $rawData = $this->sendRequest($method, $endPoint);
+        $this->processResponse($rawData, new Response);
+
+        return $this->getResponse();
+
+    }
+
+    abstract protected function sendRequest($method, $endPoint = '');
+    abstract protected function processResponse($raw, ResponseAdapter $response);
+
+    protected function getResponse()
+    {
+        return $this->response;
     }
 
 }
