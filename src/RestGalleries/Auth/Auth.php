@@ -10,13 +10,6 @@ use RestGalleries\Http\Guzzle\GuzzleHttp;
 abstract class Auth implements AuthAdapter
 {
     /**
-     * Stores the Http client.
-     *
-     * @var object
-     */
-    protected $http;
-
-    /**
      * "OAuth dance" URLs for the connect process.
      *
      * @var array
@@ -36,11 +29,6 @@ abstract class Auth implements AuthAdapter
      * @var integer
      */
     protected $protocol;
-
-    public function __construct()
-    {
-        $this->http = new GuzzleHttp;
-    }
 
     /**
      * Takes credentials and URLs, checks credentials and gets tokens.
@@ -140,15 +128,51 @@ abstract class Auth implements AuthAdapter
      */
     protected function fetchUserData($userDataUrl)
     {
-        $http     = $this->http;
-        $userData = $http::init($userDataUrl)
-            ->setAuth($this->credentials)
+        $request = $this->newRequest();
+        $plugins = [
+            'auth' => $this->newRequesAuth(),
+        ];
+
+        $userData = $request::init($userDataUrl)
+            ->addPlugins($plugins)
             ->GET()
             ->getBody();
 
         $this->addDataTokens($userData, $this->credentials);
 
         return $userData;
+
+    }
+
+    /**
+     * [newRequestAuth description]
+     *
+     * @param  [type] $requestAuth
+     * @return [type]
+     */
+    public function newRequestAuth(RequestAuth $requestAuth = null)
+    {
+        if (empty($requestAuth)) {
+            $requestAuth = new GuzzleRequestAuth;
+        }
+
+        return $requestAuth::add($this->credentials);
+
+    }
+
+    /**
+     * [newRequest description]
+     *
+     * @param  [type] $request
+     * @return [type]
+     */
+    public function newRequest(Request $request = null)
+    {
+        if (empty($request)) {
+            $request = new GuzzleRequest;
+        }
+
+        return $request;
 
     }
 

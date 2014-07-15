@@ -5,46 +5,35 @@ use RestGalleries\Http\ResponseAdapter;
 /**
  * Simple class, sets body, headres and status code from outside, and late returns them.
  */
-class Response implements ResponseAdapter
+abstract class Response implements ResponseAdapter
 {
+    /**
+     * [$body description]
+     *
+     * @var string
+     */
     protected $body;
-    protected $headers;
+
+    /**
+     * [$headers description]
+     *
+     * @var array
+     */
+    protected $headers = [];
+
+    /**
+     * [$statusCode description]
+     *
+     * @var integer
+     */
     protected $statusCode;
 
-    /**
-     * Sets body string or throws an Exception
-     *
-     * @param string $body
-     */
-    public function setBody($body)
+    public function __construct($data)
     {
-        $this->body = $body;
-
-        return $this;
-
+        $this->processResponseData($data);
     }
 
-    public function setHeaders(array $headers)
-    {
-        $this->headers = $headers;
-
-        return $this;
-
-    }
-
-    /**
-     * Sets the status code number or throws an Exception,
-     *
-     * @param  integer                  $code
-     * @throws InvalidArgumentException
-     */
-    public function setStatusCode($code)
-    {
-        $this->statusCode = $code;
-
-        return $this;
-
-    }
+    abstract protected function processResponseData($raw);
 
     /**
      * It returns the xml|json string in any of these formats.
@@ -57,7 +46,7 @@ class Response implements ResponseAdapter
             return;
         }
 
-        $method = 'getBody' . ucfirst($format);
+        $method = 'body' . ucfirst($format);
 
         return call_user_func_array([$this, $method], [null]);
 
@@ -86,7 +75,7 @@ class Response implements ResponseAdapter
      *
      * @return string
      */
-    protected function getBodyString()
+    protected function bodyString()
     {
         return $this->body;
     }
@@ -96,14 +85,16 @@ class Response implements ResponseAdapter
      *
      * @return array
      */
-    protected function getBodyArray()
+    protected function bodyArray()
     {
-        if (is_xml($this->body)) {
-            return $this->bodyXml(true);
+        $body = &$this->body;
+
+        if (is_xml($body = &$this->body)) {
+            return xml_decode($body, true);
         }
 
-        if (is_json($this->body)) {
-            return $this->bodyJson(true);
+        if (is_json($body)) {
+            return json_decode($body, true);
         }
 
     }
@@ -113,40 +104,19 @@ class Response implements ResponseAdapter
      *
      * @return array
      */
-    protected function getBodyObject()
+    protected function bodyObject()
     {
-        if (is_xml($this->body)) {
-            return $this->bodyxml();
+        $body = &$this->body;
+
+        if (is_xml($body)) {
+            return xml_decode($body);
         }
 
-        if (is_json($this->body)) {
-            return $this->bodyJson();
+        if (is_json($body)) {
+            return json_decode($body);
         }
 
     }
-
-    /**
-     * Takes an string and converts it into a json object or array.
-     *
-     * @param  string       $string
-     * @return array|object
-     */
-    protected function bodyJson($array = false)
-    {
-        return json_decode($this->body, $array);
-    }
-
-    /**
-     * Takes an string and converts it into a xml object or array.
-     *
-     * @param  string       $string
-     * @return array|object
-     */
-    protected function bodyXml($array = false)
-    {
-        return xml_decode($this->body, $array);
-    }
-
 
     public function getHeaders()
     {
