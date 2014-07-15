@@ -1,6 +1,6 @@
 <?php namespace RestGalleries\Tests\Http\Plugins;
 
-use Mockery;
+
 
 class AuthTest extends \RestGalleries\Tests\TestCase
 {

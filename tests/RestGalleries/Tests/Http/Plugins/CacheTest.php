@@ -1,6 +1,6 @@
 <?php namespace RestGalleries\Tests\Http\Plugins;
 
-use Mockery;
+
 
 class CacheTest extends \RestGalleries\Tests\TestCase
 {
