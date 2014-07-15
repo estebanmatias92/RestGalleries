@@ -1,6 +1,6 @@
-<?php namespace RestGalleries\Http;
+<?php namespace RestGalleries\Http\Plugins;
 
-abstract class RequestCache
+abstract class Cache
 {
     /**
      * [$system description]
@@ -23,10 +23,12 @@ abstract class RequestCache
      * @param  array  $path
      * @throws InvalidArgumentException
      */
-    public static function addCache($system = 'file', array $path = array())
+    public static function add($system = 'file', array $path = array())
     {
-        if (! $this->isValidCacheSystem($system)) {
-            throw new \InvalidArgumentException('Cache system is invalid. ' . __METHOD__);
+        $instance = new static;
+
+        if (! $instance->isValidCacheSystem($system)) {
+            throw new \InvalidArgumentException('Cache system is invalid.');
         }
 
         if (empty($path)) {
@@ -35,10 +37,10 @@ abstract class RequestCache
             ];
         }
 
-        $this->system = $system;
-        $this->path   = $path;
+        $instance->system = $system;
+        $instance->path   = $path;
 
-        return $this->getCacheExtension();
+        return $instance->getCacheExtension();
 
     }
 

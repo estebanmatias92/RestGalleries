@@ -10,8 +10,6 @@ class OhmyAuth extends Auth
 {
     public function __construct()
     {
-        parent::__construct();
-
         $this->auth = new OAuth;
     }
 

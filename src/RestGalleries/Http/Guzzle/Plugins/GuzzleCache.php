@@ -1,13 +1,13 @@
-<?php namespace RestGalleries\Http\Guzzle;
+<?php namespace RestGalleries\Http\Guzzle\Plugins;
 
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\FilesystemCache;
 use Guzzle\Cache\DoctrineCacheAdapter;
 use Guzzle\Plugin\Cache\CachePlugin;
 use Guzzle\Plugin\Cache\DefaultCacheStorage;
-use RestGalleries\Http\RequestCache;
+use RestGalleries\Http\Plugins\Cache;
 
-class GuzzleResquestCache extends RequestCache
+class GuzzleCache extends Cache
 {
     /**
      * Returns the Array cache system.

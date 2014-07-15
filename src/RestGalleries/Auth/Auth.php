@@ -2,7 +2,9 @@
 
 use RestGalleries\Auth\AuthAdapter;
 use RestGalleries\Exception\AuthException;
-use RestGalleries\Http\Guzzle\GuzzleHttp;
+use RestGalleries\Http\RequestAdapter;
+use RestGalleries\Http\Guzzle\GuzzleRequest;
+use RestGalleries\Http\Guzzle\Plugins\GuzzleAuth;
 
 /**
  * Common father class, makes the hard work to get the account data and verify the tokens.
@@ -130,7 +132,7 @@ abstract class Auth implements AuthAdapter
     {
         $request = $this->newRequest();
         $plugins = [
-            'auth' => $this->newRequesAuth(),
+            'auth' => $this->newAuthExtension(),
         ];
 
         $userData = $request::init($userDataUrl)
@@ -150,13 +152,13 @@ abstract class Auth implements AuthAdapter
      * @param  [type] $requestAuth
      * @return [type]
      */
-    public function newRequestAuth(RequestAuth $requestAuth = null)
+    public function newAuthExtension(GuzzleAuth $authExtension = null)
     {
         if (empty($requestAuth)) {
-            $requestAuth = new GuzzleRequestAuth;
+            $authExtension = new GuzzleAuth;
         }
 
-        return $requestAuth::add($this->credentials);
+        return $authExtension::add($this->credentials);
 
     }
 
@@ -166,7 +168,7 @@ abstract class Auth implements AuthAdapter
      * @param  [type] $request
      * @return [type]
      */
-    public function newRequest(Request $request = null)
+    public function newRequest(RequestAdapter $request = null)
     {
         if (empty($request)) {
             $request = new GuzzleRequest;
@@ -299,7 +301,7 @@ abstract class Auth implements AuthAdapter
     {
         return [
             'client_credentials' => ['client_id', 'client_secret', 'redirect'],
-            'token_credentials' => ['acces_token', 'expires']
+            'token_credentials' => ['access_token', 'expires']
         ];
     }
 

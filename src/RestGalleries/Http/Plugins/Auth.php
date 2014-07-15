@@ -1,8 +1,8 @@
-<?php namespace RestGalleries\Http;
+<?php namespace RestGalleries\Http\Plugins;
 
 use RestGalleries\Auth\OhmyAuth\OhmyAuth;
 
-abstract class RequestAuth
+abstract class Auth
 {
     /**
      * [$credentials description]
@@ -24,16 +24,17 @@ abstract class RequestAuth
      * @param  array $credentials
      * @throws InvalidArgumentException
      */
-    public static function addAuth(array $credentials)
+    public static function add(array $credentials)
     {
         if (! $protocol = OhmyAuth::getAuthProtocol($credentials)) {
-            throw new \InvalidArgumentException('Credentials are invalid. ' . __METHOD__);
+            throw new \InvalidArgumentException('Credentials are invalid.');
         }
 
-        $this->credentials = $credentials;
-        $this->protocol    = $protocol;
+        $instance              = new static;
+        $instance->credentials = $credentials;
+        $instance->protocol    = $protocol;
 
-        return $this->getAuthExtension();
+        return $instance->getAuthExtension();
 
     }
 

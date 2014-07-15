@@ -1,10 +1,10 @@
-<?php namespace RestGalleries\Http\Guzzle;
+<?php namespace RestGalleries\Http\Guzzle\Plugins;
 
 use CommerceGuys\Guzzle\Plugin\Oauth2\Oauth2Plugin;
 use Guzzle\Plugin\Oauth\OauthPlugin;
-use RestGalleries\Http\RequestAuth;
+use RestGalleries\Http\Plugins\Auth;
 
-class GuzzleRequestAuth extends RequestAuth
+class GuzzleAuth extends Auth
 {
     /**
      * Returns OAuth 1.0a protocol.
