@@ -1,7 +1,6 @@
 <?php namespace RestGalleries\APIs\Flickr;
 
 use RestGalleries\APIs\ApiUser;
-use RestGalleries\Auth\OhmyAuth\OhmyAuth;
 
 /**
  * Specific API user to normalize obtained data.

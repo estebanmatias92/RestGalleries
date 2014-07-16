@@ -1,0 +1,15 @@
+{
+    "user": {
+        "id": "some-fake-id",
+        "username": "johndoe84",
+        "name": "John",
+        "last_name": "Doe",
+        "profile_url": "http://mockservice.com/user/johndoe84"
+    },
+    "tokens": {
+        "consumer_key": "fake-consumer-key",
+        "consumer_secret": "fake-consumer-secret",
+        "token": "fake-token",
+        "token_secret": "fake-token-secret"
+    }
+}

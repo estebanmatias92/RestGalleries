@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Fluent;
 use RestGalleries\Auth\AuthAdapter;
+use RestGalleries\Auth\OhmyAuth\OhmyAuth;
 use RestGalleries\Exception\AuthException;
 use RestGalleries\Interfaces\UserAdapter;
 
@@ -58,15 +59,20 @@ abstract class ApiUser implements UserAdapter
      */
     public function connect(array $clientCredentials)
     {
-        $endPoints = [
+        $endPoints = array_filter([
             'request'   => $this->urlRequest,
             'authorize' => $this->urlAuthorize,
             'access'    => $this->urlAccess,
-        ];
+        ]);
 
+<<<<<<< Updated upstream
         $auth = $this->auth;
 
         $data = $auth::connect($clientCredentials, array_filter($endPoints), $this->checkUrl);
+=======
+        $auth = $this->newAuth();
+        $data = $auth::connect($clientCredentials, $endPoints, $this->checkUrl);
+>>>>>>> Stashed changes
 
         return $this->getUser($data);
 
