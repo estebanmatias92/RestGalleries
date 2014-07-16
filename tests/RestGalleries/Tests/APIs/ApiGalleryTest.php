@@ -1,50 +1,78 @@
 <?php namespace RestGalleries\Tests\APIs;
 
-
+use Mockery;
+use RestGalleries\Tests\APIs\StubService\Gallery;
 
 class ApiGalleryTest extends \RestGalleries\Tests\TestCase
 {
-    public function testNewHttpReturnsHttpObject()
+    public function testNewRequestReturnsCorrectObject()
     {
-        $model = new \RestGalleries\Tests\APIs\StubService\Gallery;
-        $http  = $model->newHttp();
+        $model   = new Gallery;
+        $request = $model->newRequest();
 
-        assertThat($http, is(anInstanceOf('RestGalleries\\Http\\Guzzle\\GuzzleHttp')));
+        assertThat($request, is(anInstanceOf('RestGalleries\\Http\\Guzzle\\GuzzleRequest')));
 
     }
 
-    public function testNewPhotoReturnsPhotoObject()
+    public function testNewPhotoReturnsCorrectObject()
     {
-        $model      = new \RestGalleries\Tests\APIs\StubService\Gallery;
-        $modelPhoto = $model->newPhoto();
+        $model = new Gallery;
+        $photo = $model->newPhoto();
 
-        assertThat($modelPhoto, is(anInstanceOf('RestGalleries\\Tests\\APIs\\StubService\\Photo')));
+        assertThat($photo, is(anInstanceOf('RestGalleries\\Tests\\APIs\\StubService\\Photo')));
 
     }
 
-    public function testSetCredentials()
+    public function testAddAuthenticationCallsAuthPlugin()
     {
-        $model = new \RestGalleries\Tests\APIs\StubService\Gallery;
+        $model = new GalleryAddAuthenticationStub;
+        $model->addAuthentication(['dummy-credentials']);
+    }
 
-        $model->setCredentials(['credentials']);
-        $credentials = $model->getCredentials();
+    public function testAddCacheCallsCachePlugin()
+    {
+        $model = new GalleryAddCacheStub;
+        $model->addCache('fake-cache-system', ['dummy-path']);
+    }
 
-        assertThat($credentials, is(equalTo(['credentials'])));
+    public function testAllReturnsCorrectObject()
+    {
 
     }
 
-    public function testSetCache()
+    public function testFindReturnsCorrectObject()
     {
-        $model = new \RestGalleries\Tests\APIs\StubService\Gallery;
-
-        $model->setCache('file-system-name', ['whatever_path']);
-        $cache = $model->getCache();
-
-        assertThat($cache, is(arrayValue()));
-        assertThat($cache, hasKey('file_system'));
-        assertThat($cache, hasKey('path'));
 
     }
 
 }
 
+
+class GalleryAddAuthenticationStub extends Gallery
+{
+    protected function newRequestAuthPlugin()
+    {
+        $mock = Mockery::mock('RestGalleries\\Http\\Guzzle\\Plugins\\GuzzleAuth');
+        $mock->shouldReceive('add')
+            ->with(['dummy-credentials'])
+            ->once();
+
+        return $mock;
+
+    }
+
+}
+
+class GalleryAddCacheStub extends Gallery
+{
+    protected function newRequestCachePlugin()
+    {
+        $mock = Mockery::mock('RestGalleries\\Http\\Guzzle\\Plugins\\GuzzleCache');
+        $mock->shouldReceive('add')
+            ->with('fake-cache-system', ['dummy-path'])
+            ->once();
+
+        return $mock;
+
+    }
+}

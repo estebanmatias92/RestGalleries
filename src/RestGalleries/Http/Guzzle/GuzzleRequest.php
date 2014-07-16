@@ -38,10 +38,6 @@ class GuzzleRequest extends Request
      */
     public function addPlugins(array $plugins)
     {
-        if (empty($plugins)) {
-            return;
-        }
-
         foreach ($plugins as $plugin) {
             $this->request->addSubscriber($plugin);
         }

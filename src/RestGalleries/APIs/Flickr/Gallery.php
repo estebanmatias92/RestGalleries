@@ -21,9 +21,8 @@ class Gallery extends ApiGallery
 
     protected function fetchIds()
     {
-        $http  = $this->newHttp();
-        $ids   = [];
-        $query = array_merge(
+        $ids     = [];
+        $query   = array_merge(
             $this->defaultQuery,
             [
                 'method'               => 'flickr.photosets.getList',
@@ -32,11 +31,12 @@ class Gallery extends ApiGallery
                 'primary_photo_extras' => ''
             ]
         );
+        $request = $this->newRequest();
 
         do {
-            $http->setQuery($query);
-            $response = $http->GET();
-            $body     = $response->getBody('array');
+            $body = $request->setQuery($query)
+                ->GET()
+                ->getBody('array');
 
             if ($body['stat'] == 'fail') {
                 return;
@@ -79,7 +79,6 @@ class Gallery extends ApiGallery
 
     protected function fetchGallery($id)
     {
-        $http  = $this->newHttp();
         $query = array_merge(
             $this->defaultQuery,
             [
@@ -88,9 +87,10 @@ class Gallery extends ApiGallery
             ]
         );
 
-        $http->setQuery($query);
-        $response = $http->GET();
-        $body     = $response->getBody();
+        $body = $this->newRequest()
+            ->setQuery($query)
+            ->GET()
+            ->getBody();
 
         return $this->extractGalleryArray($body);
 

@@ -2,8 +2,10 @@
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
-use RestGalleries\Http\HttpAdapter;
-use RestGalleries\Http\Guzzle\GuzzleHttp;
+use RestGalleries\Http\RequestAdapter;
+use RestGalleries\Http\Guzzle\GuzzleRequest;
+use RestGalleries\Http\Guzzle\Plugins\GuzzleAuth;
+use RestGalleries\Http\Guzzle\Plugins\GuzzleCache;
 use RestGalleries\Interfaces\GalleryAdapter;
 use RestGalleries\Interfaces\PhotoAdapter;
 
@@ -19,9 +21,11 @@ abstract class ApiGallery implements GalleryAdapter
      */
     protected $endPoint;
 
+    protected $cache = [];
+
     protected $credentials = [];
 
-    protected $cache = [];
+    protected $plugins = [];
 
     /**
      * Returns all galleries currently available on the photos service.
@@ -88,35 +92,46 @@ abstract class ApiGallery implements GalleryAdapter
      */
     abstract protected function fetchGallery($id);
 
-    public function newHttp(HttpAdapter $http = null)
+    public function newRequest(RequestAdapter $request = null)
     {
-        if (empty($http)) {
-            $http = new GuzzleHttp;
+        if (empty($request)) {
+            $request = new GuzzleRequest;
         }
 
-        $http = $http::init($this->endPoint);
-        $http->setAuth($this->getCredentials());
+        $request = $request::init($this->endPoint);
 
-        if ($cache = $this->getCache()) {
-            $http->setCache($cache['file_system'], $cache['path']);
+        if (! empty($this->plugins)) {
+            $request = $request->addPlugins($this->plugins);
         }
 
-        return $http;
+        return $request;
 
+    }
+
+    protected function newRequestAuthPlugin()
+    {
+        return new GuzzleAuth;
+    }
+
+    protected function newRequestCachePlugin()
+    {
+        return new GuzzleCache;
     }
 
     public function newPhoto(PhotoAdapter $photo = null)
     {
         if (empty($photo)) {
-            $class = $this->getChildClassNamespace();
-            $class .= '\\Photo';
+            $class = $this->getChildClassNamespace() . '\\Photo';
             $photo = new $class;
         }
 
-        $photo->setCredentials($this->getCredentials());
+        $photo->addAuthentication($this->credentials);
 
-        if ($cache = $this->getCache()) {
-            $photo->setCache($cache['file_system'], $cache['path']);
+        if (! empty($this->cache)) {
+            $photo->addCache(
+                $this->cache['system'],
+                $this->cache['path']
+            );
         }
 
         return $photo;
@@ -128,25 +143,19 @@ abstract class ApiGallery implements GalleryAdapter
         return get_class_namespace($this);
     }
 
-    public function setCredentials(array $credentials)
+    public function addAuthentication(array $credentials)
     {
-        $this->credentials = $credentials;
+        $plugin = $this->newRequestAuthPlugin();
+        $this->plugins['auth'] = $plugin::add($credentials);
+        $this->credentials     = $credentials;
     }
 
-    public function getCredentials()
+    public function addCache($system, array $path)
     {
-        return $this->credentials;
-    }
-
-    public function setCache($fileSystem, array $path)
-    {
-        $this->cache['file_system'] = $fileSystem;
-        $this->cache['path']        = $path;
-    }
-
-    public function getCache()
-    {
-        return $this->cache;
+        $plugin = $this->newRequestCachePlugin();
+        $this->plugins['cache'] = $plugin::add($system, $path);
+        $this->cache['system']  = $system;
+        $this->cache['path']    = $path;
     }
 
 }

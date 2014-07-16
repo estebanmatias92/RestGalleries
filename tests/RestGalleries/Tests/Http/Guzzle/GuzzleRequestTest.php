@@ -1,6 +1,5 @@
 <?php namespace RestGalleries\Tests\Http\Guzzle;
 
-use RestGalleries\Http\Guzzle\GuzzleHttp;
 use Mockery;
 
 class GuzzleHttpTest extends \RestGalleries\Tests\TestCase

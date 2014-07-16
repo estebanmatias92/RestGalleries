@@ -16,9 +16,8 @@ class Photo extends ApiPhoto
 
     protected function fetchIds($galleryId)
     {
-        $http  = $this->newHttp();
-        $ids   = [];
-        $query = array_merge(
+        $ids     = [];
+        $query   = array_merge(
             $this->defaultQuery,
             [
                 'method'         => 'flickr.photosets.getPhotos',
@@ -30,11 +29,12 @@ class Photo extends ApiPhoto
                 'media'          => 'photos',
             ]
         );
+        $request = $this->newRequest();
 
         do {
-            $http->setQuery($query);
-            $response = $http->GET();
-            $body     = $response->getBody('array');
+            $body = $request->setQuery($query)
+                ->GET()
+                ->getBody('array');
 
             if ($body['stat'] == 'fail') {
                 return;
@@ -77,7 +77,6 @@ class Photo extends ApiPhoto
 
     protected function fetchPhoto($id)
     {
-        $http  = $this->newHttp();
         $query = array_merge(
             $this->defaultQuery,
             [
@@ -87,9 +86,10 @@ class Photo extends ApiPhoto
             ]
         );
 
-        $http->setQuery($query);
-        $response = $http->GET();
-        $body     = $response->getBody();
+        $body = $this->newRequest()
+            ->setQuery($query)
+            ->GET()
+            ->getBody();
 
         return $this->extractPhotoArray($body);
 
@@ -125,7 +125,6 @@ class Photo extends ApiPhoto
 
     private function fetchImages($photoId)
     {
-        $http  = $this->newHttp();
         $query = array_merge(
             $this->defaultQuery,
             [
@@ -134,9 +133,10 @@ class Photo extends ApiPhoto
             ]
         );
 
-        $http->setQuery($query);
-        $response = $http->GET();
-        $body     = $response->getBody('array');
+        $body = $this->newRequest()
+            ->setQuery($query)
+            ->GET()
+            ->getBody('array');
 
         return $this->extractImagesArray($body);
 

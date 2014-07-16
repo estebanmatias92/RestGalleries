@@ -2,8 +2,10 @@
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
-use RestGalleries\Http\Guzzle\GuzzleHttp;
-use RestGalleries\Http\HttpAdapter;
+use RestGalleries\Http\Guzzle\GuzzleRequest;
+use RestGalleries\Http\Guzzle\Plugins\GuzzleAuth;
+use RestGalleries\Http\Guzzle\Plugins\GuzzleCache;
+use RestGalleries\Http\RequestAdapter;
 use RestGalleries\Interfaces\PhotoAdapter;
 
 /**
@@ -18,9 +20,7 @@ abstract class ApiPhoto implements PhotoAdapter
      */
     protected $endPoint;
 
-    protected $credentials = [];
-
-    protected $cache = [];
+    protected $plugins = [];
 
     /**
      * Gets IDs of photos, seeks and gets the photo and makes a Collection for send it back.
@@ -92,42 +92,42 @@ abstract class ApiPhoto implements PhotoAdapter
      */
     abstract protected function fetchPhoto($id);
 
-    public function newHttp(HttpAdapter $http = null)
+    public function newRequest(RequestAdapter $request = null)
     {
-        if (empty($http)) {
-            $http = new GuzzleHttp;
+        if (empty($request)) {
+            $request = new GuzzleRequest;
         }
 
-        $http = $http::init($this->endPoint);
-        $http->setAuth($this->getCredentials());
+        $request = $request::init($this->endPoint);
 
-        if ($cache = $this->getCache()) {
-            $http->setCache($cache['file_system'], $cache['path']);
+        if (! empty($this->plugins)) {
+            $request = $request->addPlugins($this->plugins);
         }
 
-        return $http;
+        return $request;
 
     }
 
-    public function setCredentials(array $credentials)
+    protected function newRequestAuthPlugin()
     {
-        $this->credentials = $credentials;
+        return new GuzzleAuth;
     }
 
-    public function getCredentials()
+    protected function newRequestCachePlugin()
     {
-        return $this->credentials;
+        return new GuzzleCache;
     }
 
-    public function setCache($fileSystem, array $path)
+    public function addAuthentication(array $credentials)
     {
-        $this->cache['file_system'] = $fileSystem;
-        $this->cache['path']        = $path;
+        $plugin = $this->newRequestAuthPlugin();
+        $this->plugins['auth'] = $plugin::add($credentials);
     }
 
-    public function getCache()
+    public function addCache($system, array $path)
     {
-        return $this->cache;
+        $plugin = $this->newRequestCachePlugin();
+        $this->plugins['cache'] = $plugin::add($system, $path);
     }
 
 }
