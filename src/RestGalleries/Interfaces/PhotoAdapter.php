@@ -10,7 +10,6 @@ interface PhotoAdapter
     public function all($galleryId);
     public function find($id);
     public function newRequest(RequestAdapter $http = null);
-    public function addAuthentication(array $credentials);
-    public function addCache($system, array $path);
+    public function addPlugin($plugin);
 
 }

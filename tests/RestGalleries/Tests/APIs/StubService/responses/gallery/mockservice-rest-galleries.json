@@ -1,0 +1,12 @@
+{
+    "galleries": [
+        {
+            "id": "some-fake-gallery-id",
+            "title": "Gallery Title"
+        },
+        {
+            "id": "some-fake-gallery-id-2",
+            "title": "Another Gallery Title"
+        }
+    ]
+}

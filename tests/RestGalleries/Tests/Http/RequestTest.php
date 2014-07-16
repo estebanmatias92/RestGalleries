@@ -42,7 +42,7 @@ class RequestTest extends \RestGalleries\Tests\TestCase
         ];
 
         $request = new RequestAddPluginsStub;
-        $request::init('http://mockservice.com/api/rest/')
+        $request::init('http://www.mockservice.com/rest/')
             ->addPlugins($plugins);
 
     }
@@ -50,7 +50,7 @@ class RequestTest extends \RestGalleries\Tests\TestCase
     public function testSendRequestReturnsResponse()
     {
         $request  = new RequestSendRequestReturnsResponseStub;
-        $response = $request::init('http://mockservice.com/api/rest/')
+        $response = $request::init('http://www.mockservice.com/rest/')
             ->sendRequest();
 
         assertThat($response, is(anInstanceOf('RestGalleries\Http\ResponseAdapter')));

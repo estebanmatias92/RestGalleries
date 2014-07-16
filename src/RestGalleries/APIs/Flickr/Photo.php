@@ -107,7 +107,8 @@ class Photo extends ApiPhoto
             return;
         }
 
-        $data                      = &$source->photo;
+        $data  = &$source->photo;
+
         $photo                     = [];
         $photo['id']               = $data->id;
         $photo['title']            = $data->title->_content;

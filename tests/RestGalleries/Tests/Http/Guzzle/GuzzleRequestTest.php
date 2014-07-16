@@ -8,7 +8,7 @@ class GuzzleHttpTest extends \RestGalleries\Tests\TestCase
     {
         parent::setUp();
 
-        $this->url = 'http://mockservice.com/api/rest/';
+        $this->url = 'http://www.mockservice.com/rest/';
     }
 
     public function testAddPluginsCallsAddSubscriber()
@@ -30,7 +30,7 @@ class GuzzleHttpTest extends \RestGalleries\Tests\TestCase
     {
         $request = new GuzzleRequestSendRequestMakesTheRequestStub;
 
-        $request::init('http://mockservice.com/api/rest/')
+        $request::init('http://www.mockservice.com/rest/')
             ->setQuery(['dummy-query'])
             ->setHeaders(['dummy-headers'])
             ->setBody('dummy-body')
@@ -82,7 +82,7 @@ class GuzzleRequestSendRequestMakesTheRequestStub extends GuzzleRequestStub
             'body'    => 'dummy-body'
         ];
 
-        $url = 'http://mockservice.com/api/rest/dummy-endpoint';
+        $url = 'http://www.mockservice.com/rest/dummy-endpoint';
 
         $this->request
             ->shouldReceive('createRequest')

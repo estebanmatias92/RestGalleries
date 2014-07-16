@@ -108,26 +108,9 @@ abstract class ApiPhoto implements PhotoAdapter
 
     }
 
-    protected function newRequestAuthPlugin()
+    public function addPlugin($plugin)
     {
-        return new GuzzleAuth;
-    }
-
-    protected function newRequestCachePlugin()
-    {
-        return new GuzzleCache;
-    }
-
-    public function addAuthentication(array $credentials)
-    {
-        $plugin = $this->newRequestAuthPlugin();
-        $this->plugins['auth'] = $plugin::add($credentials);
-    }
-
-    public function addCache($system, array $path)
-    {
-        $plugin = $this->newRequestCachePlugin();
-        $this->plugins['cache'] = $plugin::add($system, $path);
+        $this->plugins[] = $plugin;
     }
 
 }

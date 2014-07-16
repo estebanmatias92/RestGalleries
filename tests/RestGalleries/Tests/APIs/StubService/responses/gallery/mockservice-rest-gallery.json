@@ -1,0 +1,13 @@
+{
+    "gallery": {
+        "id": "some-fake-gallery-id",
+        "title": "Gallery Title",
+        "description": "Gallery description...",
+        "create_at": "1369820710",
+        "url": "http://mockservice.com/rest/gallery/some-fake-id",
+        "photos": "45",
+        "user_id": "some-fake-user-id",
+        "thumbnail_id": "dummy-thumbnail-id",
+        "views": "1050"
+    }
+}

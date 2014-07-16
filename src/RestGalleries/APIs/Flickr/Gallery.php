@@ -108,8 +108,9 @@ class Gallery extends ApiGallery
             return;
         }
 
-        $photoset               = &$data->photoset;
-        $photo                  = $this->newPhoto();
+        $photoset = &$data->photoset;
+        $photo    = $this->newPhoto();
+
         $gallery                = [];
         $gallery['id']          = $photoset->id;
         $gallery['title']       = $photoset->title->_content;
@@ -121,7 +122,7 @@ class Gallery extends ApiGallery
         $gallery['url']         .= '/sets/';
         $gallery['url']         .= $photoset->id;
         $gallery['size']        = $photoset->count_photos;
-        $gallery['user_id']     = $photoset->id;
+        $gallery['user_id']     = $photoset->owner;
         $gallery['thumbnail']   = $photoset->primary;
         $gallery['views']       = $photoset->count_views;
 

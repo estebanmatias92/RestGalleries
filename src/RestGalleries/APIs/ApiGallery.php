@@ -21,10 +21,6 @@ abstract class ApiGallery implements GalleryAdapter
      */
     protected $endPoint;
 
-    protected $cache = [];
-
-    protected $credentials = [];
-
     protected $plugins = [];
 
     /**
@@ -125,13 +121,8 @@ abstract class ApiGallery implements GalleryAdapter
             $photo = new $class;
         }
 
-        $photo->addAuthentication($this->credentials);
-
-        if (! empty($this->cache)) {
-            $photo->addCache(
-                $this->cache['system'],
-                $this->cache['path']
-            );
+        if (! empty($this->plugins)) {
+            array_walk($this->plugins, [$photo, 'addPlugin']);
         }
 
         return $photo;
@@ -147,15 +138,12 @@ abstract class ApiGallery implements GalleryAdapter
     {
         $plugin = $this->newRequestAuthPlugin();
         $this->plugins['auth'] = $plugin::add($credentials);
-        $this->credentials     = $credentials;
     }
 
     public function addCache($system, array $path)
     {
         $plugin = $this->newRequestCachePlugin();
         $this->plugins['cache'] = $plugin::add($system, $path);
-        $this->cache['system']  = $system;
-        $this->cache['path']    = $path;
     }
 
 }
