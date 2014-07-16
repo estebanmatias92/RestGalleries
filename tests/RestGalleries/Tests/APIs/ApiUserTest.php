@@ -46,7 +46,6 @@ class ApiUserTest extends \RestGalleries\Tests\TestCase
 
     }
 
-
 }
 
 class StubServiceUserStub extends \RestGalleries\Tests\APIs\StubService\User

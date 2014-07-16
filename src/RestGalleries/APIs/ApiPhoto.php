@@ -2,7 +2,10 @@
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
-use RestGalleries\Http\HttpAdapter;
+use RestGalleries\Http\Guzzle\GuzzleRequest;
+use RestGalleries\Http\Guzzle\Plugins\GuzzleAuth;
+use RestGalleries\Http\Guzzle\Plugins\GuzzleCache;
+use RestGalleries\Http\RequestAdapter;
 use RestGalleries\Interfaces\PhotoAdapter;
 
 /**
@@ -17,17 +20,7 @@ abstract class ApiPhoto implements PhotoAdapter
      */
     protected $endPoint;
 
-    /**
-     * HTTP client to make the requests to the API.
-     *
-     * @var object
-     */
-    protected $http;
-
-    public function __construct(HttpAdapter $http)
-    {
-        $this->http = $http::init($this->endPoint);
-    }
+    protected $plugins = [];
 
     /**
      * Gets IDs of photos, seeks and gets the photo and makes a Collection for send it back.
@@ -38,20 +31,21 @@ abstract class ApiPhoto implements PhotoAdapter
      */
     public function all($galleryId)
     {
-        $photoIds = $this->getPhotoIds($galleryId);
+        return $this->getPhotos($galleryId);
+    }
 
-        if (empty($photoIds)) {
-            return new Collection;
+    /**
+     *
+     *
+     * @return \Illuminate\Support\Collection|null
+     */
+    protected function getPhotos($galleryId)
+    {
+        if (! is_null($ids = $this->fetchIds($galleryId))) {
+            $photos = array_map([$this, 'getPhoto'], $ids);
+
+            return new Collection($photos);
         }
-
-        $photos = [];
-
-        foreach ($photoIds as $id) {
-            $photo    = $this->getPhoto($id);
-            $photos[] = new Fluent($photo);
-        }
-
-        return new Collection($photos);
 
     }
 
@@ -62,7 +56,7 @@ abstract class ApiPhoto implements PhotoAdapter
      * @param  string     $galleryId
      * @return array|null
      */
-    abstract protected function getPhotoIds($galleryId);
+    abstract protected function fetchIds($galleryId);
 
     /**
      * Gets the photo and returns an object.
@@ -73,14 +67,20 @@ abstract class ApiPhoto implements PhotoAdapter
      */
     public function find($id)
     {
-        $photo = $this->getPhoto($id);
+        return $this->getPhoto($id);
+    }
 
-        if (empty($photo)) {
-            return new Fluent;
+    /**
+     * Fetch a gallery as array and returns a object ArrayAccess-type with that data.
+     *
+     * @param  string $id
+     * @return \Illuminate\Support\Fluent|null
+     */
+    protected function getPhoto($id)
+    {
+        if (! is_null($photo = $this->fetchPhoto($id))) {
+            return new Fluent($photo);
         }
-
-        return new Fluent($photo);
-
     }
 
     /**
@@ -90,27 +90,44 @@ abstract class ApiPhoto implements PhotoAdapter
      * @param  string     $id
      * @return array|null
      */
-    abstract protected function getPhoto($id);
+    abstract protected function fetchPhoto($id);
 
-    /**
-     * Set tokens for authentication.
-     *
-     * @param array $tokenCredentials
-     */
-    public function setAuth(array $tokenCredentials)
+    public function newRequest(RequestAdapter $request = null)
     {
-        $this->http->setAuth($tokenCredentials);
+        if (empty($request)) {
+            $request = new GuzzleRequest;
+        }
+
+        $request = $request::init($this->endPoint);
+
+        if (! empty($this->plugins)) {
+            $request = $request->addPlugins($this->plugins);
+        }
+
+        return $request;
+
     }
 
-    /**
-     * Set cache file system and path, for caching.
-     *
-     * @param string $fileSystem
-     * @param array  $path
-     */
-    public function setCache($fileSystem, array $path)
+    protected function newRequestAuthPlugin()
     {
-        $this->http->setCache($fileSystem, $path);
+        return new GuzzleAuth;
+    }
+
+    protected function newRequestCachePlugin()
+    {
+        return new GuzzleCache;
+    }
+
+    public function addAuthentication(array $credentials)
+    {
+        $plugin = $this->newRequestAuthPlugin();
+        $this->plugins['auth'] = $plugin::add($credentials);
+    }
+
+    public function addCache($system, array $path)
+    {
+        $plugin = $this->newRequestCachePlugin();
+        $this->plugins['cache'] = $plugin::add($system, $path);
     }
 
 }

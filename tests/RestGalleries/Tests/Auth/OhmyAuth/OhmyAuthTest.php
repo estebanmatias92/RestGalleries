@@ -1,8 +1,8 @@
-<?php
+<?php namespace RestGalleries\Tests\Auth\OhmyAuth;
 
 use RestGalleries\Auth\OhmyAuth\OhmyAuth;
 
-class OhmyAuthTest extends TestCase
+class OhmyAuthTest extends \RestGalleries\Tests\TestCase
 {
     public function setUp()
     {

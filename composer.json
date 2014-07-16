@@ -25,11 +25,11 @@
     },
     "autoload": {
         "psr-0": {
-            "RestGalleries": "src/"
+            "RestGalleries": "src/",
+            "RestGalleries\\Tests": "tests/"
         },
         "classmap": [
-            "src/RestGalleries/APIs",
-            "tests/TestCase.php"
+            "src/RestGalleries/APIs"
         ],
         "files": [
             "src/RestGalleries/Support/helpers.php"

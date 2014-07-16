@@ -2,8 +2,10 @@
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
-use RestGalleries\Auth\AuthAdapter;
-use RestGalleries\Http\HttpAdapter;
+use RestGalleries\Http\RequestAdapter;
+use RestGalleries\Http\Guzzle\GuzzleRequest;
+use RestGalleries\Http\Guzzle\Plugins\GuzzleAuth;
+use RestGalleries\Http\Guzzle\Plugins\GuzzleCache;
 use RestGalleries\Interfaces\GalleryAdapter;
 use RestGalleries\Interfaces\PhotoAdapter;
 
@@ -19,42 +21,11 @@ abstract class ApiGallery implements GalleryAdapter
      */
     protected $endPoint;
 
-    /**
-     * Auth client to connect with the service and verify the credentials.
-     *
-     * @var object
-     */
-    protected $auth;
+    protected $cache = [];
 
-    /**
-     * HTTP client to make the requests to the API.
-     *
-     * @var object
-     */
-    protected $http;
+    protected $credentials = [];
 
-    /**
-     * Stores the photo object.
-     *
-     * @var object
-     */
-    protected $photo;
-
-    /**
-     * Initializes instance variables.
-     *
-     * @param  \RestGalleries\Auth\AuthAdapter        $auth
-     * @param  \RestGalleries\Http\HttpAdapter        $http
-     * @param  \RestGalleries\Interfaces\PhotoAdapter $photo
-     * @return void
-     */
-    public function __construct(AuthAdapter $auth, HttpAdapter $http, PhotoAdapter $photo)
-    {
-        $this->auth  = $auth;
-        $this->http  = $http::init($this->endPoint);
-        $this->photo = $photo;
-
-    }
+    protected $plugins = [];
 
     /**
      * Returns all galleries currently available on the photos service.
@@ -89,6 +60,17 @@ abstract class ApiGallery implements GalleryAdapter
     abstract protected function fetchIds();
 
     /**
+     * Returns a particular gallery.
+     *
+     * @param  string $id
+     * @return \Illuminate\Support\Fluent|null
+     */
+    public function find($id)
+    {
+        return $this->getGallery($id);
+    }
+
+    /**
      * Fetch a gallery as array and returns a object ArrayAccess-type with that data.
      *
      * @param  string $id
@@ -110,39 +92,70 @@ abstract class ApiGallery implements GalleryAdapter
      */
     abstract protected function fetchGallery($id);
 
-    /**
-     * Returns a particular gallery.
-     *
-     * @param  string $id
-     * @return \Illuminate\Support\Fluent|null
-     */
-
-    public function find($id)
+    public function newRequest(RequestAdapter $request = null)
     {
-        return $this->getGallery($id);
+        if (empty($request)) {
+            $request = new GuzzleRequest;
+        }
+
+        $request = $request::init($this->endPoint);
+
+        if (! empty($this->plugins)) {
+            $request = $request->addPlugins($this->plugins);
+        }
+
+        return $request;
+
     }
 
-    /**
-     * Set tokens for authentication.
-     *
-     * @param  array $tokenCredentials
-     * @return void
-     */
-    public function setAuth(array $tokenCredentials)
+    protected function newRequestAuthPlugin()
     {
-        $this->http->setAuth($tokenCredentials);
+        return new GuzzleAuth;
     }
 
-    /**
-     * Set cache file system and path, for caching.
-     *
-     * @param  string $fileSystem
-     * @param  array  $path
-     * @return void
-     */
-    public function setCache($fileSystem, array $path)
+    protected function newRequestCachePlugin()
     {
-        $this->http->setCache($fileSystem, $path);
+        return new GuzzleCache;
+    }
+
+    public function newPhoto(PhotoAdapter $photo = null)
+    {
+        if (empty($photo)) {
+            $class = $this->getChildClassNamespace() . '\\Photo';
+            $photo = new $class;
+        }
+
+        $photo->addAuthentication($this->credentials);
+
+        if (! empty($this->cache)) {
+            $photo->addCache(
+                $this->cache['system'],
+                $this->cache['path']
+            );
+        }
+
+        return $photo;
+
+    }
+
+    protected function getChildClassNamespace()
+    {
+        return get_class_namespace($this);
+    }
+
+    public function addAuthentication(array $credentials)
+    {
+        $plugin = $this->newRequestAuthPlugin();
+        $this->plugins['auth'] = $plugin::add($credentials);
+        $this->credentials     = $credentials;
+    }
+
+    public function addCache($system, array $path)
+    {
+        $plugin = $this->newRequestCachePlugin();
+        $this->plugins['cache'] = $plugin::add($system, $path);
+        $this->cache['system']  = $system;
+        $this->cache['path']    = $path;
     }
 
 }

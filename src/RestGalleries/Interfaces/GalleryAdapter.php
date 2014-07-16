@@ -1,7 +1,7 @@
 <?php namespace RestGalleries\Interfaces;
 
 use RestGalleries\Auth\AuthAdapter;
-use RestGalleries\Http\HttpAdapter;
+use RestGalleries\Http\RequestAdapter;
 use RestGalleries\Interfaces\PhotoAdapter;
 
 /**
@@ -10,10 +10,11 @@ use RestGalleries\Interfaces\PhotoAdapter;
  */
 interface GalleryAdapter
 {
-    public function __construct(AuthAdapter $auth, HttpAdapter $http, PhotoAdapter $photo);
     public function all();
     public function find($id);
-    public function setAuth(array $tokenCredentials);
-    public function setCache($fileSystem, array $path);
+    public function newRequest(RequestAdapter $http = null);
+    public function newPhoto(PhotoAdapter $photo = null);
+    public function addAuthentication(array $credentials);
+    public function addCache($system, array $path);
 
 }

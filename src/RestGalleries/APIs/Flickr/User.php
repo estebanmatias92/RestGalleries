@@ -12,22 +12,22 @@ class User extends ApiUser
     protected $urlAuthorize = 'https://www.flickr.com/services/oauth/authorize';
     protected $urlAccess    = 'https://www.flickr.com/services/oauth/access_token';
 
-    protected function getArrayData($data)
+    protected function extractUserArray($data)
     {
         if (stristr($data->err['msg'], 'invalid')) {
             return false;
         }
 
         $user                    = [];
-        $user['id']              = (string) $data->user['nsid'];
-        $user['realname']        = (string) $data->user['fullname'];
-        $user['username']        = (string) $data->user['username'];
-        $user['url']             = 'https://secure.flickr.com/people/'.$user['username'];
-
-        $user['consumer_key']    = (string) $data->tokens['consumer_key'];
-        $user['consumer_secret'] = (string) $data->tokens['consumer_secret'];
-        $user['token']           = (string) $data->tokens['token'];
-        $user['token_secret']    = (string) $data->tokens['token_secret'];
+        $user['id']              = $data->user['nsid'];
+        $user['realname']        = $data->user['fullname'];
+        $user['username']        = $data->user['username'];
+        $user['url']             = 'https://secure.flickr.com/people/';
+        $user['url']             .= $user['username'];
+        $user['consumer_key']    = $data->tokens['consumer_key'];
+        $user['consumer_secret'] = $data->tokens['consumer_secret'];
+        $user['token']           = $data->tokens['token'];
+        $user['token_secret']    = $data->tokens['token_secret'];
 
         return $user;
 

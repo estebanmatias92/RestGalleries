@@ -2,27 +2,15 @@
 
 use RestGalleries\Auth\AuthAdapter;
 use RestGalleries\Exception\AuthException;
-use RestGalleries\Http\Guzzle\GuzzleHttp;
+use RestGalleries\Http\RequestAdapter;
+use RestGalleries\Http\Guzzle\GuzzleRequest;
+use RestGalleries\Http\Guzzle\Plugins\GuzzleAuth;
 
 /**
  * Common father class, makes the hard work to get the account data and verify the tokens.
  */
 abstract class Auth implements AuthAdapter
 {
-    /**
-     * Stores the Auth client from child class.
-     *
-     * @var object
-     */
-    protected $client;
-
-    /**
-     * Stores the Http client.
-     *
-     * @var object
-     */
-    protected $http;
-
     /**
      * "OAuth dance" URLs for the connect process.
      *
@@ -44,36 +32,34 @@ abstract class Auth implements AuthAdapter
      */
     protected $protocol;
 
-    public function __construct()
-    {
-        $this->http = new GuzzleHttp;
-    }
-
     /**
      * Takes credentials and URLs, checks credentials and gets tokens.
      * Returns an account with their credentials.
      *
      * @param  array  $clientCredentials
      * @param  array  $endPoints
-     * @param  string $checkUrl
+     * @param  string $userDataUrl
      * @return object
      */
-    public static function connect(array $clientCredentials, array $endPoints, $checkUrl)
+    public static function connect(array $clientCredentials, array $endPoints, $userDataUrl)
     {
         $instance = new static;
 
-        if (! $instance->protocol = self::getAuthProtocol($clientCredentials)) {
+        if (! $protocol = self::getAuthProtocol($clientCredentials)) {
             throw new AuthException('Credentials keys are invalid.');
         }
 
+        $instance->protocol    = $protocol;
         $instance->credentials = $clientCredentials;
         $instance->endPoints   = $endPoints;
-        $tokenCredentials      = $instance->getTokenCredentials();
+        $tokenCredentials      = $instance->fetchTokenCredentials();
 
         $instance->addToCredentials($tokenCredentials);
         $instance->filterCredentialsByKey('token_credentials');
 
-        return $instance->getAccountData($checkUrl);
+        $userData = $instance->fetchUserData($userDataUrl);
+
+        return $userData;
 
     }
 
@@ -82,7 +68,7 @@ abstract class Auth implements AuthAdapter
      *
      * @return array
      */
-    abstract protected function getTokenCredentials();
+    abstract protected function fetchTokenCredentials();
 
     /**
      * Merge the new credential values to the existing credentials.
@@ -99,21 +85,20 @@ abstract class Auth implements AuthAdapter
     }
 
     /**
-     * Filters the given credentials for use them with the "Auth::getAccountData" method.
+     * Filters the given credentials for use them with the "Auth::fetchUserData" method.
      *
      * @param  array  $tokenCredentials
      * @return void
      */
     protected function filterCredentialsByKey($filter = 'client_credentials')
     {
-        if (! in_array($filter, ['client_crecentials', 'token_credentials'])) {
-            return;
-        }
-
         $this->removeCredentialPrefixes('oauth_');
 
-        $protocol = ucfirst($this->protocol);
-        $keys     = call_user_func_array([$this, 'get' . $protocol . 'Keys'], [null]);
+        $method = 'get';
+        $method .= ucfirst($this->protocol);
+        $method .= 'Keys';
+
+        $keys = call_user_func_array([$this, $method], [null]);
 
         $this->credentials = array_only(
             $this->credentials,
@@ -140,20 +125,56 @@ abstract class Auth implements AuthAdapter
      * Makes the http request to the "checkUrl", and gets an object with account data.
      * Additionally it adds token credentials data to the object by if needed.
      *
-     * @param  string $checkUrl
+     * @param  string $userDataUrl
      * @return object
      */
-    protected function getAccountData($checkUrl)
+    protected function fetchUserData($userDataUrl)
     {
-        $http           = $this->http;
-        $http           = $http::init($checkUrl);
-        $http->setAuth($this->credentials);
+        $request = $this->newRequest();
+        $plugins = [
+            'auth' => $this->newAuthExtension(),
+        ];
 
-        $response       = $http->GET();
-        $responseObject = $response->getBody();
-        $this->addDataTokens($responseObject, $this->credentials);
+        $userData = $request::init($userDataUrl)
+            ->addPlugins($plugins)
+            ->GET()
+            ->getBody();
 
-        return $responseObject;
+        $this->addDataTokens($userData, $this->credentials);
+
+        return $userData;
+
+    }
+
+    /**
+     * [newRequestAuth description]
+     *
+     * @param  [type] $requestAuth
+     * @return [type]
+     */
+    public function newAuthExtension(GuzzleAuth $authExtension = null)
+    {
+        if (empty($requestAuth)) {
+            $authExtension = new GuzzleAuth;
+        }
+
+        return $authExtension::add($this->credentials);
+
+    }
+
+    /**
+     * [newRequest description]
+     *
+     * @param  [type] $request
+     * @return [type]
+     */
+    public function newRequest(RequestAdapter $request = null)
+    {
+        if (empty($request)) {
+            $request = new GuzzleRequest;
+        }
+
+        return $request;
 
     }
 
@@ -180,21 +201,25 @@ abstract class Auth implements AuthAdapter
      * Checks the token credentials and returns an object with its account data.
      *
      * @param  array  $tokenCredentials
-     * @param  string $checkUrl
+     * @param  string $userDataUrl
      * @return object
      */
-    public static function verifyCredentials(array $tokenCredentials, $checkUrl)
+    public static function verifyCredentials(array $tokenCredentials, $userDataUrl)
     {
         $instance = new static;
 
-        if (! $instance->protocol = self::getAuthProtocol($tokenCredentials)) {
+        if (! $protocol = self::getAuthProtocol($tokenCredentials)) {
             throw new AuthException('Credentials keys are invalid.');
         }
+
+        $instance->protocol = $protocol;
 
         $instance->addToCredentials($tokenCredentials);
         $instance->filterCredentialsByKey('token_credentials');
 
-        return $instance->getAccountData($checkUrl);
+        $userData = $instance->fetchUserData($userDataUrl);
+
+        return $userData;
 
     }
 
@@ -208,6 +233,7 @@ abstract class Auth implements AuthAdapter
     {
         $instance       = new static;
         $credentialKeys = array_keys($credentials);
+        sort($credentialKeys);
 
         if ($instance->isOauth1($credentialKeys)) {
             return 'oauth1';
@@ -275,7 +301,7 @@ abstract class Auth implements AuthAdapter
     {
         return [
             'client_credentials' => ['client_id', 'client_secret', 'redirect'],
-            'token_credentials' => ['acces_token', 'expires']
+            'token_credentials' => ['access_token', 'expires']
         ];
     }
 

@@ -14,67 +14,68 @@ class Photo extends ApiPhoto
         'nojsoncallback' => 1,
     ];
 
-    public function getPhotoIds($galleryId)
+    protected function fetchIds($galleryId)
     {
-        $page    = 1;
-        $perPage = 50;
         $ids     = [];
+        $query   = array_merge(
+            $this->defaultQuery,
+            [
+                'method'         => 'flickr.photosets.getPhotos',
+                'photoset_id'    => $galleryId,
+                'extras'         => '',
+                'privacy_filter' => 1,
+                'per_page'       => 50,
+                'page'           => 1,
+                'media'          => 'photos',
+            ]
+        );
+        $request = $this->newRequest();
 
         do {
-            $query = array_merge(
-                $this->defaultQuery,
-                [
-                    'method'         => 'flickr.photosets.getPhotos',
-                    'photoset_id'    => $galleryId,
-                    'extras'         => '',
-                    'privacy_filter' => 1,
-                    'per_page'       => $perPage,
-                    'page'           => $page,
-                    'media'          => 'photos',
-                ]
-            );
+            $body = $request->setQuery($query)
+                ->GET()
+                ->getBody('array');
 
-            $this->http->setQuery($query);
-
-            $response = $this->http->GET();
-            $body     = $response->getBody('array');
-
-            $newIds = $this->getArrayIds($body);
-
-            if ($newIds == false) {
-                return null;
+            if ($body['stat'] == 'fail') {
+                return;
             }
 
             $photoset = &$body['photoset'];
-            $ids      = array_merge($ids, $newIds);
+            $newIds   = $this->extractIdsArray($photoset);
+            $ids      = $this->addIds($ids, $newIds);
 
-            ++$page;
-
-        } while ($page <= $photoset['pages']);
+        } while (++$query['page'] <= $photoset['pages']);
 
         return $ids;
 
     }
 
     /**
-     * It receives an array with gallery data and returns an array with Ids from the gallery photos, if gets an failure, returns false.
+     * Extracts from the given array data, the identifiers of photos.
      *
-     * @param  array         $data
-     * @return array|boolean
+     * @param  array $data
+     * @return array
      */
-    protected function getArrayIds($data)
+    private function extractIdsArray($data)
     {
-        if ($data['stat'] == 'fail') {
-            return false;
-        }
-
-        $photoset = &$data['photoset'];
-
-        return array_pluck($photoset['photo'], 'id');
-
+        return array_pluck($data['photo'], 'id');
     }
 
-    protected function getPhoto($id)
+    /**
+     * Adds to the identifiers array, a new array of identifiers.
+     *
+     * @param  array $ids
+     * @param  array $newIds
+     * @return array|null
+     */
+    private function addIds(array $ids, array $newIds)
+    {
+        if (! empty($newIds)) {
+            return array_merge($ids, $newIds);
+        }
+    }
+
+    protected function fetchPhoto($id)
     {
         $query = array_merge(
             $this->defaultQuery,
@@ -85,19 +86,12 @@ class Photo extends ApiPhoto
             ]
         );
 
-        $this->http->setQuery($query);
+        $body = $this->newRequest()
+            ->setQuery($query)
+            ->GET()
+            ->getBody();
 
-        $response = $this->http->GET();
-        $body     = $response->getBody();
-
-        $photo = $this->getArrayPhoto($body);
-
-        if($photo == false)
-        {
-            return null;
-        }
-
-        return $photo;
+        return $this->extractPhotoArray($body);
 
     }
 
@@ -107,48 +101,56 @@ class Photo extends ApiPhoto
      * @param  object        $data
      * @return array|boolean
      */
-    protected function getArrayPhoto($data)
+    private function extractPhotoArray($source)
     {
-        if ($data->stat == 'fail') {
-            return false;
+        if ($source->stat == 'fail') {
+            return;
         }
 
-        $data = &$data->photo;
-
-        $photo                = [];
-        $photo['id']          = $data->id;
-        $photo['title']       = $data->title->_content;
-        $photo['description'] = $data->description->_content;
-        $photo['url']         = $data->urls->url[0]->_content;
-        $photo['created']     = (integer) $data->dates->posted;
-        $photo['views']       = $data->views;
-
-        $query = array_merge(
-            $this->defaultQuery,
-            [
-                'method'   => 'flickr.photos.getSizes',
-                'photo_id' => $data->id,
-            ]
-        );
-
-        $this->http->setQuery($query);
-
-        $response = $this->http->GET();
-        $sizes    = $response->getBody();
-        $sizes    = &$sizes->sizes->size;
-
-        $images = array_where($sizes, function ($key, $value) {
-            return in_array($value->label, ['Original', 'Small 320']);
-        });
-
-        $images = array_flatten($images);
-
-        $photo['source']           = $images[1]->source;
-        $photo['source_thumbnail'] = $images[0]->source;
+        $data                      = &$source->photo;
+        $photo                     = [];
+        $photo['id']               = $data->id;
+        $photo['title']            = $data->title->_content;
+        $photo['description']      = $data->description->_content;
+        $photo['url']              = $data->urls->url[0]->_content;
+        $photo['created']          = (string) $data->dates->posted;
+        $photo['views']            = $data->views;
+        $images                    = $this->fetchImages($photo['id']);
+        $photo['source']           = $images[1];
+        $photo['source_thumbnail'] = $images[0];
 
         return $photo;
 
     }
 
-}
+    private function fetchImages($photoId)
+    {
+        $query = array_merge(
+            $this->defaultQuery,
+            [
+                'method'   => 'flickr.photos.getSizes',
+                'photo_id' => $photoId,
+            ]
+        );
 
+        $body = $this->newRequest()
+            ->setQuery($query)
+            ->GET()
+            ->getBody('array');
+
+        return $this->extractImagesArray($body);
+
+    }
+
+    private function extractImagesArray($source)
+    {
+        $sizes  = array_get($source, 'sizes.size');
+        $images = array_where($sizes, function ($key, $value) {
+            return in_array($value['label'], ['Original', 'Small 320']);
+        });
+
+        return array_fetch($images, 'source');
+
+    }
+
+}
