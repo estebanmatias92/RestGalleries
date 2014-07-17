@@ -2,6 +2,7 @@
 
 use RestGalleries\Exception\HttpException;
 use RestGalleries\Http\RequestAdapter;
+use RestGalleries\Http\ResponseAdapter;
 
 /**
  * Common http father to simplify client work with cache system selection and auth protocol selection, among others.
@@ -51,8 +52,7 @@ abstract class Request implements RequestAdapter
 
     }
 
-    abstract protected function newResponse($data);
-    abstract public function addPlugins(array $plugins);
+    abstract protected function newResponse($raw);
 
     public function setQuery(array $query)
     {

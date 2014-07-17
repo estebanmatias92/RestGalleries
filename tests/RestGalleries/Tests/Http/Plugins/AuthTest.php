@@ -13,7 +13,8 @@ class AuthTest extends \RestGalleries\Tests\TestCase
             'token_secret'    => 'dummy-token-secret'
         ];
 
-        $plugin     = AuthStub::add($credentials);
+        $plugin     = new AuthStub($credentials);
+        $plugin     = $plugin->add();
         $pluginName = $plugin->name;
 
         assertThat($pluginName, is(equalTo('OAuth1.0')));
@@ -27,7 +28,8 @@ class AuthTest extends \RestGalleries\Tests\TestCase
             'expires'      => 'dummy-expires'
         ];
 
-        $plugin     = AuthStub::add($credentials);
+        $plugin     = new AuthStub($credentials);
+        $plugin     = $plugin->add();
         $pluginName = $plugin->name;
 
         assertThat($pluginName, is(equalTo('OAuth2.0')));
@@ -42,7 +44,7 @@ class AuthTest extends \RestGalleries\Tests\TestCase
 
         $credentials = ['any-invalid-crendential'];
 
-        AuthStub::add($credentials);
+        new AuthStub($credentials);
 
     }
 

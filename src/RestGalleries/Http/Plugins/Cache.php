@@ -1,6 +1,8 @@
 <?php namespace RestGalleries\Http\Plugins;
 
-abstract class Cache
+use RestGalleries\Http\Plugins\RequestPluginAdapter;
+
+abstract class Cache implements RequestPluginAdapter
 {
     /**
      * [$system description]
@@ -16,20 +18,25 @@ abstract class Cache
      */
     protected $path;
 
-    /**
-     * Takes a cache system name, selects it and stores it.
-     *
-     * @param  string $system
-     * @param  array  $path
-     * @throws InvalidArgumentException
-     */
-    public static function add($system = 'file', array $path = array())
+    public function __construct($system = 'file', array $path = array())
     {
-        $instance = new static;
+        $this->processPluginData($system, $path);
+    }
 
-        if (! $instance->isValidCacheSystem($system)) {
+    /**
+     * [processPluginData description]
+     *
+     * @param  [type] $system
+     * @param  [type] $path
+     * @return [type]
+     */
+    protected function processPluginData($system, $path)
+    {
+        if (! $this->isValidCacheSystem($system)) {
             throw new \InvalidArgumentException('Cache system is invalid.');
         }
+
+        $this->system = $system;
 
         if (empty($path)) {
             $path = [
@@ -37,11 +44,19 @@ abstract class Cache
             ];
         }
 
-        $instance->system = $system;
-        $instance->path   = $path;
+        $this->path = $path;
+    }
 
-        return $instance->getCacheExtension();
-
+    /**
+     * Takes a cache system name, selects it and stores it.
+     *
+     * @param  string $system
+     * @param  array  $path
+     * @throws InvalidArgumentException
+     */
+    public function add()
+    {
+        return $this->getCacheExtension();
     }
 
     protected function isValidCacheSystem($system)

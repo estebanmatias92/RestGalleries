@@ -13,9 +13,10 @@ class GuzzleAuthTest extends \RestGalleries\Tests\TestCase
             'token_secret'    => 'dummy-token-secret'
         ];
 
-        $plugin = GuzzleAuth::add($credentials);
+        $plugin     = new GuzzleAuth($credentials);
+        $subscriber = $plugin->add();
 
-        assertThat($plugin, is(anInstanceOf('Symfony\Component\EventDispatcher\EventSubscriberInterface')));
+        assertThat($subscriber, is(anInstanceOf('Symfony\Component\EventDispatcher\EventSubscriberInterface')));
 
     }
 
@@ -26,9 +27,10 @@ class GuzzleAuthTest extends \RestGalleries\Tests\TestCase
             'expires'      => 'dummy-expires'
         ];
 
-        $plugin = GuzzleAuth::add($credentials);
+        $plugin     = new GuzzleAuth($credentials);
+        $subscriber = $plugin->add();
 
-        assertThat($plugin, is(anInstanceOf('Symfony\Component\EventDispatcher\EventSubscriberInterface')));
+        assertThat($subscriber, is(anInstanceOf('Symfony\Component\EventDispatcher\EventSubscriberInterface')));
 
     }
 }

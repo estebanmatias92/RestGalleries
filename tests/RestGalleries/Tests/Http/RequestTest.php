@@ -96,11 +96,6 @@ class RequestTest extends \RestGalleries\Tests\TestCase
 
 }
 
-class ResponseMock extends \RestGalleries\Http\Response
-{
-    protected function processResponseData($raw) {}
-}
-
 class RequestStub extends \RestGalleries\Http\Request
 {
     protected $request;
@@ -114,10 +109,14 @@ class RequestStub extends \RestGalleries\Http\Request
 
     protected function newResponse($data)
     {
-        return new ResponseMock($data);
+        $mock = Mockery::mock('RestGalleries\Http\ResponseAdapter');
+        $mock->shouldReceive('__construct')
+            ->with($data);
+
+        return $mock;
     }
 
-    public function addPlugins(array $plugins) {}
+    public function addPlugin(\RestGalleries\Http\Plugins\RequestPluginAdapter $plugin) {}
 
     public function sendRequest($method = 'GET', $endPoint = '') {}
 

@@ -2,6 +2,7 @@
 
 use Guzzle\Http\Client;
 use RestGalleries\Http\Request;
+use RestGalleries\Http\Plugins\RequestPluginAdapter;
 
 /**
  * Specific http client based on Guzzle Client.
@@ -20,12 +21,6 @@ class GuzzleRequest extends Request
         $this->request = new Client;
     }
 
-    /**
-     * [newResponse description]
-     *
-     * @param  [type] $data
-     * @return [type]
-     */
     protected function newResponse($data)
     {
         return new GuzzleResponse($data);
@@ -36,14 +31,12 @@ class GuzzleRequest extends Request
      *
      * @param array $plugins
      */
-    public function addPlugins(array $plugins)
+    public function addPlugin(RequestPluginAdapter $plugin)
     {
-        foreach ($plugins as $plugin) {
-            $this->request->addSubscriber($plugin);
-        }
+        $subscriber = $plugin->add();
+        $this->request->addSubscriber($subscriber);
 
         return $this;
-
     }
 
     /**

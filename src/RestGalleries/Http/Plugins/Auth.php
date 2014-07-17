@@ -1,8 +1,9 @@
 <?php namespace RestGalleries\Http\Plugins;
 
 use RestGalleries\Auth\OhmyAuth\OhmyAuth;
+use RestGalleries\Http\Plugins\RequestPluginAdapter;
 
-abstract class Auth
+abstract class Auth implements RequestPluginAdapter
 {
     /**
      * [$credentials description]
@@ -18,24 +19,36 @@ abstract class Auth
      */
     protected $protocol;
 
+    public function __construct(array $credentials)
+    {
+        $this->processPluginData($credentials);
+    }
+
+    /**
+     * [processPluginData description]
+     *
+     * @param  [type] $credentials
+     * @return [type]
+     */
+    protected function processPluginData($credentials)
+    {
+        if (! $protocol = OhmyAuth::getAuthProtocol($credentials)) {
+            throw new \InvalidArgumentException('Credentials are invalid.');
+        }
+
+        $this->credentials = $credentials;
+        $this->protocol    = $protocol;
+    }
+
     /**
      * Takes the credentials and selects what protocol should it use for the auth, and stores it (obviously).
      *
      * @param  array $credentials
      * @throws InvalidArgumentException
      */
-    public static function add(array $credentials)
+    public function add()
     {
-        if (! $protocol = OhmyAuth::getAuthProtocol($credentials)) {
-            throw new \InvalidArgumentException('Credentials are invalid.');
-        }
-
-        $instance              = new static;
-        $instance->credentials = $credentials;
-        $instance->protocol    = $protocol;
-
-        return $instance->getAuthExtension();
-
+        return $this->getAuthExtension();
     }
 
     protected function getAuthExtension()

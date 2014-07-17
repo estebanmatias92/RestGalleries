@@ -4,25 +4,17 @@ use Mockery;
 
 class GuzzleHttpTest extends \RestGalleries\Tests\TestCase
 {
-    public function setUp()
-    {
-        parent::setUp();
-
-        $this->url = 'http://www.mockservice.com/rest/';
-    }
-
     public function testAddPluginsCallsAddSubscriber()
     {
-        $request = new GuzzleRequestAddPluginsCallsAddSubscriberStub;
+        $request = new GuzzleRequestAddPluginCallsAddSubscriberStub;
 
-        $auth  = Mockery::mock('Guzzle\\Plugin\\Oauth\\OauthPlugin');
-        $cache = Mockery::mock('Guzzle\\Plugin\\Cache\\CachePlugin');
-        $fakePlugins = [
-            'cache' => $cache,
-            'auth'  => $auth
-        ];
+        $mock = Mockery::mock('RestGalleries\\Http\\Plugins\\RequestPluginAdapter');
+        $mock->shouldReceive('add')
+            ->andReturn(
+                Mockery::mock('Symfony\\Component\\EventDispatcher\\EventSubscriberInterface')
+            );
 
-        $request->addPlugins($fakePlugins);
+        $request->addPlugin($mock);
 
     }
 
@@ -36,8 +28,17 @@ class GuzzleHttpTest extends \RestGalleries\Tests\TestCase
             ->setBody('dummy-body')
             ->GET('dummy-endpoint');
 
+    }
+
+    public function testSendRequestReturnsCorrectObject()
+    {
+        $request  = new GuzzleRequestSendRequestReturnsCorrectObject;
+        $response = $request::init()->GET();
+
+        assertThat($response, is(anInstanceOf('RestGalleries\Http\ResponseAdapter')));
 
     }
+
 
 }
 
@@ -51,7 +52,9 @@ class GuzzleRequestStub extends \RestGalleries\Http\Guzzle\GuzzleRequest
 
     protected function newResponse($data)
     {
-        $mock = Mockery::mock('RestGalleries\\Http\\Guzzle\\GuzzleResponse', [$data]);
+        $mock = Mockery::mock('RestGalleries\\Http\\ResponseAdapter');
+        $mock->shouldReceive('__construct')
+            ->with($data);
 
         return $mock;
 
@@ -59,7 +62,7 @@ class GuzzleRequestStub extends \RestGalleries\Http\Guzzle\GuzzleRequest
 
 }
 
-class GuzzleRequestAddPluginsCallsAddSubscriberStub extends GuzzleRequestStub
+class GuzzleRequestAddPluginCallsAddSubscriberStub extends GuzzleRequestStub
 {
     public function __construct()
     {
@@ -67,9 +70,10 @@ class GuzzleRequestAddPluginsCallsAddSubscriberStub extends GuzzleRequestStub
 
         $this->request
             ->shouldReceive('addSubscriber')
-            ->times(2);
+            ->once();
 
     }
+
 }
 
 class GuzzleRequestSendRequestMakesTheRequestStub extends GuzzleRequestStub
@@ -87,6 +91,28 @@ class GuzzleRequestSendRequestMakesTheRequestStub extends GuzzleRequestStub
         $this->request
             ->shouldReceive('createRequest')
             ->with('GET', $url, $options)
+            ->once()
+            ->andReturn($this->request);
+
+        $this->request
+            ->shouldReceive('send')
+            ->with($this->request)
+            ->once()
+            ->andReturn($this->request);
+
+        return parent::sendRequest($method, $endPoint);
+
+    }
+
+}
+
+class GuzzleRequestSendRequestReturnsCorrectObject extends GuzzleRequestStub
+{
+    public function sendRequest($method = 'GET', $endPoint = '')
+    {
+        $this->request
+            ->shouldReceive('createRequest')
+            ->with('GET', null, null)
             ->once()
             ->andReturn($this->request);
 

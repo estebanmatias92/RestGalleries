@@ -6,7 +6,8 @@ class CacheTest extends \RestGalleries\Tests\TestCase
 {
     public function testAddArrayCacheSystem()
     {
-        $plugin     = CacheStub::add('array');
+        $plugin     = new CacheStub('array');
+        $plugin     = $plugin->add();
         $pluginName = $plugin->name;
 
         assertThat($pluginName, is(equalTo('Array system')));
@@ -18,7 +19,8 @@ class CacheTest extends \RestGalleries\Tests\TestCase
         $path       = [
             'folder' => 'C:\\\\Fake Directory...\\'
         ];
-        $plugin     = CacheStub::add('file', $path);
+        $plugin     = new CacheStub('file', $path);
+        $plugin     = $plugin->add();
         $pluginName = $plugin->name;
 
         assertThat($pluginName, is(equalTo('File system')));
@@ -31,7 +33,7 @@ class CacheTest extends \RestGalleries\Tests\TestCase
             'InvalidArgumentException', 'Cache system is invalid.'
         );
 
-        CacheStub::add('any-invalid-system');
+        new CacheStub('any-invalid-system');
 
     }
 
