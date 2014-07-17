@@ -34,16 +34,13 @@ class RequestTest extends \RestGalleries\Tests\TestCase
 
     }
 
-    public function testAddPlugins()
+    public function testAddPlugin()
     {
-        $plugins = [
-            'auth'  => new \stdClass('non-empty'),
-            'cache' => new \stdClass('non-empty')
-        ];
+        $plugin = Mockery::mock('RestGalleries\\Http\\Plugins\\RequestPluginAdapter');
 
-        $request = new RequestAddPluginsStub;
+        $request = new RequestStub;
         $request::init('http://www.mockservice.com/rest/')
-            ->addPlugins($plugins);
+            ->addPlugin($plugin);
 
     }
 
@@ -120,24 +117,6 @@ class RequestStub extends \RestGalleries\Http\Request
 
     public function sendRequest($method = 'GET', $endPoint = '') {}
 
-
-}
-
-class RequestAddPluginsStub extends RequestStub
-{
-    public function addPlugins(array $plugins)
-    {
-        $this->request
-            ->shouldReceive('addPlugin')
-            ->with(typeOf('object'))
-            ->times(2);
-
-        foreach ($plugins as $plugin) {
-            $this->request->addPlugin($plugin);
-        }
-
-        return $this;
-    }
 
 }
 

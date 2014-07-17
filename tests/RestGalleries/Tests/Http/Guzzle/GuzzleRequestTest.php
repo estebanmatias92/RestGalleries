@@ -4,7 +4,7 @@ use Mockery;
 
 class GuzzleHttpTest extends \RestGalleries\Tests\TestCase
 {
-    public function testAddPluginsCallsAddSubscriber()
+    public function testAddPluginCallsAddSubscriber()
     {
         $request = new GuzzleRequestAddPluginCallsAddSubscriberStub;
 
