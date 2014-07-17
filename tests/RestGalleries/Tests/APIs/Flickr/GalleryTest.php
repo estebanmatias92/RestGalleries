@@ -4,40 +4,54 @@ use Mockery;
 
 class GalleryTest extends \RestGalleries\Tests\TestCase
 {
-    public function testAll()
+    public function testAllReturnsCorrectObject()
     {
-        $model = new FlickrGalleryAllStub;
-
+        $model     = new FlickrGalleryAllStub;
         $galleries = $model->all();
 
-        assertThat($galleries, is(objectValue()));
+        assertThat($galleries, is(anInstanceOf('Illuminate\Support\Collection')));
 
     }
 
     public function testAllEmptyReturn()
     {
-        $model = new FlickrGalleryAllEmptyReturnStub;
-
+        $model     = new FlickrGalleryAllEmptyReturnStub;
         $galleries = $model->all();
 
         assertThat($galleries, is(nullValue()));
 
     }
 
-    public function testFind()
+    public function testFindReturnsCorrectObject()
     {
-        $model = new FlickrGalleryFindStub;
-
+        $model   = new FlickrGalleryFindStub;
         $gallery = $model->find('72157633782247768');
 
-        assertThat($gallery, is(objectValue()));
+        assertThat($gallery, is(anInstanceOf('Illuminate\Support\Fluent')));
+
+    }
+
+    public function testFindReturnedObject()
+    {
+        $model   = new FlickrGalleryFindStub;
+        $gallery = $model->find('72157633782247768');
+
+        assertThat($gallery, set('id'));
+        assertThat($gallery, set('title'));
+        assertThat($gallery, set('description'));
+        assertThat($gallery, set('photos'));
+        assertThat($gallery, set('created'));
+        assertThat($gallery, set('url'));
+        assertThat($gallery, set('size'));
+        assertThat($gallery, set('user_id'));
+        assertThat($gallery, set('thumbnail'));
+        assertThat($gallery, set('views'));
 
     }
 
     public function testFindNotFound()
     {
-        $model = new FlickrGalleryFindNotFoundStub;
-
+        $model   = new FlickrGalleryFindNotFoundStub;
         $gallery = $model->find('some-invalid-gallery-id');
 
         assertThat($gallery, is(nullValue()));
@@ -48,39 +62,22 @@ class GalleryTest extends \RestGalleries\Tests\TestCase
 
 class FlickrGalleryStub extends \RestGalleries\APIs\Flickr\Gallery
 {
-    protected $cache  = [
-        'file_system' => 'cache-name',
-        'path' => ['cache_path'],
-    ];
-
-    protected $credentials = ['token_credentials'];
-
-    public function newHttp(\RestGalleries\Http\HttpAdapter $http = null)
+    public function newRequest(\RestGalleries\Http\RequestAdapter $http = null)
     {
-        $mock = Mockery::mock('RestGalleries\\Http\\Guzzle\\GuzzleHttp');
+        $mock = Mockery::mock('RestGalleries\\Http\\Guzzle\GuzzleRequest');
         $mock->shouldReceive('init')
             ->with('http://api.flickr.com/services/rest/')
             ->atMost()
             ->times(3)
             ->andReturn($mock);
 
-        $mock->shouldReceive('setAuth')
-            ->with(['token_credentials'])
-            ->atMost()
-            ->times(3);
-
-        $mock->shouldReceive('setCache')
-            ->with('cache-name', ['cache_path'])
-            ->atMost()
-            ->times(3);
-
-        return parent::newHttp($mock);
+        return parent::newRequest($mock);
 
     }
 
     public function newPhoto(\RestGalleries\Interfaces\PhotoAdapter $photo = null)
     {
-        $mock = Mockery::mock('RestGalleries\\APIs\\Flickr\\Photo');
+        $mock = Mockery::mock('RestGalleries\\Interfaces\\PhotoAdapter');
 
         return $mock;
 
@@ -90,36 +87,70 @@ class FlickrGalleryStub extends \RestGalleries\APIs\Flickr\Gallery
 
 class FlickrGalleryAllStub extends FlickrGalleryStub
 {
-    public function newHttp(\RestGalleries\Http\HttpAdapter $http = null)
+    public function newRequest(\RestGalleries\Http\RequestAdapter $http = null)
     {
         $responsesDir = __DIR__ . '/responses/gallery/';
-        $mock         = parent::newHttp();
-        $mockResponse = Mockery::mock('RestGalleries\\Http\\Response');
+        $mock         = parent::newRequest();
 
-        $mock->shouldReceive('setQuery')
-            ->with(typeOf('array'))
-            ->once();
+        if (get_caller_function() == 'fetchIds') {
+            $responseFile = $responsesDir . 'flickr-photosets-getlist.json';
+            $responseBody = json_decode(file_get_contents($responseFile), true);
 
-        $mock->shouldReceive('GET')
-            ->once()
-            ->andReturn($mockResponse);
+            $query = [
+                'format'               => 'json',
+                'nojsoncallback'       => 1,
+                'method'               => 'flickr.photosets.getList',
+                'page'                 => 1,
+                'per_page'             => 50,
+                'primary_photo_extras' => ''
+            ];
 
-        $responseFile = $responsesDir . 'flickr-photosets-getlist.json';
-        $responseBody = json_decode(file_get_contents($responseFile), true);
+            $mock->shouldReceive('setQuery')
+                ->with($query)
+                ->once()
+                ->andReturn(Mockery::self())
+                ->shouldReceive('GET')
+                ->once()
+                ->andReturn(Mockery::self())
+                ->shouldReceive('getBody')
+                ->with('array')
+                ->once()
+                ->andReturn($responseBody);
 
-        $mockResponse->shouldReceive('getBody')
-            ->with('array')
-            ->atMost()
-            ->times(1)
-            ->andReturn($responseBody);
+        }
 
-        $responseFile = $responsesDir . 'flickr-photosets-getinfo.json';
-        $responseBody = json_decode(file_get_contents($responseFile));
+        if (get_caller_function() == 'fetchGallery') {
+            $responseFile = $responsesDir . 'flickr-photosets-getinfo.json';
+            $responseBody = json_decode(file_get_contents($responseFile));
 
-        $mockResponse->shouldReceive('getBody')
-            ->atMost()
-            ->times(1)
-            ->andReturn($responseBody);
+            $query = $query2 = [
+                'format'         => 'json',
+                'nojsoncallback' => 1,
+                'method'         => 'flickr.photosets.getInfo',
+                'photoset_id'    => '72157633782247768'
+            ];
+            $query2['photoset_id'] = '72157633780835561';
+
+            $mock->shouldReceive('setQuery')
+                ->with($query)
+                ->atMost()
+                ->once()
+                ->andReturn($mock);
+
+            $mock->shouldReceive('setQuery')
+                ->with($query2)
+                ->atMost()
+                ->once()
+                ->andReturn($mock);
+
+            $mock->shouldReceive('GET')
+                ->once()
+                ->andReturn($mock)
+                ->shouldReceive('getBody')
+                ->once()
+                ->andReturn($responseBody);
+
+        }
 
         return $mock;
 
@@ -141,24 +172,27 @@ class FlickrGalleryAllStub extends FlickrGalleryStub
 
 class FlickrGalleryAllEmptyReturnStub extends FlickrGalleryStub
 {
-    public function newHttp(\RestGalleries\Http\HttpAdapter $http = null)
+    public function newRequest(\RestGalleries\Http\RequestAdapter $http = null)
     {
         $responsesDir = __DIR__ . '/responses/gallery/';
-        $mock         = parent::newHttp();
-        $mockResponse = Mockery::mock('RestGalleries\\Http\\Response');
-
-        $mock->shouldReceive('setQuery')
-            ->with(typeOf('array'))
-            ->once();
-
-        $mock->shouldReceive('GET')
-            ->once()
-            ->andReturn($mockResponse);
-
         $responseFile = $responsesDir . 'flickr-photosets-getlist-fail.json';
         $responseBody = json_decode(file_get_contents($responseFile), true);
 
-        $mockResponse->shouldReceive('getBody')
+        $mock  = parent::newRequest();
+        $query = [
+            'format'               => 'json',
+            'nojsoncallback'       => 1,
+            'method'               => 'flickr.photosets.getList',
+            'page'                 => 1,
+            'per_page'             => 50,
+            'primary_photo_extras' => ''
+        ];
+
+        $mock->shouldReceive('setQuery')
+            ->with($query)
+            ->once()
+            ->andReturn(Mockery::self())
+            ->shouldReceive('GET->getBody')
             ->with('array')
             ->once()
             ->andReturn($responseBody);
@@ -184,24 +218,25 @@ class FlickrGalleryAllEmptyReturnStub extends FlickrGalleryStub
 
 class FlickrGalleryFindStub extends FlickrGalleryStub
 {
-    public function newHttp(\RestGalleries\Http\HttpAdapter $http = null)
+    public function newRequest(\RestGalleries\Http\RequestAdapter $http = null)
     {
         $responsesDir = __DIR__ . '/responses/gallery/';
-        $mock         = parent::newHttp();
-        $mockResponse = Mockery::mock('RestGalleries\\Http\\Response');
-
-        $mock->shouldReceive('setQuery')
-            ->with(typeOf('array'))
-            ->once();
-
-        $mock->shouldReceive('GET')
-            ->once()
-            ->andReturn($mockResponse);
-
         $responseFile = $responsesDir . 'flickr-photosets-getinfo.json';
         $responseBody = json_decode(file_get_contents($responseFile));
 
-        $mockResponse->shouldReceive('getBody')
+        $mock  = parent::newRequest();
+        $query = [
+            'format'         => 'json',
+            'nojsoncallback' => 1,
+            'method'         => 'flickr.photosets.getInfo',
+            'photoset_id'    => '72157633782247768'
+        ];
+
+        $mock->shouldReceive('setQuery')
+            ->with($query)
+            ->once()
+            ->andReturn(Mockery::self())
+            ->shouldReceive('GET->getBody')
             ->once()
             ->andReturn($responseBody);
 
@@ -225,24 +260,25 @@ class FlickrGalleryFindStub extends FlickrGalleryStub
 
 class FlickrGalleryFindNotFoundStub extends FlickrGalleryStub
 {
-    public function newHttp(\RestGalleries\Http\HttpAdapter $http = null)
+    public function newRequest(\RestGalleries\Http\RequestAdapter $http = null)
     {
         $responsesDir = __DIR__ . '/responses/gallery/';
-        $mock         = parent::newHttp();
-        $mockResponse = Mockery::mock('RestGalleries\\Http\\Response');
-
-        $mock->shouldReceive('setQuery')
-            ->with(typeOf('array'))
-            ->once();
-
-        $mock->shouldReceive('GET')
-            ->once()
-            ->andReturn($mockResponse);
-
         $responseFile = $responsesDir . 'flickr-photosets-getinfo-fail.json';
         $responseBody = json_decode(file_get_contents($responseFile));
 
-        $mockResponse->shouldReceive('getBody')
+        $mock  = parent::newRequest();
+        $query = [
+            'format'         => 'json',
+            'nojsoncallback' => 1,
+            'method'         => 'flickr.photosets.getInfo',
+            'photoset_id'    => 'some-invalid-gallery-id'
+        ];
+
+        $mock->shouldReceive('setQuery')
+            ->with($query)
+            ->once()
+            ->andReturn(Mockery::self())
+            ->shouldReceive('GET->getBody')
             ->once()
             ->andReturn($responseBody);
 

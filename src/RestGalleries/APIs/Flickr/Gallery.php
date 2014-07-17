@@ -31,6 +31,7 @@ class Gallery extends ApiGallery
                 'primary_photo_extras' => ''
             ]
         );
+
         $request = $this->newRequest();
 
         do {
