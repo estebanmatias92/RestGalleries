@@ -19,20 +19,20 @@ class ApiGalleryTest extends \RestGalleries\Tests\TestCase
         $model = new Gallery;
         $photo = $model->newPhoto();
 
+        assertThat($photo, is(anInstanceOf('RestGalleries\\Interfaces\\PhotoAdapter')));
         assertThat($photo, is(anInstanceOf('RestGalleries\\Tests\\APIs\\StubService\\Photo')));
 
     }
 
-    public function testAddAuthenticationCallsAuthPlugin()
+    public function testAddPlugin()
     {
-        $model = new GalleryAddAuthenticationStub;
-        $model->addAuthentication(['dummy-credentials']);
-    }
+        $model      = new GalleryAddPluginStub;
+        $pluginMock = Mockery::mock('RestGalleries\\Http\\Plugins\\RequestPluginAdapter');
 
-    public function testAddCacheCallsCachePlugin()
-    {
-        $model = new GalleryAddCacheCallsCachePluginStub;
-        $model->addCache('fake-cache-system', ['dummy-path']);
+        $model->addPlugin($pluginMock);
+        $model->addPlugin($pluginMock);
+        $model->newRequest();
+
     }
 
     public function testAllReturnsCorrectObject()
@@ -51,40 +51,11 @@ class ApiGalleryTest extends \RestGalleries\Tests\TestCase
 
 }
 
-class GalleryAddAuthenticationStub extends Gallery
-{
-    protected function newRequestAuthPlugin()
-    {
-        $mock = Mockery::mock('RestGalleries\\Http\\Guzzle\\Plugins\\GuzzleAuth');
-        $mock->shouldReceive('add')
-            ->with(['dummy-credentials'])
-            ->once();
-
-        return $mock;
-
-    }
-
-}
-
-class GalleryAddCacheCallsCachePluginStub extends Gallery
-{
-    protected function newRequestCachePlugin()
-    {
-        $mock = Mockery::mock('RestGalleries\\Http\\Guzzle\\Plugins\\GuzzleCache');
-        $mock->shouldReceive('add')
-            ->with('fake-cache-system', ['dummy-path'])
-            ->once();
-
-        return $mock;
-
-    }
-}
-
 class GalleryStub extends Gallery
 {
     public function newRequest(\RestGalleries\Http\RequestAdapter $request = null)
     {
-        $mock = Mockery::mock('RestGalleries\\Http\\Guzzle\\GuzzleRequest');
+        $mock = Mockery::mock('RestGalleries\\Http\\RequestAdapter');
         $mock->shouldReceive('init')
             ->with('http://www.mockservice.com/rest/')
             ->atMost()
@@ -104,6 +75,25 @@ class GalleryStub extends Gallery
             ->andReturn(new \Illuminate\Support\Collection);
 
         return parent::newPhoto($mock);
+
+    }
+
+}
+
+class GalleryAddPluginStub extends Gallery
+{
+    public function newRequest(\RestGalleries\Http\RequestAdapter $request = null)
+    {
+        $mock = Mockery::mock('RestGalleries\\Http\\RequestAdapter');
+        $mock->shouldReceive('init')
+            ->with('http://www.mockservice.com/rest/')
+            ->once()
+            ->andReturn($mock);
+
+        $mock->shouldReceive('addPlugin')
+            ->times(2);
+
+        return parent::newRequest($mock);
 
     }
 
@@ -160,7 +150,6 @@ class GalleryAllStub extends GalleryStub
     }
 
 }
-
 
 class GalleryFindStub extends GalleryStub
 {

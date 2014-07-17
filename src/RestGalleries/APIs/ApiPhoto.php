@@ -101,7 +101,7 @@ abstract class ApiPhoto implements PhotoAdapter
         $request = $request::init($this->endPoint);
 
         if (! empty($this->plugins)) {
-            $request = $request->addPlugins($this->plugins);
+            array_walk($this->plugins, [$request, 'addPlugin']);
         }
 
         return $request;

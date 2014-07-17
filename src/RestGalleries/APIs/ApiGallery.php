@@ -97,21 +97,11 @@ abstract class ApiGallery implements GalleryAdapter
         $request = $request::init($this->endPoint);
 
         if (! empty($this->plugins)) {
-            $request = $request->addPlugins($this->plugins);
+            array_walk($this->plugins, [$request, 'addPlugin']);
         }
 
         return $request;
 
-    }
-
-    protected function newRequestAuthPlugin()
-    {
-        return new GuzzleAuth;
-    }
-
-    protected function newRequestCachePlugin()
-    {
-        return new GuzzleCache;
     }
 
     public function newPhoto(PhotoAdapter $photo = null)
@@ -134,16 +124,9 @@ abstract class ApiGallery implements GalleryAdapter
         return get_class_namespace($this);
     }
 
-    public function addAuthentication(array $credentials)
+    public function addPlugin($plugin)
     {
-        $plugin = $this->newRequestAuthPlugin();
-        $this->plugins['auth'] = $plugin::add($credentials);
-    }
-
-    public function addCache($system, array $path)
-    {
-        $plugin = $this->newRequestCachePlugin();
-        $this->plugins['cache'] = $plugin::add($system, $path);
+        $this->plugins[] = $plugin;
     }
 
 }
