@@ -21,6 +21,7 @@ class Gallery extends \RestGalleries\APIs\ApiGallery
         if (! empty($galleries)) {
             return array_pluck($galleries, 'id');
         }
+
     }
 
     protected function fetchGallery($id)
@@ -36,7 +37,7 @@ class Gallery extends \RestGalleries\APIs\ApiGallery
     private function extractGalleryArray($source)
     {
         if (isset($source->error)) {
-            return false;
+            return;
         }
 
         $galleryData = &$source->gallery;
@@ -53,6 +54,8 @@ class Gallery extends \RestGalleries\APIs\ApiGallery
         $gallery['user_id']     = $galleryData->user_id;
         $gallery['thumbnail']   = $galleryData->thumbnail_id;
         $gallery['views']       = $galleryData->views;
+
+        return $gallery;
 
     }
 

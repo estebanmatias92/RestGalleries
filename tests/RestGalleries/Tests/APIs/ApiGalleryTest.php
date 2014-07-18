@@ -37,16 +37,54 @@ class ApiGalleryTest extends \RestGalleries\Tests\TestCase
 
     public function testAllReturnsCorrectObject()
     {
-        $model = new GalleryAllStub;
+        $model     = new GalleryAllStub;
         $galleries = $model->all();
 
         assertThat($galleries, is(anInstanceOf('Illuminate\Support\Collection')));
 
     }
 
+    public function testAllEmptyReturn()
+    {
+        $model     = new GalleryAllEmptyReturnStub;
+        $galleries = $model->all();
+
+        assertThat($galleries, is(nullValue()));
+
+    }
+
     public function testFindReturnsCorrectObject()
     {
+        $model   = new GalleryFindStub;
+        $gallery = $model->find('some-fake-gallery-id');
 
+        assertThat($gallery, is(anInstanceOf('Illuminate\Support\Fluent')));
+    }
+
+    public function testFindReturnedObject()
+    {
+        $model   = new GalleryFindStub;
+        $gallery = $model->find('some-fake-gallery-id');
+
+        assertThat($gallery, set('id'));
+        assertThat($gallery, set('title'));
+        assertThat($gallery, set('description'));
+        assertThat($gallery, set('photos'));
+        assertThat($gallery, set('created'));
+        assertThat($gallery, set('url'));
+        assertThat($gallery, set('size'));
+        assertThat($gallery, set('user_id'));
+        assertThat($gallery, set('thumbnail'));
+        assertThat($gallery, set('views'));
+
+    }
+
+    public function testFindNotFound()
+    {
+        $model   = new GalleryFindNotFoundStub;
+        $gallery = $model->find('invalid-gallery-id');
+
+        assertThat($gallery, is(nullValue()));
     }
 
 }
@@ -60,7 +98,7 @@ class GalleryStub extends Gallery
             ->with('http://www.mockservice.com/rest/')
             ->atMost()
             ->times(3)
-            ->andReturn($mock);
+            ->andReturn(Mockery::self());
 
         return parent::newRequest($mock);
 
@@ -68,11 +106,11 @@ class GalleryStub extends Gallery
 
     public function newPhoto(\RestGalleries\Interfaces\PhotoAdapter $photo = null)
     {
-        $mock = Mockery::mock('RestGalleries\\Tests\\APIs\\StubService\\Photo');
+        $mock = Mockery::mock('RestGalleries\\Interfaces\\PhotoAdapter');
         $mock->shouldReceive('all')
             ->with('some-fake-gallery-id')
             ->once()
-            ->andReturn(new \Illuminate\Support\Collection);
+            ->andReturn(['photo_array']);
 
         return parent::newPhoto($mock);
 
@@ -88,9 +126,8 @@ class GalleryAddPluginStub extends Gallery
         $mock->shouldReceive('init')
             ->with('http://www.mockservice.com/rest/')
             ->once()
-            ->andReturn($mock);
-
-        $mock->shouldReceive('addPlugin')
+            ->andReturn(Mockery::self())
+            ->shouldReceive('addPlugin')
             ->times(2);
 
         return parent::newRequest($mock);
@@ -103,8 +140,8 @@ class GalleryAllStub extends GalleryStub
 {
     public function newRequest(\RestGalleries\Http\RequestAdapter $request = null)
     {
-        $mock = parent::newRequest();
         $responsesDir = __DIR__ . '/StubService/responses/gallery/';
+        $mock         = parent::newRequest();
 
         if (get_caller_function() == 'fetchIds') {
             $responseFile = $responsesDir . 'mockservice-rest-galleries.json';
@@ -113,9 +150,8 @@ class GalleryAllStub extends GalleryStub
             $mock->shouldReceive('GET')
                 ->with('galleries')
                 ->once()
-                ->andReturn($mock);
-
-            $mock->shouldReceive('getBody')
+                ->andReturn(Mockery::self())
+                ->shouldReceive('getBody')
                 ->with('array')
                 ->once()
                 ->andReturn($responseBody);
@@ -142,8 +178,31 @@ class GalleryAllStub extends GalleryStub
                 ->once()
                 ->andReturn($responseBody);
 
-
         }
+
+        return $mock;
+
+    }
+
+}
+
+class GalleryAllEmptyReturnStub extends GalleryStub
+{
+    public function newRequest(\RestGalleries\Http\RequestAdapter $request = null)
+    {
+        $responsesDir = __DIR__ . '/StubService/responses/gallery/';
+        $responseFile = $responsesDir . 'mockservice-rest-galleries-fail.json';
+        $responseBody = json_decode(file_get_contents($responseFile), true);
+
+        $mock = parent::newRequest();
+        $mock->shouldReceive('GET')
+            ->with('galleries')
+            ->once()
+            ->andReturn(Mockery::self())
+            ->shouldReceive('getBody')
+            ->with('array')
+            ->once()
+            ->andReturn($responseBody);
 
         return $mock;
 
@@ -155,19 +214,43 @@ class GalleryFindStub extends GalleryStub
 {
     public function newRequest(\RestGalleries\Http\RequestAdapter $request = null)
     {
-        $mock = parent::newRequest();
         $responsesDir = __DIR__ . '/StubService/responses/gallery/';
         $responseFile = $responsesDir . 'mockservice-rest-gallery.json';
         $responseBody = json_decode(file_get_contents($responseFile));
 
+        $mock = parent::newRequest();
         $mock->shouldReceive('GET')
             ->with('gallery/some-fake-gallery-id')
             ->once()
-            ->andReturn($mock);
-
-        $mock->shouldReceive('getBody')
+            ->andReturn(Mockery::self())
+            ->shouldReceive('getBody')
             ->once()
             ->andReturn($responseBody);
+
+        return $mock;
+
+    }
+
+}
+
+class GalleryFindNotFoundStub extends GalleryStub
+{
+    public function newRequest(\RestGalleries\Http\RequestAdapter $request = null)
+    {
+        $responsesDir = __DIR__ . '/StubService/responses/gallery/';
+        $responseFile = $responsesDir . 'mockservice-rest-gallery-fail.json';
+        $responseBody = json_decode(file_get_contents($responseFile));
+
+        $mock = parent::newRequest();
+        $mock->shouldReceive('GET')
+            ->with('gallery/invalid-gallery-id')
+            ->once()
+            ->andReturn(Mockery::self())
+            ->shouldReceive('getBody')
+            ->once()
+            ->andReturn($responseBody);
+
+        return $mock;
 
     }
 
