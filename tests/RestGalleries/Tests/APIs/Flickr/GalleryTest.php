@@ -69,7 +69,7 @@ class FlickrGalleryStub extends \RestGalleries\APIs\Flickr\Gallery
             ->with('http://api.flickr.com/services/rest/')
             ->atMost()
             ->times(3)
-            ->andReturn($mock);
+            ->andReturn(Mockery::self());
 
         return parent::newRequest($mock);
 
