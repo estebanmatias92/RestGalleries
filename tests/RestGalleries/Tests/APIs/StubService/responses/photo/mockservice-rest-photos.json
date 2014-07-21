@@ -1,0 +1,12 @@
+{
+    "photos": [
+        {
+            "id": "some-fake-photo-id",
+            "title": "Photo Title"
+        },
+        {
+            "id": "some-fake-photo-id-2",
+            "title": "Another Photo Title"
+        }
+    ]
+}

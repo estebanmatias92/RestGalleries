@@ -1,0 +1,12 @@
+{
+    "photo": {
+        "id": "some-fake-photo-id",
+        "title": "Photo Title",
+        "description": "Photo description...",
+        "url": "http://mockservice.com/rest/photo/some-fake-photo-id",
+        "create_at": "1369820550",
+        "views": "20",
+        "photo_natural": "http://mockservice.com/photo/source/some-fake-photo-id/photo_natural.jpg",
+        "photo_thumbnail": "http://mockservice.com/photo/source/some-fake-photo-id/photo_thumbnail.jpg"
+    }
+}
