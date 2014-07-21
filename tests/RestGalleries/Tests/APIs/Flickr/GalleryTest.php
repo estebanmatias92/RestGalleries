@@ -178,7 +178,6 @@ class FlickrGalleryAllEmptyReturnStub extends FlickrGalleryStub
         $responseFile = $responsesDir . 'flickr-photosets-getlist-fail.json';
         $responseBody = json_decode(file_get_contents($responseFile), true);
 
-        $mock  = parent::newRequest();
         $query = [
             'format'               => 'json',
             'nojsoncallback'       => 1,
@@ -188,6 +187,7 @@ class FlickrGalleryAllEmptyReturnStub extends FlickrGalleryStub
             'primary_photo_extras' => ''
         ];
 
+        $mock = parent::newRequest();
         $mock->shouldReceive('setQuery')
             ->with($query)
             ->once()
@@ -224,7 +224,6 @@ class FlickrGalleryFindStub extends FlickrGalleryStub
         $responseFile = $responsesDir . 'flickr-photosets-getinfo.json';
         $responseBody = json_decode(file_get_contents($responseFile));
 
-        $mock  = parent::newRequest();
         $query = [
             'format'         => 'json',
             'nojsoncallback' => 1,
@@ -232,6 +231,7 @@ class FlickrGalleryFindStub extends FlickrGalleryStub
             'photoset_id'    => '72157633782247768'
         ];
 
+        $mock = parent::newRequest();
         $mock->shouldReceive('setQuery')
             ->with($query)
             ->once()
@@ -266,7 +266,6 @@ class FlickrGalleryFindNotFoundStub extends FlickrGalleryStub
         $responseFile = $responsesDir . 'flickr-photosets-getinfo-fail.json';
         $responseBody = json_decode(file_get_contents($responseFile));
 
-        $mock  = parent::newRequest();
         $query = [
             'format'         => 'json',
             'nojsoncallback' => 1,
@@ -274,6 +273,7 @@ class FlickrGalleryFindNotFoundStub extends FlickrGalleryStub
             'photoset_id'    => 'some-invalid-gallery-id'
         ];
 
+        $mock = parent::newRequest();
         $mock->shouldReceive('setQuery')
             ->with($query)
             ->once()
