@@ -1,0 +1,18 @@
+{
+    "oauth": {
+        "token": "dummy-token",
+        "perms": "read",
+        "user": {
+            "nsid": "dummy-user@id",
+            "username": "johndoe",
+            "fullname": "John Doe"
+        }
+    },
+    "tokens": {
+        "consumer_key": "dummy-consumer-key",
+        "consumer_secret": "dummy-consumer-secret",
+        "token": "dummy-token",
+        "token_secret": "dummy-token-secret"
+    },
+    "stat": "ok"
+}

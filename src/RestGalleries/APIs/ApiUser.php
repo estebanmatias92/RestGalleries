@@ -56,7 +56,7 @@ abstract class ApiUser implements UserAdapter
         $auth = $this->newAuth();
         $data = $auth::connect($clientCredentials, $endPoints, $this->checkUrl);
 
-        return $this->getUser($data);
+        return $this->getUserOrFail($data);
 
     }
 
@@ -72,7 +72,7 @@ abstract class ApiUser implements UserAdapter
         $auth = $this->newAuth();
         $data = $auth::verifyCredentials($tokenCredentials, $this->checkUrl);
 
-        return $this->getUser($data);
+        return $this->getUserOrFail($data);
 
     }
 
@@ -93,10 +93,10 @@ abstract class ApiUser implements UserAdapter
      * @throws RestGalleries\Exception\AuthException;
      * @return Illuminate\Support\Fluent
      */
-    private function getUser($data)
+    protected function getUserOrFail($data)
     {
         if (! $user = $this->extractUserArray($data)) {
-            return $user;
+            throw new AuthException('The credentials are not valid or are obsolete.');
         }
 
         return new Fluent($user);

@@ -7,27 +7,30 @@ use RestGalleries\APIs\ApiUser;
  */
 class User extends ApiUser
 {
-    protected $checkUrl     = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken';
+    protected $checkUrl     = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken&format=json&nojsoncallback=1';
     protected $urlRequest   = 'https://www.flickr.com/services/oauth/request_token';
     protected $urlAuthorize = 'https://www.flickr.com/services/oauth/authorize';
     protected $urlAccess    = 'https://www.flickr.com/services/oauth/access_token';
 
-    protected function extractUserArray($data)
+    protected function extractUserArray($source)
     {
-        if (stristr($data->err['msg'], 'invalid')) {
+        if ($source->stat == 'fail') {
             return false;
         }
 
+        $dataUser   = $source->oauth->user;
+        $dataTokens = $source->tokens;
+
         $user                    = [];
-        $user['id']              = $data->user['nsid'];
-        $user['realname']        = $data->user['fullname'];
-        $user['username']        = $data->user['username'];
+        $user['id']              = $dataUser->nsid;
+        $user['realname']        = $dataUser->fullname;
+        $user['username']        = $dataUser->username;
         $user['url']             = 'https://secure.flickr.com/people/';
         $user['url']             .= $user['username'];
-        $user['consumer_key']    = $data->tokens['consumer_key'];
-        $user['consumer_secret'] = $data->tokens['consumer_secret'];
-        $user['token']           = $data->tokens['token'];
-        $user['token_secret']    = $data->tokens['token_secret'];
+        $user['consumer_key']    = $dataTokens->consumer_key;
+        $user['consumer_secret'] = $dataTokens->consumer_secret;
+        $user['token']           = $dataTokens->token;
+        $user['token_secret']    = $dataTokens->token_secret;
 
         return $user;
 

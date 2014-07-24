@@ -1,71 +1,105 @@
 <?php namespace RestGalleries\Tests\APIs;
 
 use Mockery;
+use RestGalleries\Tests\APIs\StubService\User;
 
 class ApiUserTest extends \RestGalleries\Tests\TestCase
 {
-    public function testNewAuthReturnsAuthObject()
+    public function testNewAuthReturnsCorrectObject()
     {
-        $model = new \RestGalleries\Tests\APIs\StubService\User;
-        $auth  = $model->newAuth();
+        $user = new \RestGalleries\Tests\APIs\StubService\User;
+        $auth = $user->newAuth();
 
-        assertThat($auth, is(anInstanceOf('RestGalleries\Auth\OhmyAuth\OhmyAuth')));
+        assertThat($auth, is(anInstanceOf('RestGalleries\Auth\AuthAdapter')));
 
     }
 
-    public function testConnectReturnsObject()
+    public function testConnectReturnsCorrectObject()
     {
-        $auth = new StubServiceUserConnectStub;
-        $user = $auth->connect(['valid-oauth1-credentials']);
+        $user     = new ServiceUserConnectStub;
+        $userData = $user->connect(['valid-client-credentials']);
 
-        assertThat($user, is(anInstanceOf('Illuminate\Support\Fluent')));
+        assertThat($userData, is(anInstanceOf('Illuminate\Support\Fluent')));
 
     }
 
-    public function testConnectPropertiesReturnedObject()
+    public function testConnectReturnedObject()
     {
-        $auth = new StubServiceUserConnectStub;
-        $user = $auth->connect(['valid-oauth1-credentials']);
+        $user     = new ServiceUserConnectStub;
+        $userData = $user->connect(['valid-client-credentials']);
 
-        assertThat($user, set('id'));
-        assertThat($user, set('realname'));
-        assertThat($user, set('username'));
-        assertThat($user, set('consumer_key'));
-        assertThat($user, set('consumer_secret'));
-        assertThat($user, set('token'));
-        assertThat($user, set('token_secret'));
+        assertThat($userData, set('id'));
+        assertThat($userData, set('realname'));
+        assertThat($userData, set('username'));
+        assertThat($userData, set('url'));
+        assertThat($userData, set('consumer_key'));
+        assertThat($userData, set('consumer_secret'));
+        assertThat($userData, set('token'));
+        assertThat($userData, set('token_secret'));
 
     }
 
     public function testConnectFails()
     {
-        $auth = new StubServiceUserConnectFailsStub;
-        $user = $auth->connect(['invalid-oauth1-credentials']);
+        $this->setExpectedException('RestGalleries\\Exception\\AuthException', 'The credentials are not valid or are obsolete.');
 
-        assertThat($user, is(equalTo(false)));
+        $user = new ServiceUserConnectFailsStub;
+        $user->connect(['invalid-client-credentials']);
+
+    }
+
+    public function testVerifyCredentialsReturnsCorrectObject()
+    {
+        $user     = new ServiceUserVerifyCredentialsStub;
+        $userData = $user->verifyCredentials(['valid-token-credentials']);
+
+        assertThat($userData, is(anInstanceOf('Illuminate\Support\Fluent')));
+
+    }
+
+    public function testVerifyCredentialsReturnedObject()
+    {
+        $user     = new ServiceUserVerifyCredentialsStub;
+        $userData = $user->verifyCredentials(['valid-token-credentials']);
+
+        assertThat($userData, set('id'));
+        assertThat($userData, set('realname'));
+        assertThat($userData, set('username'));
+        assertThat($userData, set('url'));
+        assertThat($userData, set('consumer_key'));
+        assertThat($userData, set('consumer_secret'));
+        assertThat($userData, set('token'));
+        assertThat($userData, set('token_secret'));
+
+    }
+
+    public function testVerifyCredentialsFails()
+    {
+        $this->setExpectedException('RestGalleries\\Exception\\AuthException', 'The credentials are not valid or are obsolete.');
+
+        $user = new ServiceUserVerifyCredentialsFailsStub;
+        $user->verifyCredentials(['invalid-token-credentials']);
 
     }
 
 }
 
-class StubServiceUserStub extends \RestGalleries\Tests\APIs\StubService\User
+class ServiceUserStub extends User
 {
     public function newAuth(\RestGalleries\Auth\AuthAdapter $auth = null)
     {
-        $mock = Mockery::mock('RestGalleries\\Auth\\OhmyAuth\\OhmyAuth');
+        $mock = Mockery::mock('RestGalleries\\Auth\\AuthAdapter');
 
-        return $mock;
+        return parent::newAuth($mock);
 
     }
 }
 
-class StubServiceUserConnectStub extends StubServiceUserStub
+class ServiceUserConnectStub extends ServiceUserStub
 {
     public function newAuth(\RestGalleries\Auth\AuthAdapter $auth = null)
     {
-        $responsesDir = __DIR__ . '/StubService/responses/user/';
-
-        $clientCredentials = ['valid-oauth1-credentials'];
+        $clientCredentials = ['valid-client-credentials'];
 
         $endPoints = [
             'request'   => $this->urlRequest,
@@ -73,6 +107,7 @@ class StubServiceUserConnectStub extends StubServiceUserStub
             'access'    => $this->urlAccess
         ];
 
+        $responsesDir = __DIR__ . '/StubService/responses/user/';
         $responseFile = $responsesDir . 'mockservice-rest-user.json';
         $responseBody = json_decode(file_get_contents($responseFile));
 
@@ -88,13 +123,11 @@ class StubServiceUserConnectStub extends StubServiceUserStub
 
 }
 
-class StubServiceUserConnectFailsStub extends StubServiceUserStub
+class ServiceUserConnectFailsStub extends ServiceUserStub
 {
     public function newAuth(\RestGalleries\Auth\AuthAdapter $auth = null)
     {
-        $responsesDir = __DIR__ . '/StubService/responses/user/';
-
-        $clientCredentials = ['invalid-oauth1-credentials'];
+        $clientCredentials = ['invalid-client-credentials'];
 
         $endPoints = [
             'request'   => $this->urlRequest,
@@ -102,12 +135,56 @@ class StubServiceUserConnectFailsStub extends StubServiceUserStub
             'access'    => $this->urlAccess
         ];
 
+        $responsesDir = __DIR__ . '/StubService/responses/user/';
         $responseFile = $responsesDir . 'mockservice-rest-user-fail.json';
         $responseBody = json_decode(file_get_contents($responseFile));
 
         $mock = parent::newAuth();
         $mock->shouldReceive('connect')
             ->with($clientCredentials, $endPoints, $this->checkUrl)
+            ->once()
+            ->andReturn($responseBody);
+
+        return $mock;
+
+    }
+
+}
+
+class ServiceUserVerifyCredentialsStub extends ServiceUserStub
+{
+    public function newAuth(\RestGalleries\Auth\AuthAdapter $auth = null)
+    {
+        $clientCredentials = ['valid-token-credentials'];
+
+        $responsesDir = __DIR__ . '/StubService/responses/user/';
+        $responseFile = $responsesDir . 'mockservice-rest-user.json';
+        $responseBody = json_decode(file_get_contents($responseFile));
+
+        $mock = parent::newAuth();
+        $mock->shouldReceive('verifyCredentials')
+            ->with($clientCredentials, $this->checkUrl)
+            ->once()
+            ->andReturn($responseBody);
+
+        return $mock;
+    }
+
+}
+
+class ServiceUserVerifyCredentialsFailsStub extends ServiceUserStub
+{
+    public function newAuth(\RestGalleries\Auth\AuthAdapter $auth = null)
+    {
+        $clientCredentials = ['invalid-token-credentials'];
+
+        $responsesDir = __DIR__ . '/StubService/responses/user/';
+        $responseFile = $responsesDir . 'mockservice-rest-user-fail.json';
+        $responseBody = json_decode(file_get_contents($responseFile));
+
+        $mock = parent::newAuth();
+        $mock->shouldReceive('verifyCredentials')
+            ->with($clientCredentials, $this->checkUrl)
             ->once()
             ->andReturn($responseBody);
 

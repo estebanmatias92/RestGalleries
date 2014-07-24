@@ -158,7 +158,7 @@ class AuthTest extends \RestGalleries\Tests\TestCase
 
     }
 
-    public function testConnectReturnObject()
+    public function testConnectReturnsObject()
     {
         $clientCredentials = [
             'consumer_key'    => 'dummy-consumer-key',

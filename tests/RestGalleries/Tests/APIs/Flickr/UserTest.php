@@ -1,120 +1,172 @@
-<?php
+<?php namespace RestGalleries\Tests\APIs\Flickr;
 
+use Mockery;
 use RestGalleries\APIs\Flickr\User;
 
-class UserTest extends TestCase
+class UserTest extends \RestGalleries\Tests\TestCase
 {
-    public function setUp()
+    protected $url = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken&format=json&nojsoncallback=1';
+
+    public function testConnectReturnedObject()
     {
-        parent::setUp();
+        $user     = new FlickrUserConnectStub;
+        $userData = $user->connect(['valid-client-credentials']);
 
-        extract($this->clientCredentials = [
-            'consumer_key'    => $this->faker->sha1,
-            'consumer_secret' => $this->faker->md5,
-            'callback'        => $this->faker->url
-        ]);
+        assertThat($userData, set('id'));
+        assertThat($userData, set('realname'));
+        assertThat($userData, set('username'));
+        assertThat($userData, set('url'));
+        assertThat($userData, set('consumer_key'));
+        assertThat($userData, set('consumer_secret'));
+        assertThat($userData, set('token'));
+        assertThat($userData, set('token_secret'));
 
-        extract($this->tokenCredentials = [
-            'consumer_key'    => $consumer_key,
-            'consumer_secret' => $consumer_secret,
-            'token'           => $this->faker->sha1,
-            'token_secret'    => $this->faker->md5,
-        ]);
+    }
 
-        $this->authEndPoints = [
+    public function testConnectFails()
+    {
+        $this->setExpectedException('RestGalleries\\Exception\\AuthException');
+
+        $user = new FlickrUserConnectFailsStub;
+        $user->connect(['invalid-client-credentials']);
+
+    }
+
+    public function testVerifyCredentialsReturnedObject()
+    {
+        $user     = new FlickrUserVerifyCredentialsStub;
+        $userData = $user->verifyCredentials(['valid-token-credentials']);
+
+        assertThat($userData, set('id'));
+        assertThat($userData, set('realname'));
+        assertThat($userData, set('username'));
+        assertThat($userData, set('url'));
+        assertThat($userData, set('consumer_key'));
+        assertThat($userData, set('consumer_secret'));
+        assertThat($userData, set('token'));
+        assertThat($userData, set('token_secret'));
+
+    }
+
+    public function testVerifyCredentialsFails()
+    {
+        $this->setExpectedException('RestGalleries\\Exception\\AuthException');
+
+        $user     = new FlickrUserVerifyCredentialsFailsStub;
+        $userData = $user->verifyCredentials(['invalid-token-credentials']);
+
+    }
+
+}
+
+class FlickrUserStub extends User
+{
+    public function newAuth(\RestGalleries\Auth\AuthAdapter $auth = null)
+    {
+        $mock = Mockery::mock('RestGalleries\\Auth\\OhmyAuth\\OhmyAuth');
+
+        return parent::newAuth($mock);
+
+    }
+}
+
+class FlickrUserConnectStub extends FlickrUserStub
+{
+    public function newAuth(\RestGalleries\Auth\AuthAdapter $auth = null)
+    {
+        $clientCredentials = ['valid-client-credentials'];
+        $endPoints = [
             'request'   => 'https://www.flickr.com/services/oauth/request_token',
             'authorize' => 'https://www.flickr.com/services/oauth/authorize',
-            'access'    => 'https://www.flickr.com/services/oauth/access_token',
+            'access'    => 'https://www.flickr.com/services/oauth/access_token'
         ];
+        $checkUrl = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken&format=json&nojsoncallback=1';
 
-        $this->checkUrl = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken';
+        $responsesDir = __DIR__ . '/responses/user/';
+        $responseFile = $responsesDir . 'flickrauth-oauth-checktoken.json';
+        $responseBody = json_decode(file_get_contents($responseFile));
 
-        $this->responseObject = simplexml_load_string('<?xml version="1.0" encoding="utf-8" ?> <oauth> <token>'.$token.'</token> <perms>write</perms> <user nsid="1121451801@N07" username="jamalf" fullname="Jamal F" /> </oauth>');
+        $mock = parent::newAuth();
+        $mock->shouldReceive('connect')
+            ->with($clientCredentials, $endPoints, $checkUrl)
+            ->once()
+            ->andReturn($responseBody);
 
-        parse_str('fullname=Jamal%20Fanaian&oauth_token=72157626318069415-087bfc7b5816092c&oauth_token_secret=a202d1f853ec69de&user_nsid=21207597%40N07&username=jamalfanaian');
-
-        $this->responseObject->tokens['token']           = $oauth_token;
-        $this->responseObject->tokens['token_secret']    = $oauth_token_secret;
-        $this->responseObject->tokens['consumer_key']    = $consumer_key;
-        $this->responseObject->tokens['consumer_secret'] = $consumer_secret;
-
-        $this->responseObjectFail = simplexml_load_string('<?xml version="1.0" encoding="utf-8" ?> <rsp stat="fail"> <err code="98" msg="Invalid token" /> </rsp>');
-
-
-        $this->auth = Mockery::mock('RestGalleries\\Auth\\OhmyAuth\\OhmyAuth');
-
-        $this->user = new User($this->auth);
+        return $mock;
 
     }
 
-    public function testConnect()
+}
+
+class FlickrUserConnectFailsStub extends FlickrUserStub
+{
+    public function newAuth(\RestGalleries\Auth\AuthAdapter $auth = null)
     {
-        $this->auth
-            ->shouldReceive('connect')
-            ->with($this->clientCredentials, $this->authEndPoints, $this->checkUrl)
+        $clientCredentials = ['invalid-client-credentials'];
+        $endPoints = [
+            'request'   => 'https://www.flickr.com/services/oauth/request_token',
+            'authorize' => 'https://www.flickr.com/services/oauth/authorize',
+            'access'    => 'https://www.flickr.com/services/oauth/access_token'
+        ];
+        $checkUrl = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken&format=json&nojsoncallback=1';
+
+        $responsesDir = __DIR__ . '/responses/user/';
+        $responseFile = $responsesDir . 'flickrauth-oauth-checktoken-fail.json';
+        $responseBody = json_decode(file_get_contents($responseFile));
+
+        $mock = parent::newAuth();
+        $mock->shouldReceive('connect')
+            ->with($clientCredentials, $endPoints, $checkUrl)
             ->once()
-            ->andReturn($this->responseObject);
+            ->andReturn($responseBody);
 
-        $user = $this->user->connect($this->clientCredentials);
-
-        assertThat($user->id, is(nonEmptyString()));
-        assertThat($user->realname, is(nonEmptyString()));
-        assertThat($user->url, is(nonEmptyString()));
-        assertThat($user->username, is(nonEmptyString()));
-        assertThat($user->consumer_key, is(nonEmptyString()));
-        assertThat($user->consumer_secret, is(nonEmptyString()));
-        assertThat($user->token, is(nonEmptyString()));
-        assertThat($user->token_secret, is(nonEmptyString()));
+        return $mock;
 
     }
 
-    /**
-     * @expectedException RestGalleries\Exception\AuthException
-     */
-    public function testConnectFail()
+}
+
+class FlickrUserVerifyCredentialsStub extends FlickrUserStub
+{
+    public function newAuth(\RestGalleries\Auth\AuthAdapter $auth = null)
     {
-        $this->auth
-            ->shouldReceive('connect')
-            ->with($this->clientCredentials, $this->authEndPoints, $this->checkUrl)
+        $clientCredentials = ['valid-token-credentials'];
+        $checkUrl          = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken&format=json&nojsoncallback=1';
+
+        $responsesDir = __DIR__ . '/responses/user/';
+        $responseFile = $responsesDir . 'flickrauth-oauth-checktoken.json';
+        $responseBody = json_decode(file_get_contents($responseFile));
+
+        $mock = parent::newAuth();
+        $mock->shouldReceive('verifyCredentials')
+            ->with($clientCredentials, $checkUrl)
             ->once()
-            ->andReturn($this->responseObjectFail);
+            ->andReturn($responseBody);
 
-        $user = $this->user->connect($this->clientCredentials);
-    }
-
-    public function testVerifyCredentials()
-    {
-        $this->auth
-            ->shouldReceive('verifyCredentials')
-            ->with($this->tokenCredentials, $this->checkUrl)
-            ->once()
-            ->andReturn($this->responseObject);
-
-        $user = $this->user->verifyCredentials($this->tokenCredentials);
-
-        assertThat($user->id, is(nonEmptyString()));
-        assertThat($user->realname, is(nonEmptyString()));
-        assertThat($user->url, is(nonEmptyString()));
-        assertThat($user->username, is(nonEmptyString()));
-        assertThat($user->consumer_key, is(nonEmptyString()));
-        assertThat($user->consumer_secret, is(nonEmptyString()));
-        assertThat($user->token, is(nonEmptyString()));
-        assertThat($user->token_secret, is(nonEmptyString()));
+        return $mock;
 
     }
 
-    /**
-     * @expectedException RestGalleries\Exception\AuthException
-     */
-    public function testVerifyCredentialsFail()
-    {
-        $this->auth
-            ->shouldReceive('verifyCredentials')
-            ->with($this->tokenCredentials, $this->checkUrl)
-            ->once()
-            ->andReturn($this->responseObjectFail);
+}
 
-        $user = $this->user->verifyCredentials($this->tokenCredentials, $this->checkUrl);
+class FlickrUserVerifyCredentialsFailsStub extends FlickrUserStub
+{
+    public function newAuth(\RestGalleries\Auth\AuthAdapter $auth = null)
+    {
+        $clientCredentials = ['invalid-token-credentials'];
+        $checkUrl          = 'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken&format=json&nojsoncallback=1';
+
+        $responsesDir = __DIR__ . '/responses/user/';
+        $responseFile = $responsesDir . 'flickrauth-oauth-checktoken-fail.json';
+        $responseBody = json_decode(file_get_contents($responseFile));
+
+        $mock = parent::newAuth();
+        $mock->shouldReceive('verifyCredentials')
+            ->with($clientCredentials, $checkUrl)
+            ->once()
+            ->andReturn($responseBody);
+
+        return $mock;
 
     }
 
