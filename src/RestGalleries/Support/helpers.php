@@ -145,3 +145,25 @@ if (! function_exists('get_caller_function')) {
     }
 
 }
+
+if (! function_exists('subarray')) {
+
+    /**
+     * [subarray description]
+     *
+     * @param  array  $needle
+     * @param  array  $haystack
+     * @return array|boolean
+     */
+    function subarray(array $needle, array $haystack)
+    {
+        $subArray = @array_intersect($haystack, $needle);
+        if (count($needle) == count($subArray)) {
+            return array_keys($subArray);
+        }
+
+        return false;
+
+    }
+
+}

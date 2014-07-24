@@ -1,122 +1,110 @@
 <?php namespace RestGalleries\Tests\Auth\OhmyAuth;
 
+use Mockery;
 use RestGalleries\Auth\OhmyAuth\OhmyAuth;
 
 class OhmyAuthTest extends \RestGalleries\Tests\TestCase
 {
-    public function setUp()
+    public function testConnectObjectReturned()
     {
-        parent::setUp();
-
-        $this->auth = new OhmyAuth;
-    }
-
-    public function connectProvider()
-    {
-        $flickr = [
-            [
-                'consumer_key'    => getenv('FLICKR_KEY'),
-                'consumer_secret' => getenv('FLICKR_SECRET'),
-                'callback'        => getenv('CALLBACK'),
-            ],
-            [
-                'request' => 'https://www.flickr.com/services/oauth/request_token',
-            ],
-            'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken',
-        ];
-
-        return [
-            $flickr,
-        ];
-
-    }
-
-    public function verifyProvider()
-    {
-        $flickr = [
-            [
-                'consumer_key'    => getenv('FLICKR_KEY'),
-                'consumer_secret' => getenv('FLICKR_SECRET'),
-                'token'           => 'dummy_token',
-                'token_secret'    => 'dummy_token_secret'
-            ],
-            'https://api.flickr.com/services/rest/?method=flickr.auth.oauth.checkToken',
-        ];
-
-        return [
-            $flickr,
-        ];
-
-    }
-
-    /**
-     * @dataProvider connectProvider
-     */
-    public function testConnect($clientCredentials, $endPoints, $checkUrl)
-    {
-        $auth = $this->auth;
-        $data = $auth::connect($clientCredentials, $endPoints, $checkUrl);
-
-        assertThat($data->tokens['consumer_key'], is(not(nullOrEmptyString())));
-        assertThat($data->tokens['consumer_secret'], is(not(nullOrEmptyString())));
-        assertThat($data->tokens['token'], is(not(nullOrEmptyString())));
-        assertThat($data->tokens['token_secret'], is(not(nullOrEmptyString())));
-    }
-
-    public function testConnectInvalidKeys()
-    {
-        $this->setExpectedException('RestGalleries\\Exception\\AuthException', 'Credentials keys are invalid');
-
         $clientCredentials = [
-            'client_id' => $this->faker->md5,
-            'consumer_secret' => $this->faker->sha1,
-            'callback' => $this->faker->url
+            'client_id'     => 'dummy-client-id',
+            'client_secret' => 'dummy-client-secret',
+            'redirect'      => 'http://www.mywebapp.com/galleries'
         ];
 
-        $authEndPoints = [
-            'whatever' => $this->faker->url,
-            'authorize' => $this->faker->url,
-            'access' => $this->faker->url
+        $endPoints = [
+            'authorize' => 'http://www.mockservice.com/auth/authorize',
+            'access'    => 'http://www.mockservice.com/auth/access'
         ];
 
-        $checkUrl = $this->faker->url;
+        $userData = OhmyAuthConnectStub::connect($clientCredentials, $endPoints, 'http://www.mockservice.com/rest/user');
 
-        $auth = $this->auth;
-        $data = $auth::connect($clientCredentials, $authEndPoints, $checkUrl);
+        assertThat($userData->tokens, set('access_token'));
+        assertThat($userData->tokens, set('expires'));
 
     }
 
-    /**
-     * @dataProvider verifyProvider
-     */
-    public function testVerifyCredentials($tokenCredentials, $checkUrl)
-    {
-        $auth = $this->auth;
-        $data = $auth::verifyCredentials($tokenCredentials, $checkUrl);
+}
 
-        assertThat($data->tokens['consumer_key'], is(not(nullOrEmptyString())));
-        assertThat($data->tokens['consumer_secret'], is(not(nullOrEmptyString())));
-        assertThat($data->tokens['token'], is(not(nullOrEmptyString())));
-        assertThat($data->tokens['token_secret'], is(not(nullOrEmptyString())));
+class OhmyAuthStub extends OhmyAuth
+{
+    public function __construct()
+    {
+        $this->auth = Mockery::mock('ohmy\\Auth');
+    }
+
+    public function newRequest(\RestGalleries\Http\RequestAdapter $request = null)
+    {
+        $mock = Mockery::mock('RestGalleries\\Http\\Guzzle\\GuzzleRequest');
+
+        return parent::newRequest($mock);
 
     }
 
-    public function testVerifyCredentialsInvalidKeys()
-    {
-        $this->setExpectedException(
-          'RestGalleries\\Exception\\AuthException', 'Credentials keys are invalid'
-        );
+}
 
-        $tokenCredentials = [
-            'consumer_key' => $this->faker->md5,
-            'consumer_secret' => $this->faker->sha1,
-            'access_token' => $this->faker->md5
+class OhmyAuthConnectStub extends OhmyAuthStub
+{
+    public function newRequest(\RestGalleries\Http\RequestAdapter $request = null)
+    {
+        $responseData = new \stdClass;
+        $responseData->whateverUserData = 'some-fake-user-data';
+
+        $mock = parent::newRequest();
+        $mock->shouldReceive('init')
+            ->with('http://www.mockservice.com/rest/user')
+            ->once()
+            ->andReturn(Mockery::self())
+            ->shouldReceive('addPlugins')
+            ->with(typeOf('array'))
+            ->once()
+            ->andReturn(Mockery::self());
+
+        $mock->shouldReceive('GET->getBody')
+            ->once()
+            ->andReturn($responseData);
+
+        return $mock;
+
+    }
+
+    protected function fetchTokenCredentials()
+    {
+        $clientCredentials = [
+            'client_id'     => 'dummy-client-id',
+            'client_secret' => 'dummy-client-secret',
+            'redirect'      => 'http://www.mywebapp.com/galleries'
         ];
 
-        $checkUrl = $this->faker->url;
+        $this->auth
+            ->shouldReceive('init')
+            ->with($clientCredentials)
+            ->once()
+            ->andReturn($this->auth)
+            ->shouldReceive('authorize')
+            ->with('http://www.mockservice.com/auth/authorize')
+            ->once()
+            ->andReturn($this->auth)
+            ->shouldReceive('access')
+            ->with('http://www.mockservice.com/auth/access')
+            ->once()
+            ->andReturn($this->auth)
+            ->shouldReceive('finally')
+            ->with(Mockery::type('callable'))
+            ->once()
+            ->andReturn(Mockery::self());
 
-        $auth = $this->auth;
-        $data = $auth::verifyCredentials($tokenCredentials, $checkUrl);
+        parent::fetchTokenCredentials();
+
+        return [
+            'client_id'     => 'dummy-client-id',
+            'client_secret' => 'dummy-client-secret',
+            'redirect'      => 'http://www.mywebapp.com/galleries',
+            'access_token'  => 'dummy-access-token',
+            'expires'       => 'dummy-expires-date'
+
+        ];
 
     }
 
