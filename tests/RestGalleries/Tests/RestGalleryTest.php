@@ -35,7 +35,7 @@ class RestGalleryTest extends \RestGalleries\Tests\TestCase
 
     public function testSetAuthFails()
     {
-        $this->setExpectedException('InvalidArgumentException', 'Credentials keys are invalid.');
+        $this->setExpectedException('InvalidArgumentException', 'Credential keys are invalid.');
 
         $model = new RestGalleryStub;
         $model->setAuth(['invalid-token-credentials']);

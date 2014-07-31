@@ -39,7 +39,7 @@ class AuthTest extends \RestGalleries\Tests\TestCase
     public function testAddInvalidAuthExtension()
     {
         $this->setExpectedException(
-            'InvalidArgumentException', 'Credentials are invalid.'
+            'InvalidArgumentException', 'Credential keys are invalid.'
         );
 
         $credentials = ['any-invalid-crendential'];

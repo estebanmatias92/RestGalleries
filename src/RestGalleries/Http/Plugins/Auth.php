@@ -33,7 +33,7 @@ abstract class Auth implements RequestPluginAdapter
     protected function processPluginData($credentials)
     {
         if (! $protocol = OhmyAuth::getAuthProtocol($credentials)) {
-            throw new \InvalidArgumentException('Credentials are invalid.');
+            throw new \InvalidArgumentException('Credential keys are invalid.');
         }
 
         $this->credentials = $credentials;

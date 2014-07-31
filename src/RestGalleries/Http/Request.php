@@ -1,8 +1,6 @@
 <?php namespace RestGalleries\Http;
 
-use RestGalleries\Exception\HttpException;
 use RestGalleries\Http\RequestAdapter;
-use RestGalleries\Http\ResponseAdapter;
 
 /**
  * Common http father to simplify client work with cache system selection and auth protocol selection, among others.

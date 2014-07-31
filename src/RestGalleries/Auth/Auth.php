@@ -1,7 +1,6 @@
 <?php namespace RestGalleries\Auth;
 
 use RestGalleries\Auth\AuthAdapter;
-use RestGalleries\Exception\AuthException;
 use RestGalleries\Http\RequestAdapter;
 use RestGalleries\Http\Guzzle\GuzzleRequest;
 use RestGalleries\Http\Plugins\RequestPluginAdapter;
@@ -47,7 +46,7 @@ abstract class Auth implements AuthAdapter
         $instance = new static;
 
         if (! $instance->protocol = self::getAuthProtocol($clientCredentials)) {
-            throw new AuthException('Credentials keys are invalid.');
+            throw new \InvalidArgumentException('Credential keys are invalid.');
         }
 
         $instance->credentials = $clientCredentials;
@@ -80,7 +79,7 @@ abstract class Auth implements AuthAdapter
         $instance = new static;
 
         if (! $instance->protocol = self::getAuthProtocol($tokenCredentials)) {
-            throw new AuthException('Credentials keys are invalid.');
+            throw new \InvalidArgumentException('Credential keys are invalid.');
         }
 
         $instance->addToCredentials($tokenCredentials);

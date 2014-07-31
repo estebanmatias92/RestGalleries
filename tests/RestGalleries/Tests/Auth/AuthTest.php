@@ -183,7 +183,7 @@ class AuthTest extends \RestGalleries\Tests\TestCase
 
     public function testConnectInvalidCredentials()
     {
-        $this->setExpectedException('RestGalleries\\Exception\\AuthException', 'Credentials keys are invalid.');
+        $this->setExpectedException('InvalidArgumentException', 'Credential keys are invalid.');
 
         $clientCredentials = [
             'oauth_consumer_key'    => 'dummy-consumer-key',
@@ -221,7 +221,7 @@ class AuthTest extends \RestGalleries\Tests\TestCase
 
     public function testVerifyCredentialsInvalidCredentials()
     {
-        $this->setExpectedException('RestGalleries\\Exception\\AuthException', 'Credentials keys are invalid.');
+        $this->setExpectedException('InvalidArgumentException', 'Credential keys are invalid.');
 
         $tokenCredentials = [
             'oauth_consumer_key'    => 'dummy-consumer-key',
