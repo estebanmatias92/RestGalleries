@@ -1,70 +1,132 @@
-<?php
+<?php namespace RestGalleries\Tests;
 
+use Mockery;
 
-
-class RestGalleryTest extends TestCase
+class RestGalleryTest extends \RestGalleries\Tests\TestCase
 {
-    public function testCredentialsManipulation()
+    public function testSetService()
     {
-        $model = new RestGalleryModelStub;
+        $model          = new RestGalleryStub;
+        $defaultService = $model->getService();
 
-        $model->setCredentials([
-            'consumer_key' => 'test-consumer-key',
-            'token'        => 'test-token',
-            'token_secret' => 'test-token-secret',
-            'custom_key'   => 'test-custom-key',
-        ]);
+        $model->setService('foo');
+        $newService = $model->getService();
 
-        $expectedCredentials = [
-            'consumer_key'    => 'test-consumer-key',
-            'consumer_secret' => 'stub-consumer-secret',
-            'token'           => 'test-token',
-            'token_secret'    => 'test-token-secret',
-            'custom_key'      => 'test-custom-key'
+        assertThat($defaultService, is(equalTo('StubService')));
+        assertThat($newService, is(equalTo('foo')));
+
+    }
+
+    public function testSetAuth()
+    {
+        $tokenCredentials = [
+            'access_token' => 'dummy-access-token',
+            'expires'      => 'dummy-expires-date'
         ];
 
-        assertThat($model->getCredentials(), is(equalTo($expectedCredentials)));
+        $model   = new RestGalleryStub;
+        $plugins = $model->setAuth($tokenCredentials)
+            ->getPlugins();
+
+        assertThat($plugins, hasKey('auth'));
+        assertThat($plugins['auth'], is(anInstanceOf('RestGalleries\Http\Plugins\RequestPluginAdapter')));
 
     }
 
-    public function testServiceNameManipulation()
+    public function testSetAuthFails()
     {
-        $model   = new RestGalleryModelStub;
-        $service = $model->getService();
+        $this->setExpectedException('InvalidArgumentException', 'Credentials keys are invalid.');
 
-        $model->setService('test-service-name');
-        $serviceModified = $model->getService();
-
-        assertThat($service, is(equalTo('stub')));
-        assertThat($serviceModified, is(equalTo('test-service-name')));
+        $model = new RestGalleryStub;
+        $model->setAuth(['invalid-token-credentials']);
 
     }
 
-    public function testAuthenticate()
+    public function testSetCache()
     {
-        $result = RestGalleryAuthenticateStub::authenticate(['token-credentials']);
+        $model   = new RestGalleryStub;
+        $plugins = $model->setCache('file')
+            ->getPlugins();
+
+        assertThat($plugins, hasKey('cache'));
+        assertThat($plugins['cache'], is(anInstanceOf('RestGalleries\Http\Plugins\RequestPluginAdapter')));
+
+    }
+
+    public function testSetCacheFails()
+    {
+        $this->setExpectedException('InvalidArgumentException', 'Cache system is invalid.');
+
+        $model = new RestGalleryStub;
+        $model->setCache(['invalid-cache-sytem']);
+
+    }
+
+    public function testNewGallery()
+    {
+        $model        = new RestGalleryStub;
+        $modelGallery = $model->newGallery();
+
+        assertThat($modelGallery, is(anInstanceOf('RestGalleries\Interfaces\GalleryAdapter')));
+
+    }
+
+    public function testNewGalleryAddPlugin()
+    {
+        $model = new RestGalleryNewGalleryAddPluginStub;
+        $model->setAuth(['valid-token-credentials'])
+            ->setCache('valid-cache-system')
+            ->newGallery();
+
+    }
+
+    public function testNewUser()
+    {
+        $model     = new RestGalleryStub;
+        $modelUser = $model->newUser();
+
+        assertThat($modelUser, is(anInstanceOf('RestGalleries\Interfaces\UserAdapter')));
     }
 
     public function testAll()
     {
-        $galleries = RestGalleryAllStub::authenticate(['token-credentials'])->all();
+        $model     = new RestGalleryAllStub;
+        $galleries = $model->all();
 
         assertThat($galleries, is(equalTo('foo')));
 
     }
 
-    public function testFind()
+    public function testAllReturnsEmpty()
     {
-        $gallery = RestGalleryfindStub::authenticate(['token-credentials'])->find('1');
+        $model     = new RestGalleryAllReturnsEmptyStub;
+        $galleries = $model->all();
 
-        assertThat($gallery, is(equalTo('foo')));
+        assertThat($galleries, is(nullValue()));
 
     }
 
+    public function testFind()
+    {
+        $model     = new RestGalleryFindStub;
+        $galleries = $model->find('valid-gallery-id');
+
+        assertThat($galleries, is(equalTo('foo')));
+
+    }
+
+    public function testFindNotFound()
+    {
+        $model     = new RestGalleryFindNotFoundStub;
+        $galleries = $model->find('invalid-gallery-id');
+
+        assertThat($galleries, is(nullValue()));
+
+    }
 
     public function testConnect()
     {
-        $user = RestGalleryConnectStub::connect(['client-credentials']);
+        $user = RestGalleryConnectStub::connect();
 
         assertThat($user, is(equalTo('foo')));
 
@@ -72,7 +134,7 @@ class RestGalleryTest extends TestCase
 
     public function testVerifyCredentials()
     {
-        $user = RestGalleryVerifyCredentialsStub::verifyCredentials(['token-credentials']);
+        $user = RestGalleryVerifyCredentialsStub::verifyCredentials(['valid-token-credentials']);
 
         assertThat($user, is(equalTo('foo')));
 
@@ -80,79 +142,109 @@ class RestGalleryTest extends TestCase
 
 }
 
-class RestGalleryModelStub extends RestGalleries\RestGallery
+
+class RestGalleryStub extends \RestGalleries\RestGallery
 {
-    protected $service = 'stub';
-
-    protected $credentials = [
-        'consumer_key'    => 'stub-consumer-key',
-        'consumer_secret' => 'stub-consumer-secret',
-    ];
-
+    protected $service = 'StubService';
+    protected $clientCredentials = ['valid-client-credentials'];
 }
 
-class RestGalleryAuthenticateStub extends RestGalleries\RestGallery
+class RestGalleryNewGalleryAddPluginStub extends RestGalleryStub
 {
-    public function newQuery()
+    public function newGallery(\RestGalleries\Interfaces\GalleryAdapter $gallery = null)
     {
-        $mock = Mockery::mock('RestGalleries\\APIs\\Flickr\\Gallery');
-        $mock->shouldReceive('setAuth')
-            ->with(['token-credentials'])
-            ->once();
+        $mock = Mockery::mock('RestGalleries\\Tests\\APIs\\StubService\\Gallery');
+        $mock->shouldReceive('addPlugin')
+            ->times(2);
 
-        return $mock;
+        return parent::newGallery($mock);
 
+    }
+
+    public function setAuth(array $tokenCredentials)
+    {
+        $this->plugins['auth'] = Mockery::mock('RestGalleries\\Http\\Plugins\\RequestPluginAdapter');
+        return $this;
+    }
+
+    public function setCache($system, array $path = array())
+    {
+        $this->plugins['cache'] = Mockery::mock('RestGalleries\\Http\\Plugins\\RequestPluginAdapter');
+        return $this;
     }
 
 }
 
-class RestGalleryAllStub extends RestGalleries\RestGallery
+class RestGalleryAllStub extends RestGalleryStub
 {
-    public function newQuery()
+    public function newGallery(\RestGalleries\Interfaces\GalleryAdapter $gallery = null)
     {
-        $mock = Mockery::mock('RestGalleries\\APIs\\Flickr\\Gallery');
-        $mock->shouldReceive('setAuth')
-            ->with(['token-credentials'])
-            ->once();
-
+        $mock = Mockery::mock('RestGalleries\\Tests\\APIs\\StubService\\Gallery');
         $mock->shouldReceive('all')
-            ->with()
             ->once()
             ->andReturn('foo');
 
-        return $mock;
+        return parent::newGallery($mock);
 
     }
 
 }
 
-class RestGalleryFindStub extends RestGalleries\Restgallery
+class RestGalleryAllReturnsEmptyStub extends RestGalleryStub
 {
-    public function newQuery()
+    public function newGallery(\RestGalleries\Interfaces\GalleryAdapter $gallery = null)
     {
-        $mock = Mockery::mock('RestGalleries\\APIs\\Flickr\\Gallery');
-        $mock->shouldReceive('setAuth')
-            ->with(['token-credentials'])
-            ->once();
+        $mock = Mockery::mock('RestGalleries\\Tests\\APIs\\StubService\\Gallery');
+        $mock->shouldReceive('all')
+            ->once()
+            ->andReturn(null);
 
+        return parent::newGallery($mock);
+
+    }
+
+}
+
+class RestGalleryFindStub extends RestGalleryStub
+{
+    public function newGallery(\RestGalleries\Interfaces\GalleryAdapter $gallery = null)
+    {
+        $mock = Mockery::mock('RestGalleries\\Tests\\APIs\\StubService\\Gallery');
         $mock->shouldReceive('find')
-            ->with('1')
+            ->with('valid-gallery-id')
             ->once()
             ->andReturn('foo');
 
-        return $mock;
+        return parent::newGallery($mock);
 
     }
 
 }
 
-class RestGalleryConnectStub extends RestGalleries\RestGallery
+class RestGalleryFindNotFoundStub extends RestGalleryStub
 {
-    public function newAuthentication()
+    public function newGallery(\RestGalleries\Interfaces\GalleryAdapter $gallery = null)
     {
-        $mock = Mockery::mock('RestGalleries\\APIs\\Flickr\\User');
+        $mock = Mockery::mock('RestGalleries\\Tests\\APIs\\StubService\\Gallery');
+        $mock->shouldReceive('find')
+            ->with('invalid-gallery-id')
+            ->once()
+            ->andReturn(null);
+
+        return parent::newGallery($mock);
+
+    }
+
+}
+
+
+class RestGalleryConnectStub extends RestGalleryStub
+{
+    public function newUser()
+    {
+        $mock = Mockery::mock('RestGalleries\\Tests\\APIs\\StubService\\User');
         $mock->shouldReceive('connect')
-            ->with(['client-credentials'])
+            ->with(['valid-client-credentials'])
             ->once()
             ->andReturn('foo');
 
@@ -162,13 +254,13 @@ class RestGalleryConnectStub extends RestGalleries\RestGallery
 
 }
 
-class RestGalleryVerifyCredentialsStub extends RestGalleries\RestGallery
+class RestGalleryVerifyCredentialsStub extends RestGalleryStub
 {
-    public function newAuthentication()
+    public function newUser()
     {
-        $mock = Mockery::mock('RestGalleries\\APIs\\Flickr\\User');
+        $mock = Mockery::mock('RestGalleries\\Tests\\APIs\\StubService\\User');
         $mock->shouldReceive('verifyCredentials')
-            ->with(['token-credentials'])
+            ->with(['valid-token-credentials'])
             ->once()
             ->andReturn('foo');
 
@@ -177,3 +269,4 @@ class RestGalleryVerifyCredentialsStub extends RestGalleries\RestGallery
     }
 
 }
+

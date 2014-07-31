@@ -1,6 +1,9 @@
 <?php namespace RestGalleries;
 
 use RestGalleries\Factory;
+use RestGalleries\Http\Guzzle\Plugins\GuzzleAuth;
+use RestGalleries\Http\Guzzle\Plugins\GuzzleCache;
+use RestGalleries\Interfaces\GalleryAdapter;
 
 /**
  * Abstract model CRUD-type to simplify the interaction with api services.
@@ -15,18 +18,18 @@ abstract class RestGallery
     protected $service;
 
     /**
-     * Object to make the api requests.
-     *
-     * @var object
-     */
-    protected $query;
-
-    /**
-     * Credentials to authenticate every api request,
+     * Credentials to connect with an api service,
      *
      * @var array
      */
-    protected $credentials = [];
+    protected $clientCredentials = [];
+
+    /**
+     * [$auth description]
+     *
+     * @var array
+     */
+    protected $plugins = [];
 
     /**
      * Returns all galleries (and its photos) from an api service.
@@ -35,7 +38,7 @@ abstract class RestGallery
      */
     public function all()
     {
-        return $this->query->all();
+        return $this->newGallery()->all();
     }
 
     /**
@@ -46,26 +49,7 @@ abstract class RestGallery
      */
     public function find($id)
     {
-        return $this->query->find($id);
-    }
-
-    /**
-     * Makes the authentication for the requests,
-     *
-     * @param  array  $tokenCredentials
-     * @return object
-     */
-    public static function authenticate(array $tokenCredentials)
-    {
-        $instance        = new static;
-        $query           = $instance->newQuery();
-        $instance->query = &$query;
-
-        $instance->setCredentials($tokenCredentials);
-        $query->setAuth($instance->getCredentials());
-
-        return $instance;
-
+        return $this->newGallery()->find($id);
     }
 
     /**
@@ -73,105 +57,42 @@ abstract class RestGallery
      *
      * @return RestGalleries\APIs\<service>\Gallery
      */
-    public function newQuery()
+    public function newGallery(GalleryAdapter $gallery = null)
     {
-        $class = $this->getService() . '\\Gallery';
+        if (empty($gallery)) {
+            $class = $this->getNamespaceService() . 'Gallery';
+            //$gallery = Factory::make($class);
+            $gallery = new $class;
+        }
 
-        return Factory::make($class);
+        if (! empty($this->plugins)) {
+            array_walk($this->plugins, [$gallery, 'addPlugin']);
+        }
+
+        return $gallery;
 
     }
 
-    /**
-     * Takes account credentials and calls the user object to make the requests to get the api authorization.
-     *
-     * @param  array  $clientCredentials
-     * @return \Illuminate\Support\Fluent
-     */
-    public static function connect(array $clientCredentials)
+    private function getNamespaceService()
     {
-        $instance = new static;
-        $auth     = $instance->newAuthentication();
+        $service = get_class_namespace($this);
+        $service .= '\\APIs\\';
+        $service .= $this->getService();
+        $service .= '\\';
 
-        $instance->setCredentials($clientCredentials);
-
-        return $auth->connect($instance->getCredentials());
-
+        return $service;
     }
 
     /**
-     * Investigates if the access tokens still are valid. calling the user object and making the respective requests,
+     * Sets the current service api name to interact with it.
      *
-     * @param  array  $tokenCredentials
-     * @return \Illuminate\Support\Fluent
-     */
-    public static function verifyCredentials(array $tokenCredentials)
-    {
-        $instance = new static;
-        $auth     = $instance->newAuthentication();
-
-        $instance->setCredentials($tokenCredentials);
-
-        return $auth->verifyCredentials($instance->getCredentials());
-
-    }
-
-    /**
-     * Creates new user object that will interact with the api service.
-     *
-     * @return RestGalleries\APIs\<service>\User
-     */
-    public function newAuthentication()
-    {
-        $class = $this->getService() . '\\User';
-
-        return Factory::make($class);
-
-    }
-
-    /**
-     * Returns current credential array.
-     *
-     * @return array
-     */
-    public function getCredentials()
-    {
-        return $this->credentials;
-    }
-
-    /**
-     * Takes adds and cleans credentials of an account.
-     *
-     * @param  array  $credentials
+     * @param  string  $service
      * @return void
      */
-    public function setCredentials(array $credentials)
+    public function setService($service)
     {
-        $this->credentials = $this->addCredentials($credentials);
-        $this->credentials = $this->cleanCredentials();
-    }
-
-    /**
-     * Adds more credentials to the current credential array.
-     *
-     * @param  array  $credentials
-     * @return array
-     */
-    private function addCredentials($credentials)
-    {
-        return array_merge($this->getCredentials(), $credentials);
-    }
-
-    /**
-     * Cleans current credential array of empty values and repeated keys.
-     *
-     * @return array
-     */
-    private function cleanCredentials()
-    {
-        $filtered = array_filter($this->getCredentials());
-
-        return array_unique_keys($filtered);
-
+        $this->service = $service;
+        return $this;
     }
 
     /**
@@ -190,14 +111,77 @@ abstract class RestGallery
     }
 
     /**
-     * Sets the current service api name to interact with it.
+     * Makes the authentication for the requests,
      *
-     * @param  string  $service
-     * @return void
+     * @param  array  $tokenCredentials
+     * @return object
      */
-    public function setService($service)
+    public function setAuth(array $tokenCredentials)
     {
-        $this->service = $service;
+        $this->plugins['auth'] = new GuzzleAuth($tokenCredentials);
+        return $this;
+    }
+
+    /**
+     * [setCache description]
+     *
+     * @param [type] $system
+     * @param array  $path
+     */
+    public function setCache($system, array $path = array())
+    {
+        $this->plugins['cache'] = new GuzzleCache($system, $path);
+        return $this;
+    }
+
+    /**
+     * [getCache description]
+     *
+     * @return [type]
+     */
+    public function getPlugins()
+    {
+        return $this->plugins;
+    }
+
+    /**
+     * Takes account credentials and calls the user object to make the requests to get the api authorization.
+     *
+     * @return \Illuminate\Support\Fluent
+     */
+    public static function connect()
+    {
+        $instance = new static;
+        $user     = $instance->newUser();
+
+        return $user->connect($instance->clientCredentials);
+
+    }
+
+    /**
+     * Investigates if the access tokens still are valid. calling the user object and making the respective requests,
+     *
+     * @param  array  $tokenCredentials
+     * @return \Illuminate\Support\Fluent
+     */
+    public static function verifyCredentials(array $tokenCredentials)
+    {
+        $instance = new static;
+        $user     = $instance->newUser();
+
+        return $user->verifyCredentials($tokenCredentials);
+
+    }
+
+    /**
+     * Creates new user object that will interact with the api service.
+     *
+     * @return RestGalleries\APIs\<service>\User
+     */
+    public function newUser()
+    {
+        $class = $this->getNamespaceService() . 'User';
+        return new $class;
     }
 
 }
