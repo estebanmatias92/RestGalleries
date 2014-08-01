@@ -134,6 +134,11 @@ if (! function_exists('get_class_namespace'))
 
 if (! function_exists('get_caller_function')) {
 
+    /**
+     * Return the function\method name that is calling the current wraper function.
+     *
+     * @return string|boolean
+     */
     function get_caller_function()
     {
         if (! isset(debug_backtrace()[2]['function'])) {
@@ -149,7 +154,7 @@ if (! function_exists('get_caller_function')) {
 if (! function_exists('subarray')) {
 
     /**
-     * [subarray description]
+     * Search a particular array inside another.
      *
      * @param  array  $needle
      * @param  array  $haystack

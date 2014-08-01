@@ -21,6 +21,11 @@ abstract class ApiGallery implements GalleryAdapter
      */
     protected $endPoint;
 
+    /**
+     * It will store the plugins of request client, such as cache and auth.
+     *
+     * @var array
+     */
     protected $plugins = [];
 
     /**
@@ -88,6 +93,12 @@ abstract class ApiGallery implements GalleryAdapter
      */
     abstract protected function fetchGallery($id);
 
+    /**
+     * [newRequest description]
+     *
+     * @param  \RestGalleries\Http\RequestAdapter $request
+     * @return \RestGalleries\Http\RequestAdapter
+     */
     public function newRequest(RequestAdapter $request = null)
     {
         if (empty($request)) {
@@ -104,6 +115,12 @@ abstract class ApiGallery implements GalleryAdapter
 
     }
 
+    /**
+     * [newPhoto description]
+     *
+     * @param  \RestGalleries\Interfaces\PhotoAdapter $photo
+     * @return \RestGalleries\Interfaces\PhotoAdapter
+     */
     public function newPhoto(PhotoAdapter $photo = null)
     {
         if (empty($photo)) {
@@ -119,11 +136,22 @@ abstract class ApiGallery implements GalleryAdapter
 
     }
 
+    /**
+     * [getChildClassNamespace description]
+     *
+     * @return string
+     */
     protected function getChildClassNamespace()
     {
         return get_class_namespace($this);
     }
 
+    /**
+     * [addPlugin description]
+     *
+     * @param  \RestGalleries\Http\Plugins\RequestPluginAdapter $plugin
+     * @return void
+     */
     public function addPlugin($plugin)
     {
         $this->plugins[] = $plugin;
