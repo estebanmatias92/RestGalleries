@@ -92,7 +92,7 @@ abstract class Auth implements AuthAdapter
     /**
      * Merge the new credential values to the existing credentials.
      *
-     * @param  array  $credentials
+     * @param  array $credentials
      * @return void
      */
     protected function addToCredentials(array $credentials)
@@ -106,7 +106,7 @@ abstract class Auth implements AuthAdapter
     /**
      * Filters the given credentials for use them with the "Auth::fetchUserData" method.
      *
-     * @param  array  $tokenCredentials
+     * @param  array $tokenCredentials
      * @return void
      */
     protected function filterCredentialsByKey($filter = 'client_credentials')
@@ -129,7 +129,7 @@ abstract class Auth implements AuthAdapter
     /**
      * Remove an string from the the beginning of each credential key.
      *
-     * @param  string  $prefix
+     * @param  string $prefix
      * @return void
      */
     protected function removeCredentialPrefixes($prefix)
@@ -166,10 +166,11 @@ abstract class Auth implements AuthAdapter
     }
 
     /**
-     * [newRequest description]
+     * Object builder to create and use the Http request client.
+     * In this case, is set up as default Guzzle Http client.
      *
-     * @param  [type] $request
-     * @return [type]
+     * @param  \RestGalleries\Http\RequestAdapter $request
+     * @return \RestGalleries\Http\RequestAdapter
      */
     public function newRequest(RequestAdapter $request = null)
     {
@@ -182,10 +183,11 @@ abstract class Auth implements AuthAdapter
     }
 
     /**
-     * [newRequestAuth description]
+     * Object builder to create auth plugin extension for request client.
+     * In this case, it creates GuzzleAuth object by default.
      *
-     * @param  [type] $authExtension
-     * @return [type]
+     * @param  \RestGalleries\Http\RequestPluginAdapter $authExtension
+     * @return \RestGalleries\Http\RequestPluginAdapter
      */
     public function newAuthExtension(RequestPluginAdapter $authExtension = null)
     {
@@ -200,8 +202,8 @@ abstract class Auth implements AuthAdapter
     /**
      * Add token credentials to the object.
      *
-     * @param  object  $object
-     * @param  array   $tokens
+     * @param  object $object
+     * @param  array  $tokens
      * @return void
      */
     protected function addDataTokens(&$object, $tokenCredentials)
@@ -219,7 +221,7 @@ abstract class Auth implements AuthAdapter
     /**
      * Checks the credentials and returns the name of the auth system used, if credentials are not founds, returns false.
      *
-     * @param  array  $credentials
+     * @param  array $credentials
      * @return string|boolean
      */
     public static function getAuthProtocol(array $credentials)
@@ -242,7 +244,7 @@ abstract class Auth implements AuthAdapter
     /**
      * Checks if the credentials are using OAuth1.0.
      *
-     * @param  array  $credentials
+     * @param  array $credentials
      * @return boolean
      */
     protected function isOauth1($credentialsKeys)
@@ -261,7 +263,7 @@ abstract class Auth implements AuthAdapter
     /**
      * Checks if the credentials are using OAuth2.0.
      *
-     * @param  array  $credentials
+     * @param  array $credentials
      * @return boolean
      */
     protected function isOauth2($credentialsKeys)

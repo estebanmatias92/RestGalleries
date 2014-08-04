@@ -8,6 +8,9 @@ use ohmy\Auth as OAuth;
  */
 class OhmyAuth extends Auth
 {
+    /**
+     * Creates auth instance variable to use it.
+     */
     public function __construct()
     {
         $this->auth = new OAuth;
