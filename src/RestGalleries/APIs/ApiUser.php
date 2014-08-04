@@ -42,8 +42,8 @@ abstract class ApiUser implements UserAdapter
     /**
      * Makes all the OAuth process to connect the app with the API, only, with the client credentials, the oauth endpoints urls, and an URL to get the user data and token credentials.
      *
-     * @param  array  $clientCredentials
-     * @return object
+     * @param  array $clientCredentials
+     * @return \Illuminate\Support\Fluent
      */
     public function connect(array $clientCredentials)
     {
@@ -64,8 +64,8 @@ abstract class ApiUser implements UserAdapter
      * Checks the token credentials and returns an object with the data (and tokens) from the user account.
      * If for any reason the credentials are invalid, throws an exception.
      *
-     * @param  array                                  $tokenCredentials
-     * @return object
+     * @param  array $tokenCredentials
+     * @return \Illuminate\Support\Fluent
      */
     public function verifyCredentials(array $tokenCredentials)
     {
@@ -76,6 +76,13 @@ abstract class ApiUser implements UserAdapter
 
     }
 
+    /**
+     * Object builder to create and use the Auth client.
+     * In this case, is set up as default OhmyAuth authentication client.
+     *
+     * @param  \RestGalleries\Auth\AuthAdapter $auth
+     * @return \RestGalleries\Auth\AuthAdapter
+     */
     public function newAuth(AuthAdapter $auth = null)
     {
         if (empty($auth)) {
@@ -90,8 +97,8 @@ abstract class ApiUser implements UserAdapter
      * Gets an array of account data and returns an object. If it not get user data throws an exception.
      *
      * @param  object $data
-     * @throws RestGalleries\Exception\AuthException;
-     * @return Illuminate\Support\Fluent
+     * @throws \RestGalleries\Exception\AuthException
+     * @return \Illuminate\Support\Fluent
      */
     protected function getUserOrFail($data)
     {
@@ -106,8 +113,8 @@ abstract class ApiUser implements UserAdapter
     /**
      * Normalize request given data into an array.
      *
-     * @param  object        $data
-     * @return boolean|array
+     * @param  object $data
+     * @return array|boolean
      */
     abstract protected function extractUserArray($data);
 
