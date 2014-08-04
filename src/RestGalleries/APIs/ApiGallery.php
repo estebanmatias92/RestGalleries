@@ -4,8 +4,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
 use RestGalleries\Http\RequestAdapter;
 use RestGalleries\Http\Guzzle\GuzzleRequest;
-use RestGalleries\Http\Guzzle\Plugins\GuzzleAuth;
-use RestGalleries\Http\Guzzle\Plugins\GuzzleCache;
 use RestGalleries\Interfaces\GalleryAdapter;
 use RestGalleries\Interfaces\PhotoAdapter;
 
@@ -94,7 +92,8 @@ abstract class ApiGallery implements GalleryAdapter
     abstract protected function fetchGallery($id);
 
     /**
-     * [newRequest description]
+     * Object builder to create and use the Http request client.
+     * In this case, is set up as default Guzzle Http client.
      *
      * @param  \RestGalleries\Http\RequestAdapter $request
      * @return \RestGalleries\Http\RequestAdapter
@@ -116,7 +115,7 @@ abstract class ApiGallery implements GalleryAdapter
     }
 
     /**
-     * [newPhoto description]
+     * Object builder to create and use the Photo model of a specific service.
      *
      * @param  \RestGalleries\Interfaces\PhotoAdapter $photo
      * @return \RestGalleries\Interfaces\PhotoAdapter
@@ -137,7 +136,7 @@ abstract class ApiGallery implements GalleryAdapter
     }
 
     /**
-     * [getChildClassNamespace description]
+     * Returns the namespace of the child class (without the class name).
      *
      * @return string
      */
@@ -147,7 +146,7 @@ abstract class ApiGallery implements GalleryAdapter
     }
 
     /**
-     * [addPlugin description]
+     * Stores the request plugins to add them to the request client.
      *
      * @param  \RestGalleries\Http\Plugins\RequestPluginAdapter $plugin
      * @return void
