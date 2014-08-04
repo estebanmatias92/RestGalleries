@@ -9,6 +9,11 @@ class Photo extends ApiPhoto
 {
     protected $endPoint = 'http://api.flickr.com/services/rest/';
 
+    /**
+     * Common query values for all the requests.
+     *
+     * @var array
+     */
     private $defaultQuery = [
         'format'         => 'json',
         'nojsoncallback' => 1,
@@ -96,10 +101,10 @@ class Photo extends ApiPhoto
     }
 
     /**
-     * Specific data are stored into an array and are returned, when it receive an failure, returns false.
+     * Specific data are stored into an array and are returned, when it receive an failure, returns null.
      *
-     * @param  object        $data
-     * @return array|boolean
+     * @param  object $data
+     * @return array|null
      */
     private function extractPhotoArray($source)
     {
@@ -124,6 +129,12 @@ class Photo extends ApiPhoto
 
     }
 
+    /**
+     * This function makes the request to get images sources from a photo and returns them as an array.
+     *
+     * @param  string $photoId
+     * @return array
+     */
     private function fetchImages($photoId)
     {
         $query = array_merge(
@@ -143,6 +154,12 @@ class Photo extends ApiPhoto
 
     }
 
+    /**
+     * Extracts an array of images from the photo array and returns them.
+     *
+     * @param  array $source
+     * @return array
+     */
     private function extractImagesArray($source)
     {
         $sizes  = array_get($source, 'sizes.size');
