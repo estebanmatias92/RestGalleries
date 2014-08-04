@@ -20,14 +20,18 @@ abstract class ApiPhoto implements PhotoAdapter
      */
     protected $endPoint;
 
+    /**
+     * It will store the plugins of request client, such as cache and auth.
+     *
+     * @var array
+     */
     protected $plugins = [];
 
     /**
      * Gets IDs of photos, seeks and gets the photo and makes a Collection for send it back.
-     * If the gallery is empty, returns an empty Collection.
      *
-     * @param  string                        $galleryId
-     * @return Illuminate\Support\Collection
+     * @param  string $galleryId
+     * @return \Illuminate\Support\Collection|null
      */
     public function all($galleryId)
     {
@@ -35,7 +39,7 @@ abstract class ApiPhoto implements PhotoAdapter
     }
 
     /**
-     *
+     * Returns all photo currently available in a gallery.
      *
      * @return \Illuminate\Support\Collection|null
      */
@@ -51,19 +55,17 @@ abstract class ApiPhoto implements PhotoAdapter
 
     /**
      * Makes the request to get the IDs of gallery photos and return it as array.
-     * If it does not find the gallery, returns null.
      *
-     * @param  string     $galleryId
+     * @param  string $galleryId
      * @return array|null
      */
     abstract protected function fetchIds($galleryId);
 
     /**
      * Gets the photo and returns an object.
-     * If photo is empty, returns an empty Fluent object.
      *
-     * @param  string                    $id
-     * @return Illuminate\Support\Fluent
+     * @param  string $id
+     * @return \Illuminate\Support\Fluent|null
      */
     public function find($id)
     {
@@ -85,13 +87,19 @@ abstract class ApiPhoto implements PhotoAdapter
 
     /**
      * Here are made the necessary requests to get info of photography, turn it into an array, and send it back.
-     * If it does not find the photo, returns null.
      *
-     * @param  string     $id
+     * @param  string $id
      * @return array|null
      */
     abstract protected function fetchPhoto($id);
 
+    /**
+     * Object builder to create and use the Http request client.
+     * In this case, is set up as default Guzzle Http client.
+     *
+     * @param  \RestGalleries\Http\RequestAdapter $request
+     * @return \RestGalleries\Http\RequestAdapter
+     */
     public function newRequest(RequestAdapter $request = null)
     {
         if (empty($request)) {
@@ -108,6 +116,12 @@ abstract class ApiPhoto implements PhotoAdapter
 
     }
 
+    /**
+     * Stores the request plugins to add them to the request client.
+     *
+     * @param  \RestGalleries\Http\Plugins\RequestPluginAdapter $plugin
+     * @return void
+     */
     public function addPlugin($plugin)
     {
         $this->plugins[] = $plugin;

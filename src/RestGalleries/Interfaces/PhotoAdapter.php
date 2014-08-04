@@ -3,7 +3,7 @@
 use RestGalleries\Http\RequestAdapter;
 
 /**
- * This interface provides methods like CRUD from an MVC model, for enhance the usability. Also provides of cache and authentication.
+ * This interface provides methods like CRUD from an MVC model, to enhance the usability. Also provides of cache and authentication.
  */
 interface PhotoAdapter
 {
