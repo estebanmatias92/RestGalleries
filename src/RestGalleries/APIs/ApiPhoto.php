@@ -3,8 +3,6 @@
 use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
 use RestGalleries\Http\Guzzle\GuzzleRequest;
-use RestGalleries\Http\Guzzle\Plugins\GuzzleAuth;
-use RestGalleries\Http\Guzzle\Plugins\GuzzleCache;
 use RestGalleries\Http\RequestAdapter;
 use RestGalleries\Interfaces\PhotoAdapter;
 
