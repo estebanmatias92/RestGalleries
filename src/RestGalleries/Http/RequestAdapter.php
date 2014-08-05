@@ -3,7 +3,8 @@
 use RestGalleries\Http\Plugins\RequestPluginAdapter;
 
 /**
- * Interface for Http queries. Provides HTTP verbs (GET, POST, PUT, DELETE), also cache y authentication.
+ * Interface to normalize Http clients.
+ * Support plugins and several Http methods.
  */
 interface RequestAdapter
 {
@@ -13,6 +14,5 @@ interface RequestAdapter
     public function setBody($body);
     public function setHeaders(array $headers);
     public function setQuery(array $query);
-
 
 }
