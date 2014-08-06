@@ -2,33 +2,44 @@
 
 use RestGalleries\Http\Plugins\RequestPluginAdapter;
 
+/**
+ * Normalizes the cache plugin of the Http client, receives input data to configure the plugin, and adds several by default.
+ */
 abstract class Cache implements RequestPluginAdapter
 {
     /**
-     * [$system description]
+     * Stores the cache system name.
      *
      * @var string
      */
     protected $system;
 
     /**
-     * [$path description]
+     * Stores the cache path as an array.
      *
      * @var array
      */
     protected $path;
 
+    /**
+     * Initializes processing of plugin data.
+     *
+     * @param  string $system
+     * @param  array  $path
+     * @return void
+     */
     public function __construct($system = 'file', array $path = array())
     {
         $this->processPluginData($system, $path);
     }
 
     /**
-     * [processPluginData description]
+     * Receives data to configure the plugin, then verifies and separates them into variables.
      *
-     * @param  [type] $system
-     * @param  [type] $path
-     * @return [type]
+     * @param  string $system
+     * @param  array  $path
+     * @throws \InvalidArgumentException
+     * @return void
      */
     protected function processPluginData($system, $path)
     {
@@ -48,17 +59,11 @@ abstract class Cache implements RequestPluginAdapter
     }
 
     /**
-     * Takes a cache system name, selects it and stores it.
+     * Verifies if an string match some cache system.
      *
      * @param  string $system
-     * @param  array  $path
-     * @throws InvalidArgumentException
+     * @return boolean
      */
-    public function add()
-    {
-        return $this->getCacheExtension();
-    }
-
     protected function isValidCacheSystem($system)
     {
         $systems = ['array', 'file'];
@@ -71,6 +76,21 @@ abstract class Cache implements RequestPluginAdapter
 
     }
 
+    /**
+     * Calls another method that determine which plugin will be returned and return it.
+     *
+     * @return object
+     */
+    public function add()
+    {
+        return $this->getCacheExtension();
+    }
+
+    /**
+     * Calls method that will return the cache system that specified in the property $system.
+     *
+     * @return object
+     */
     protected function getCacheExtension()
     {
         $method = 'get';

@@ -3,32 +3,42 @@
 use RestGalleries\Auth\OhmyAuth\OhmyAuth;
 use RestGalleries\Http\Plugins\RequestPluginAdapter;
 
+/**
+ * Normalizes the auth plugin of the Http client, receives input data to configure the plugin.
+ */
 abstract class Auth implements RequestPluginAdapter
 {
     /**
-     * [$credentials description]
+     * Stores the authentication credentials as an array.
      *
      * @var array
      */
     protected $credentials;
 
     /**
-     * [$protocol description]
+     * Stores the auth protocol name.
      *
      * @var string
      */
     protected $protocol;
 
+    /**
+     * Initializes processing of plugin data.
+     *
+     * @param  array $credentials
+     * @return void
+     */
     public function __construct(array $credentials)
     {
         $this->processPluginData($credentials);
     }
 
     /**
-     * [processPluginData description]
+     * Receives data to configure the plugin, then verifies and separates them into variables.
      *
-     * @param  [type] $credentials
-     * @return [type]
+     * @param  array $credentials
+     * @throws \InvalidArgumentException
+     * @return void
      */
     protected function processPluginData($credentials)
     {
@@ -38,19 +48,24 @@ abstract class Auth implements RequestPluginAdapter
 
         $this->credentials = $credentials;
         $this->protocol    = $protocol;
+
     }
 
     /**
-     * Takes the credentials and selects what protocol should it use for the auth, and stores it (obviously).
+     * Calls another method that determine which plugin will be returned and return it.
      *
-     * @param  array $credentials
-     * @throws InvalidArgumentException
+     * @return object
      */
     public function add()
     {
         return $this->getAuthExtension();
     }
 
+    /**
+     * Calls method that will return the auth extension that specified in the property $protocol.
+     *
+     * @return object
+     */
     protected function getAuthExtension()
     {
         $method = 'get';

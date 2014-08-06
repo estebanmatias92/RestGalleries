@@ -29,7 +29,7 @@ abstract class Response implements ResponseAdapter
     protected $statusCode;
 
     /**
-     * Initializes the response data process.
+     * Initializes processing of response.
      *
      * @param  object $data
      * @return void

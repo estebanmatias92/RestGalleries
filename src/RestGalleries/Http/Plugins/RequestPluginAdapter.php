@@ -1,7 +1,9 @@
 <?php namespace RestGalleries\Http\Plugins;
 
+
+
 /**
- * InterfaceName description.
+ * Allows normalize plugins from Http client to then be used, in a homogeneous way by request adapter.
  */
 interface RequestPluginAdapter
 {
