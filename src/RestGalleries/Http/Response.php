@@ -3,40 +3,52 @@
 use RestGalleries\Http\ResponseAdapter;
 
 /**
- * Simple class, sets body, headres and status code from outside, and late returns them.
+ * This class receives the http response from the http client, processes it and returns the data in an orderly manner..
  */
 abstract class Response implements ResponseAdapter
 {
     /**
-     * [$body description]
+     * Stores the body of the Http response.
      *
      * @var string
      */
     protected $body;
 
     /**
-     * [$headers description]
+     * Here will be stored the Http response headers array.
      *
      * @var array
      */
     protected $headers = [];
 
     /**
-     * [$statusCode description]
+     * Stores status code as integer of the Http response.
      *
      * @var integer
      */
     protected $statusCode;
 
+    /**
+     * Initializes the response data process.
+     *
+     * @param  object $data
+     * @return void
+     */
     public function __construct($data)
     {
         $this->processResponseData($data);
     }
 
+    /**
+     * Process the http client response and separates it into variables.
+     *
+     * @param  object $raw
+     * @return void
+     */
     abstract protected function processResponseData($raw);
 
     /**
-     * It returns the xml|json string in any of these formats.
+     * Returns the xml|json as string, array or object.
      *
      * @return string|array|object
      */
@@ -53,9 +65,9 @@ abstract class Response implements ResponseAdapter
     }
 
     /**
-     * Checks if a format are between valid formats.
+     * Checks if a string matches some type of specified variable.
      *
-     * @param  string  $format
+     * @param  string $format
      * @return boolean
      */
     protected function isValidBodyFormat($format)
@@ -71,7 +83,7 @@ abstract class Response implements ResponseAdapter
     }
 
     /**
-     * Returns body string without changes.
+     * Returns body string (xml or json) without changes.
      *
      * @return string
      */
@@ -87,14 +99,12 @@ abstract class Response implements ResponseAdapter
      */
     protected function bodyArray()
     {
-        $body = &$this->body;
-
-        if (is_xml($body = &$this->body)) {
-            return xml_decode($body, true);
+        if (is_xml($this->body)) {
+            return xml_decode($this->body, true);
         }
 
-        if (is_json($body)) {
-            return json_decode($body, true);
+        if (is_json($this->body)) {
+            return json_decode($this->body, true);
         }
 
     }
@@ -106,14 +116,12 @@ abstract class Response implements ResponseAdapter
      */
     protected function bodyObject()
     {
-        $body = &$this->body;
-
-        if (is_xml($body)) {
-            return xml_decode($body);
+        if (is_xml($this->body)) {
+            return xml_decode($this->body);
         }
 
-        if (is_json($body)) {
-            return json_decode($body);
+        if (is_json($this->body)) {
+            return json_decode($this->body);
         }
 
     }
