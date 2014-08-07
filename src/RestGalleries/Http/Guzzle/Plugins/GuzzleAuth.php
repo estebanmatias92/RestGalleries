@@ -4,13 +4,15 @@ use CommerceGuys\Guzzle\Plugin\Oauth2\Oauth2Plugin;
 use Guzzle\Plugin\Oauth\OauthPlugin;
 use RestGalleries\Http\Plugins\Auth;
 
+/**
+ * Adapter class for auth plugins from the Http client 'Guzzle'.
+ */
 class GuzzleAuth extends Auth
 {
     /**
-     * Returns OAuth 1.0a protocol.
+     * Returns authentication plugin for the protocol 'oauth1'.
      *
-     * @param  array       $credentials
-     * @return OauthPlugin
+     * @return \Guzzle\Plugin\Oauth\OauthPlugin
      */
     protected function getOauth1Extension()
     {
@@ -18,10 +20,9 @@ class GuzzleAuth extends Auth
     }
 
     /**
-     * Retuns OAuth 2.0 protocol.
+     * Returns authentication plugin for the protocol 'oauth2'.
      *
-     * @param  array        $credentials
-     * @return Oauth2Plugin
+     * @return \CommerceGuys\Guzzle\Plugin\Oauth2\Oauth2Plugin
      */
     protected function getOauth2Extension()
     {
@@ -31,4 +32,5 @@ class GuzzleAuth extends Auth
         return $oauth2;
 
     }
+
 }

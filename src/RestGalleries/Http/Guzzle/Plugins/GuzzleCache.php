@@ -7,12 +7,15 @@ use Guzzle\Plugin\Cache\CachePlugin;
 use Guzzle\Plugin\Cache\DefaultCacheStorage;
 use RestGalleries\Http\Plugins\Cache;
 
+/**
+ * Adapter class for cache plugins from the Http client 'Guzzle'.
+ */
 class GuzzleCache extends Cache
 {
     /**
-     * Returns the Array cache system.
+     * Returns cache plugin for the cache system 'array'.
      *
-     * @return ArrayCache
+     * @return \Doctrine\Common\Cache\ArrayCache
      */
     protected function getArraySystem()
     {
@@ -23,10 +26,9 @@ class GuzzleCache extends Cache
     }
 
     /**
-     * Returns the file cache system.
+     * Returns cache plugin for the cache system 'file'.
      *
-     * @param  array           $path
-     * @return FilesystemCache
+     * @return \Doctrine\Common\Cache\FilesystemCache
      */
     protected function getFileSystem()
     {
@@ -39,4 +41,5 @@ class GuzzleCache extends Cache
         ]);
 
     }
+
 }
