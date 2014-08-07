@@ -148,14 +148,4 @@ abstract class Request implements RequestAdapter
 
     }
 
-    /**
-     * Works to send the Http request to the address specified by the Http method established.
-     * Returns a 'Response' as result of that Http transaction.
-     *
-     * @param  string $method
-     * @param  string $endPoint
-     * @return \RestGalleries\Http\ResponseAdapter
-     */
-    abstract public function sendRequest($method = 'GET', $endPoint = '');
-
 }

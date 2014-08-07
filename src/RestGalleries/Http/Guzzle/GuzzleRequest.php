@@ -9,27 +9,38 @@ use RestGalleries\Http\Plugins\RequestPluginAdapter;
  */
 class GuzzleRequest extends Request
 {
-     /**
-     * [$request description]
+    /**
+     * Instance var for the Http client.
      *
      * @var \Guzzle\Http\Client
      */
     protected $request;
 
+    /**
+     * Initializes the Http client in an instance var.
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->request = new Client;
     }
 
+    /**
+     * Receives Http client response object with the response data and creates an ResponseAdapter object.
+     *
+     * @param  \Guzzle\Http\Client $data
+     * @return \RestGalleries\Http\Guzzle\GuzzleResponse
+     */
     protected function newResponse($data)
     {
         return new GuzzleResponse($data);
     }
 
     /**
-     * [addPlugins description]
+     * Adds normalized plugins to the Http client.
      *
-     * @param array $plugins
+     * @param \RestGalleries\Http\Plugins\RequestPluginAdapter $plugin
      */
     public function addPlugin(RequestPluginAdapter $plugin)
     {
@@ -40,8 +51,7 @@ class GuzzleRequest extends Request
     }
 
     /**
-     * Takes the http verb and endpoint (or uri/url) for the request and makes it.
-     * Returns a raw response.
+     * Gets the request options, creates the request, sends it and returns new response object.
      *
      * @param  string $method
      * @param  string $endPoint
