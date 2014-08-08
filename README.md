@@ -18,7 +18,7 @@ The installation is done via composer, so it is necessary to have it installed. 
 
 
     "require": {
-        "restgalleries/restgalleries": "0.5.0"
+        "restgalleries/restgalleries": "0.5.*"
     }
 
 
