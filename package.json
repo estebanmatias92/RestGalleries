@@ -1,7 +1,7 @@
 {
   "name": "restgalleries",
-  "version": "0.4.0",
-  "description": "Is an API Client interface for interact with restful services like Flickr between others image web services.",
+  "version": "0.5.1",
+  "description": "Is an API Client interface for interact with restful image services like Flickr through CRUD methods.",
   "main": "index.js",
   "directories": {
     "test": "tests"
