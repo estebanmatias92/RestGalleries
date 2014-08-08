@@ -1,6 +1,5 @@
 <?php namespace RestGalleries\Tests;
 
-use Faker;
 use Hamcrest;
 use Mockery;
 
@@ -25,14 +24,6 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         if (isset($exception)) {
             throw $exception;
         }
-
-    }
-
-    public function setUp()
-    {
-        $this->faker = Faker\Factory::create();
-        $this->faker->addProvider(new Faker\Provider\Miscellaneous($this->faker));
-        $this->faker->addProvider(new Faker\Provider\Internet($this->faker));
 
     }
 
