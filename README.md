@@ -205,13 +205,25 @@ $galleries = $model->all();
 $galleries[0]->id;
 $galleries[0]->title;
 $galleries[0]->description;
-$galleries[0]->photos;
+$galleries[0]->photos; // An array (Collection) of photo object
 $galleries[0]->created;
 $galleries[0]->url;
 $galleries[0]->size;
 $galleries[0]->user_id;
 $galleries[0]->thumbnail;
 $galleries[0]->views;
+
+$photo = $galleries[0]->photos[0];
+
+// Each photo object (Fluent class) contains this properties.
+$photo->id;
+$photo->title;
+$photo->description;
+$photo->url;
+$photo->created;
+$photo->views;
+$photo->source;
+$photo->source_thumbnail;
 
 ?>
 ```
@@ -229,7 +241,7 @@ $gallery = $model->find('any-service-gallery-id');
 $gallery->id;
 $gallery->title;
 $gallery->description;
-$gallery->photos;
+$gallery->photos; // An array (Collection) of photo object
 $gallery->created;
 $gallery->url;
 $gallery->size;
