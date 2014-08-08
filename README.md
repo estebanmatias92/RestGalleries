@@ -146,7 +146,7 @@ Returns the model instance to make a fluent interface.
 
 $tokenCredentials = [
     'access_token' => 'any-service-access-token',
-    'expires'      >= 'any-service-expire-date'
+    'expires'      => 'any-service-expire-date'
 ];
 
 $model = new Api;
