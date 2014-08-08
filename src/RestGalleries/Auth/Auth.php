@@ -300,7 +300,7 @@ abstract class Auth implements AuthAdapter
     public static function getOauth2Keys()
     {
         return [
-            'client_credentials' => ['client_id', 'client_secret', 'redirect'],
+            'client_credentials' => ['client_id', 'client_secret', 'callback'],
             'token_credentials' => ['access_token', 'expires']
         ];
     }

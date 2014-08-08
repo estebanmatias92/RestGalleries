@@ -145,12 +145,17 @@ abstract class RestGallery
     /**
      * Takes account credentials and calls the user object to make the requests to get the api authorization.
      *
+     * @param  string $callback
      * @return \Illuminate\Support\Fluent
      */
-    public static function connect()
+    public static function connect($callback = '')
     {
         $instance = new static;
         $user     = $instance->newUser();
+
+        if (! empty($callback)) {
+            $instance->clientCredentials['callback'] = $callback;
+        }
 
         return $user->connect($instance->clientCredentials);
 

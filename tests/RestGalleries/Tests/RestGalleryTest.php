@@ -132,6 +132,14 @@ class RestGalleryTest extends \RestGalleries\Tests\TestCase
 
     }
 
+    public function testConnectWithCallback()
+    {
+        $user = RestGalleryConnectCallbackStub::connect('http://www.myapp.com/dummy-url');
+
+        assertThat($user, is(equalTo('foo')));
+
+    }
+
     public function testVerifyCredentials()
     {
         $user = RestGalleryVerifyCredentialsStub::verifyCredentials(['valid-token-credentials']);
@@ -245,6 +253,27 @@ class RestGalleryConnectStub extends RestGalleryStub
         $mock = Mockery::mock('RestGalleries\\Tests\\APIs\\StubService\\User');
         $mock->shouldReceive('connect')
             ->with(['valid-client-credentials'])
+            ->once()
+            ->andReturn('foo');
+
+        return $mock;
+
+    }
+
+}
+
+class RestGalleryConnectCallbackStub extends RestGalleryStub
+{
+    public function newUser()
+    {
+        $credentials = [
+            'valid-client-credentials',
+            'callback' => 'http://www.myapp.com/dummy-url'
+        ];
+
+        $mock = Mockery::mock('RestGalleries\\Tests\\APIs\\StubService\\User');
+        $mock->shouldReceive('connect')
+            ->with($credentials)
             ->once()
             ->andReturn('foo');
 

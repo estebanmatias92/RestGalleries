@@ -39,7 +39,7 @@ class AuthTest extends \RestGalleries\Tests\TestCase
     public function testGetOauth2KeysReturnsCorrectKeys()
     {
         $credentialKeys = [
-            'client_credentials' => ['client_id', 'client_secret', 'redirect'],
+            'client_credentials' => ['client_id', 'client_secret', 'callback'],
             'token_credentials' => ['access_token', 'expires']
         ];
 
@@ -96,13 +96,13 @@ class AuthTest extends \RestGalleries\Tests\TestCase
         $clientCredentials = [
             'client_id'     => 'dummy-client-id',
             'client_secret' => 'dummy-client-secret',
-            'redirect'      => 'http://www.mywebapp.com/galleries'
+            'callback'      => 'http://www.mywebapp.com/galleries'
         ];
 
         $clientExtraCredentials = [
             'client_id'      => 'dummy-client-id',
             'client_secret'  => 'dummy-client-secret',
-            'redirect'       => 'http://www.mywebapp.com/galleries',
+            'callback'       => 'http://www.mywebapp.com/galleries',
             'extra_api_data' => 'I don\'t know.'
         ];
 
@@ -145,7 +145,7 @@ class AuthTest extends \RestGalleries\Tests\TestCase
         $mixedProtocolCredentials = [
             'consumer_key'  => 'dummy-consumer-key',
             'client_secret' => 'dummy-client-secret',
-            'redirect'      => 'http://www.mywebapp.com/galleries'
+            'callback'      => 'http://www.mywebapp.com/galleries'
         ];
 
         $protocol  = AuthStub::getAuthProtocol($prefixedCredentials);

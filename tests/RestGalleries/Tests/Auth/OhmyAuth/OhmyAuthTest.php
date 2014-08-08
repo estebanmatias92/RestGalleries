@@ -10,7 +10,7 @@ class OhmyAuthTest extends \RestGalleries\Tests\TestCase
         $clientCredentials = [
             'client_id'     => 'dummy-client-id',
             'client_secret' => 'dummy-client-secret',
-            'redirect'      => 'http://www.mywebapp.com/galleries'
+            'callback'      => 'http://www.mywebapp.com/galleries'
         ];
 
         $endPoints = [
@@ -74,7 +74,7 @@ class OhmyAuthConnectStub extends OhmyAuthStub
         $clientCredentials = [
             'client_id'     => 'dummy-client-id',
             'client_secret' => 'dummy-client-secret',
-            'redirect'      => 'http://www.mywebapp.com/galleries'
+            'callback'      => 'http://www.mywebapp.com/galleries'
         ];
 
         $this->auth
@@ -100,7 +100,7 @@ class OhmyAuthConnectStub extends OhmyAuthStub
         return [
             'client_id'     => 'dummy-client-id',
             'client_secret' => 'dummy-client-secret',
-            'redirect'      => 'http://www.mywebapp.com/galleries',
+            'callback'      => 'http://www.mywebapp.com/galleries',
             'access_token'  => 'dummy-access-token',
             'expires'       => 'dummy-expires-date'
 
