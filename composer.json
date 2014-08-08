@@ -12,7 +12,7 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=5.4.0",
-        "guzzle/guzzle": "3.8.*",
+        "guzzle/guzzle": "3.8.0",
         "commerceguys/guzzle-oauth2-plugin": "dev-master",
         "doctrine/cache": "1.4.*",
         "illuminate/support": "4.1.*",
