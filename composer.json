@@ -1,6 +1,7 @@
 {
     "name": "restgalleries/restgalleries",
-    "description": "Is an API Client interface for interact with restful services like Flickr between others image web services.",
+    "type": "library",
+    "description": "Is an API Client interface for interact with restful image services like Flickr through CRUD methods.",
     "license": "MIT",
     "authors": [
         {
@@ -37,7 +38,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.4-dev"
+            "dev-master": "0.5-dev"
         }
     }
 }
