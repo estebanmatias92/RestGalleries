@@ -3,7 +3,7 @@ RestGalleries
 
 [![Latest Stable Version](https://poser.pugx.org/restgalleries/restgalleries/v/stable.png)](https://packagist.org/packages/restgalleries/restgalleries) [![Total Downloads](https://poser.pugx.org/restgalleries/restgalleries/downloads.png)](https://packagist.org/packages/restgalleries/restgalleries) [![Build Status](https://travis-ci.org/estebanmatias92/RestGalleries.png?branch=master)](https://travis-ci.org/estebanmatias92/RestGalleries) [![License](https://poser.pugx.org/restgalleries/restgalleries/license.png)](https://packagist.org/packages/restgalleries/restgalleries)
 
-Is an API Client interface for interact with restful services like Flickr between others image web services.
+Is an API Client interface for interact with restful image services like Flickr through CRUD methods.
 
 Requirements
 ------------
@@ -18,7 +18,7 @@ The installation is done via composer, so it is necessary to have it installed. 
 
 
     "require": {
-        "restgalleries/restgalleries": "dev-master"
+        "restgalleries/restgalleries": "0.5.0"
     }
 
 
@@ -27,26 +27,30 @@ Docomentation
 
 ###How to use
 
-To use this library, you can create a model of the application, with the name of the API to be used and which extends to the "rest-orm" this way:
+To use this library, you can create a model of the application, with the name of the API to be used:
 
 ```php
 <?php
 
 // Fist call the file via namespaces
-use RestGalleries\RestGalleries;
+use RestGalleries\RestGallery;
 
 // Create the model to interact with flickr, and extend it
-class Flickr extends RestGalleries
+class Flickr extends RestGallery
 {
     // These data are necessary to access and interact with the API
-    protected static $apiKey = 'your-flickr-api-key';
-    protected static $secretKey = 'your-flickr-secret-key';
+    protected $clientCredentials = [
+        'consumer_key'    => 'your-flickr-api-key',
+        'consumer_secret' => 'your-flickr-secret-key'
+        'callback'        => 'http://www.myapp.com/...' // Its optional, you can put it as parameter for 'connect' method
+    ];
+
 }
 
 ?>
 ```
 
-That's it! Now you can use this model in any controller:
+That's all! Now you can use this model anywhere:
 
 ```php
 <?php
@@ -54,150 +58,184 @@ That's it! Now you can use this model in any controller:
 // Example namespace
 use Model\Flickr;
 
-class GalleryController
-{
-    // Dummy function to get all galleries from flickr
-    public function index()
-    {
-        $args = [
-            'user_id' => 'user-id',
-        ];
+// If you don't have the user/account tokens, you should connect the model to authenticate and receive the tokens to use them.
+$user = Flickr::connect();
 
-        $galleries = Flickr::all($args);
+$tokenCredentials = [
+    'consumer_key'    => $user->consumer_key,
+    'consumer_secret' => $user->consumer_secret,
+    'token'           => $user->token,
+    'token_secret'    => $user->token_secret
+];
 
-        return $galleries;
-    }
-}
+$model = new Flickr;
+
+// Always needs authentication to start to interact with the api through CRUD methods
+$model->setAuth($tokenCredentials)
+
+// And now, you have all galleries from your Flickr account into an array!
+$galleries = $model->all();
 
 ?>
 ```
 
 ###Functions
 
-##### API::findUser($username)
+##### API::connect($callback)
 
-Parameters:
-This function receives as parameter a string with the username of an account.
-
-Return:
-If it finds the user returns an object with your account data. But returns false.
+Receives the url callback for authentication and returns a Fluent object with user account properties and tokens (tokens from protocol oauth1 or oauth2).
 
 ```php
 <?php
 
-$user = API::findUser('johndoe84');
+$callback = 'http://www.myapp.com/url_to_return_after_authentication';
+$user     = API::connect($callback);
 
-echo $user->id;
-echo $user->url;
-echo $user->realname;
-
-// Out
-// 548321895
-// www.webservice.com/johndoe84
-// John Doe
+// Account data
+$user->id;
+$user->realname;
+$user->username;
+$user->url;
+// Account tokens for oauth1
+$user->consumer_key;
+$user->consumer_secret;
+$user->token;
+$user->token_secret;
+// Account tokens for oauth2
+$user->access_token;
+$user->expires;
 
 ?>
 ```
 
-##### API::all($args)
+##### API::verifyCredentials($tokenCredentials)
 
-With this, we can bring all the galleries of a given user service.
-
-Parameters:
-This function receives as parameter an array with a key 'user-id' with a given user ID as the value.
-
-Return:
-Returns an array of objects where each object is a gallery. If the gallery is not found returning an empty array.
+Receives an array with the tokens credentials (for protocol oauth1 or oauth2) a Fluent object with the above properties or false in error case.
 
 ```php
 <?php
 
-$args = [
-    'user_id' => 548321895; // Or as string "548321895"
+$tokenCredentials = [
+    'consumer_key'    => 'your-service-api-key',
+    'consumer_secret' => 'your-service-api-secret',
+    'token'           => 'any-service-account-token',
+    'token_secret'    => 'any-service-account-token-secret'
 ];
 
-$galleries = API::all($args);
+$user = API::verifyCredentials($tokenCredentials);
 
-foreach ($galleries as $gallery) {
-    echo $gallery->id;
-    echo $gallery->title;
-    echo $gallery->description;
-    echo $gallery->url;
-    echo $gallery->published;
-    $gallery->photos; // It is an array of objects, each object contains a picture data.
-    echo $gallery->category;
-    echo $gallery->keywords;
-    echo $gallery->thumbnail;
-    echo $gallery->size; // Gallery count of photos
-}
-
-// [0]
-//
-// 655548798654898
-// My photos
-// My vacation photos! :)
-// www.webservice.com/johndoe84/gallery/655548798654898
-// 02/02/2012 18:57:03
-// null
-// null
-// www.webservice.com/johndoe84/photos/vacation-thumbnail-655548798654898.jpg
-// 120
-
-// [1]
-//
-// 998584664758855
-// Another album
-// More photos!
-// www.webservice.com/johndoe84/gallery/998584664758855
-// 03/05/2012 02:15:47
-// null
-// null
-// www.webservice.com/johndoe84/photos/vacation-thumbnail-998584664758855.jpg
-// 16
+$user->id;
+$user->realname;
+$user->username;
+$user->url;
+$user->consumer_key;
+$user->consumer_secret;
+$user->token;
+$user->token_secret;
 
 ?>
 ```
 
-##### API::find($args, $id)
+##### API::setAuth($tokenCredentials)
 
-Parameters:
-This function receives as parameter an array with a key 'user-id' with a given user ID as a value, and a string or integer with the ID of the gallery to find.
-
-Return:
-Returns a data object with the gallery if found. But returns false.
+Receives the token credentials (for protocol oauth1 or oauth2) and creates plugin to then make the authentication.
+Returns the model instance to make a fluent interface.
 
 ```php
 <?php
 
-$args = [
-    'user_id' => 548321895; // Or as string "548321895"
+$tokenCredentials = [
+    'access_token' => 'any-service-access-token',
+    'expires'      >= 'any-service-expire-date'
 ];
 
-$id = 6487;
+$model = new Api;
+$model->setAuth($tokenCredentials);
 
-$gallery = API::find($args, $id);
+?>
+```
 
-echo $gallery->id;
-echo $gallery->title;
-echo $gallery->description;
-echo $gallery->url;
-echo $gallery->published;
-$gallery->photos; // It is an array of objects, each object contains a picture data.
-echo $gallery->category;
-echo $gallery->keywords;
-echo $gallery->thumbnail;
-echo $gallery->size; // Gallery count of photos
+##### API::setCache($system, $path)
 
-// Out
-// 655548798654898
-// My photos
-// My vacation photos! :)
-// www.webservice.com/johndoe84/gallery/655548798654898
-// 02/02/2012 18:57:03
-// null
-// null
-// www.webservice.com/johndoe84/photos/vacation-thumbnail.jpg
-// 5
+Receives as string the cache system to use (file or array for now), and as array the path to store the cache files (folder for now).
+Returns the model instance to make a fluent interface.
+
+```php
+<?php
+
+$system = 'file';
+$path   = [
+    'forder' => 'C:\Root\...'
+];
+
+$model = new Api;
+$model->setCache($system, $path);
+
+?>
+```
+
+##### API::getPlugins()
+
+Returns an array with the established plugins, every keys has the plugin name, and has the plugin adapter object as value.
+
+```php
+<?php
+
+$model   = new Api;
+$plugins = $model->setCache($system, $path)
+    ->setAuth($tokenCredentials)
+    ->getPlugins();
+
+$plugins['cache'];
+$plugins['auth'];
+
+?>
+```
+
+##### API::all()
+
+Returns a Collection with all the object galleries found.
+
+```php
+<?php
+
+$model     = new Api;
+$galleries = $model->all();
+
+$galleries[0]->id;
+$galleries[0]->title;
+$galleries[0]->description;
+$galleries[0]->photos;
+$galleries[0]->created;
+$galleries[0]->url;
+$galleries[0]->size;
+$galleries[0]->user_id;
+$galleries[0]->thumbnail;
+$galleries[0]->views;
+
+?>
+```
+
+##### API::find($id)
+
+Receives the gallery id and returns a Fluent object with the gallery data.
+
+```php
+<?php
+
+$model   = new Api;
+$gallery = $model->find('any-service-gallery-id');
+
+$gallery->id;
+$gallery->title;
+$gallery->description;
+$gallery->photos;
+$gallery->created;
+$gallery->url;
+$gallery->size;
+$gallery->user_id;
+$gallery->thumbnail;
+$gallery->views;
 
 ?>
 ```
@@ -205,7 +243,7 @@ echo $gallery->size; // Gallery count of photos
 Contributing
 ------------
 
-Of course you can enhance this library by pull request, marking errors, perhaps adding support for other APIs :B, or whatever you see that this needs for improve. Todo contribution will be welcome.
+Of course you can enhance this library through pull request, marking errors, perhaps adding support for other APIs :B, or whatever you see that this needs for improve. Todo contribution will be welcome.
 
 
 License

@@ -1,6 +1,5 @@
 <?php namespace RestGalleries;
 
-use RestGalleries\Factory;
 use RestGalleries\Http\Guzzle\Plugins\GuzzleAuth;
 use RestGalleries\Http\Guzzle\Plugins\GuzzleCache;
 use RestGalleries\Interfaces\GalleryAdapter;
@@ -60,8 +59,7 @@ abstract class RestGallery
     public function newGallery(GalleryAdapter $gallery = null)
     {
         if (empty($gallery)) {
-            $class = $this->getNamespaceService() . 'Gallery';
-            //$gallery = Factory::make($class);
+            $class   = $this->getNamespaceService() . 'Gallery';
             $gallery = new $class;
         }
 
