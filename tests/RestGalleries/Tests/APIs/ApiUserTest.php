@@ -32,10 +32,11 @@ class ApiUserTest extends \RestGalleries\Tests\TestCase
         assertThat($userData, set('realname'));
         assertThat($userData, set('username'));
         assertThat($userData, set('url'));
-        assertThat($userData, set('consumer_key'));
-        assertThat($userData, set('consumer_secret'));
-        assertThat($userData, set('token'));
-        assertThat($userData, set('token_secret'));
+        assertThat($userData, set('credentials'));
+        assertThat($userData->credentials, hasKey('consumer_key'));
+        assertThat($userData->credentials, hasKey('consumer_secret'));
+        assertThat($userData->credentials, hasKey('token'));
+        assertThat($userData->credentials, hasKey('token_secret'));
 
     }
 
@@ -66,10 +67,11 @@ class ApiUserTest extends \RestGalleries\Tests\TestCase
         assertThat($userData, set('realname'));
         assertThat($userData, set('username'));
         assertThat($userData, set('url'));
-        assertThat($userData, set('consumer_key'));
-        assertThat($userData, set('consumer_secret'));
-        assertThat($userData, set('token'));
-        assertThat($userData, set('token_secret'));
+        assertThat($userData, set('credentials'));
+        assertThat($userData->credentials, hasKey('consumer_key'));
+        assertThat($userData->credentials, hasKey('consumer_secret'));
+        assertThat($userData->credentials, hasKey('token'));
+        assertThat($userData->credentials, hasKey('token_secret'));
 
     }
 

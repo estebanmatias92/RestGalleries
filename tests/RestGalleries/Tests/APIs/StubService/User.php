@@ -16,15 +16,19 @@ class User extends \RestGalleries\APIs\ApiUser
         $dataUser   = $source->user;
         $dataTokens = $source->tokens;
 
-        $user                    = [];
-        $user['id']              = $dataUser->id;
-        $user['realname']        = $dataUser->name .$dataUser->last_name;
-        $user['username']        = $dataUser->username;
-        $user['url']             = $dataUser->profile_url;
-        $user['consumer_key']    = $dataTokens->consumer_key;
-        $user['consumer_secret'] = $dataTokens->consumer_secret;
-        $user['token']           = $dataTokens->token;
-        $user['token_secret']    = $dataTokens->token_secret;
+        $user                           = [];
+        $user['id']                     = $dataUser->id;
+        $user['realname']               = $dataUser->name .$dataUser->last_name;
+        $user['username']               = $dataUser->username;
+        $user['url']                    = $dataUser->profile_url;
+
+        $credentials                    = [];
+        $credentials['consumer_key']    = $dataTokens->consumer_key;
+        $credentials['consumer_secret'] = $dataTokens->consumer_secret;
+        $credentials['token']           = $dataTokens->token;
+        $credentials['token_secret']    = $dataTokens->token_secret;
+
+        $user['credentials']            = $credentials;
 
         return $user;
 
