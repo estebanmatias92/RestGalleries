@@ -61,17 +61,9 @@ use Model\Flickr;
 // If you don't have the user/account tokens, you should connect the model to authenticate and receive the tokens to use them.
 $user = Flickr::connect();
 
-$tokenCredentials = [
-    'consumer_key'    => $user->consumer_key,
-    'consumer_secret' => $user->consumer_secret,
-    'token'           => $user->token,
-    'token_secret'    => $user->token_secret
-];
-
-$model = new Flickr;
-
 // Always needs authentication to start to interact with the api through CRUD methods
-$model->setAuth($tokenCredentials)
+$model = new Flickr;
+$model->setAuth($user->credentials)
 
 // And now, you have all galleries from your Flickr account into an array!
 $galleries = $model->all();
@@ -97,13 +89,13 @@ $user->realname;
 $user->username;
 $user->url;
 // Account tokens for oauth1
-$user->consumer_key;
-$user->consumer_secret;
-$user->token;
-$user->token_secret;
+$user->credentials['consumer_key'];
+$user->credentials['consumer_secret'];
+$user->credentials['token'];
+$user->credentials['token_secret'];
 // Account tokens for oauth2
-$user->access_token;
-$user->expires;
+$user->credentials['access_token'];
+$user->credentials['expires'];
 
 ?>
 ```

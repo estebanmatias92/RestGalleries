@@ -18,23 +18,15 @@ class User extends ApiUser
             return false;
         }
 
-        $dataUser   = $source->oauth->user;
-        $dataTokens = $source->tokens;
+        $dataUser = $source->oauth->user;
 
-        $user                           = [];
-        $user['id']                     = $dataUser->nsid;
-        $user['realname']               = $dataUser->fullname;
-        $user['username']               = $dataUser->username;
-        $user['url']                    = 'https://secure.flickr.com/people/';
-        $user['url']                    .= $user['username'];
-
-        $credentials                    = [];
-        $credentials['consumer_key']    = $dataTokens->consumer_key;
-        $credentials['consumer_secret'] = $dataTokens->consumer_secret;
-        $credentials['token']           = $dataTokens->token;
-        $credentials['token_secret']    = $dataTokens->token_secret;
-
-        $user['credentials']            = $credentials;
+        $user                = [];
+        $user['id']          = $dataUser->nsid;
+        $user['realname']    = $dataUser->fullname;
+        $user['username']    = $dataUser->username;
+        $user['url']         = 'https://secure.flickr.com/people/';
+        $user['url']         .= $user['username'];
+        $user['credentials'] = (array) $source->tokens;
 
         return $user;
 
