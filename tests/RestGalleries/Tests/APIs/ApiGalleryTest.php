@@ -40,7 +40,7 @@ class ApiGalleryTest extends \RestGalleries\Tests\TestCase
         $model     = new GalleryAllStub;
         $galleries = $model->all();
 
-        assertThat($galleries, is(anInstanceOf('Illuminate\Support\Collection')));
+        assertThat($galleries, is(arrayValue()));
 
     }
 

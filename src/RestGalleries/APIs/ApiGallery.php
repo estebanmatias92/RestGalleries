@@ -1,6 +1,5 @@
 <?php namespace RestGalleries\APIs;
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
 use RestGalleries\Http\RequestAdapter;
 use RestGalleries\Http\Guzzle\GuzzleRequest;
@@ -29,7 +28,7 @@ abstract class ApiGallery implements GalleryAdapter
     /**
      * Returns all galleries currently available on the photos service.
      *
-     * @return \Illuminate\Support\Collection|null
+     * @return array|null
      */
     public function all()
     {
@@ -40,15 +39,13 @@ abstract class ApiGallery implements GalleryAdapter
      * Fetch gallery ids, and iterate them to get every gallery from its id.
      * Returns an ArrayObject-type with all new galleries obtained,
      *
-     * @return \Illuminate\Support\Collection|null
+     * @return array|null
      */
     protected function getGalleries()
     {
         if (! is_null($ids = $this->fetchIds())) {
-            $galleries = array_map([$this, 'getGallery'], $ids);
-            return new Collection($galleries);
+            return array_map([$this, 'getGallery'], $ids);
         }
-
     }
 
     /**

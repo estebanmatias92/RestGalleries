@@ -9,7 +9,7 @@ class GalleryTest extends \RestGalleries\Tests\TestCase
         $model     = new FlickrGalleryAllStub;
         $galleries = $model->all();
 
-        assertThat($galleries, is(anInstanceOf('Illuminate\Support\Collection')));
+        assertThat($galleries, is(arrayValue()));
 
     }
 

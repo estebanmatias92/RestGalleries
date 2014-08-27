@@ -30,7 +30,7 @@ class ApiPhotoTest extends \RestGalleries\Tests\TestCase
         $model  = new PhotoAllStub;
         $photos = $model->all('some-fake-gallery-id');
 
-        assertThat($photos, is(anInstanceOf('Illuminate\Support\Collection')));
+        assertThat($photos, is(arrayValue()));
 
     }
 

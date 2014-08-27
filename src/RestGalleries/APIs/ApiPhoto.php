@@ -1,6 +1,5 @@
 <?php namespace RestGalleries\APIs;
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Fluent;
 use RestGalleries\Http\Guzzle\GuzzleRequest;
 use RestGalleries\Http\RequestAdapter;
@@ -26,10 +25,10 @@ abstract class ApiPhoto implements PhotoAdapter
     protected $plugins = [];
 
     /**
-     * Gets IDs of photos, seeks and gets the photo and makes a Collection for send it back.
+     * Gets IDs of photos, seeks and gets the photo and makes an array to send it back.
      *
      * @param  string $galleryId
-     * @return \Illuminate\Support\Collection|null
+     * @return array|null
      */
     public function all($galleryId)
     {
@@ -39,16 +38,13 @@ abstract class ApiPhoto implements PhotoAdapter
     /**
      * Returns all photo currently available in a gallery.
      *
-     * @return \Illuminate\Support\Collection|null
+     * @return array|null
      */
     protected function getPhotos($galleryId)
     {
         if (! is_null($ids = $this->fetchIds($galleryId))) {
-            $photos = array_map([$this, 'getPhoto'], $ids);
-
-            return new Collection($photos);
+            return array_map([$this, 'getPhoto'], $ids);
         }
-
     }
 
     /**

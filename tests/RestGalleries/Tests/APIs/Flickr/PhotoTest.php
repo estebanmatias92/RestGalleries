@@ -9,7 +9,7 @@ class PhotoTest extends \RestGalleries\Tests\TestCase
         $model  = new FlickrPhotoAllStub;
         $photos = $model->all('72157633782247768');
 
-        assertThat($photos, is(anInstanceOf('Illuminate\Support\Collection')));
+        assertThat($photos, is(arrayValue()));
 
     }
 
