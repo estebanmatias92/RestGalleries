@@ -1,5 +1,6 @@
 <?php namespace RestGalleries;
 
+use Illuminate\Support\Collection;
 use RestGalleries\Http\Guzzle\Plugins\GuzzleAuth;
 use RestGalleries\Http\Guzzle\Plugins\GuzzleCache;
 use RestGalleries\Interfaces\GalleryAdapter;
@@ -24,7 +25,7 @@ abstract class RestGallery
     protected $clientCredentials = [];
 
     /**
-     * [$auth description]
+     * It will store the http plugins.
      *
      * @var array
      */
@@ -37,7 +38,23 @@ abstract class RestGallery
      */
     public function all()
     {
-        return $this->newGallery()->all();
+        $models = $this->newGallery()->all();
+
+        if (! empty($models)) {
+            return $this->newCollection($models);
+        }
+
+    }
+
+    /**
+     * Returns an ArrayObject type with the given models.
+     *
+     * @param  array $models
+     * @return \Illuminate\Support\Collection
+     */
+    public function newCollection(array $models =array())
+    {
+        return new Collection($models);
     }
 
     /**
@@ -121,9 +138,9 @@ abstract class RestGallery
     }
 
     /**
-     * [setCache description]
+     * Creates the cache plugin.
      *
-     * @param [type] $system
+     * @param string $system
      * @param array  $path
      */
     public function setCache($system, array $path = array())
@@ -133,9 +150,9 @@ abstract class RestGallery
     }
 
     /**
-     * [getCache description]
+     * Returns the plugin arrau that contains the Http plugins.
      *
-     * @return [type]
+     * @return array
      */
     public function getPlugins()
     {

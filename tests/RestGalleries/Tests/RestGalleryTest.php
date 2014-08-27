@@ -62,6 +62,30 @@ class RestGalleryTest extends \RestGalleries\Tests\TestCase
 
     }
 
+    public function testNewColelctionReturnsTypeCollection()
+    {
+        $model      = new RestGalleryStub;
+        $collection = $model->newCollection();
+
+        assertThat($collection, is(anInstanceOf('Illuminate\Support\Collection')));
+    }
+
+    public function testNewCollectionReturnsEmptyCollection()
+    {
+        $model      = new RestGalleryStub;
+        $collection = $model->newCollection();
+
+        assertThat($collection, is(emptyTraversable()));
+    }
+
+    public function testNewCollectionReturnFullCollection()
+    {
+        $model      = new RestGalleryStub;
+        $collection = $model->newCollection(['foo', 'bar']);
+
+        assertThat($collection, is(nonEmptyTraversable()));
+    }
+
     public function testNewGallery()
     {
         $model        = new RestGalleryStub;
@@ -93,8 +117,8 @@ class RestGalleryTest extends \RestGalleries\Tests\TestCase
         $model     = new RestGalleryAllStub;
         $galleries = $model->all();
 
-        assertThat($galleries, is(equalTo('foo')));
-
+        assertThat($galleries, is(anInstanceOf('Illuminate\Support\Collection')));
+        assertThat($galleries[0], is(equalTo('foo')));
     }
 
     public function testAllReturnsEmpty()
@@ -190,7 +214,7 @@ class RestGalleryAllStub extends RestGalleryStub
         $mock = Mockery::mock('RestGalleries\\Tests\\APIs\\StubService\\Gallery');
         $mock->shouldReceive('all')
             ->once()
-            ->andReturn('foo');
+            ->andReturn(['foo']);
 
         return parent::newGallery($mock);
 
